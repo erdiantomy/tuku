@@ -959,7 +959,7 @@ function AppCerita({ batchId }: { batchId: number | null }) {
   );
 }
 
-function ExpeditionMap({ cities }: { cities: City[] }) {
+function ExpeditionMap({ cities, query = "", onClear }: { cities: City[]; query?: string; onClear?: () => void }) {
   const [selected, setSelected] = useState<string | null>(null);
   const home = cities.find(c => c.home) ?? cities[0];
   const totalStores = cities.reduce((n, c) => n + c.stores.length, 0);
