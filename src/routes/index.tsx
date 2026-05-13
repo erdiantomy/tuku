@@ -474,12 +474,13 @@ function AppTopBar({ tab, onBack }: { tab: number; onBack: () => void }) {
       <button onClick={onBack} aria-label="Kembali ke proposal" style={{ all: "unset", cursor: "pointer", fontFamily: F.u, fontSize: 11, fontWeight: 700, color: C.warmGray, letterSpacing: 1, padding: "4px 8px", borderRadius: 999, border: `1px solid ${C.softBrown}40` }}>← Proposal</button>
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", lineHeight: 1 }}>
         <TukuLogo variant="dark" size={26} withWordmark={false} />
-        <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginTop: 4 }}>
+        <div key={tab} style={{ display: "flex", alignItems: "baseline", gap: 6, marginTop: 4, animation: `topbarSwap ${M.base}ms ${M.out} both` }}>
           <span style={{ fontFamily: F.u, fontSize: 8.5, fontWeight: 700, letterSpacing: 2, color: C.warmGray, textTransform: "uppercase" }}>{TAB_EYEBROWS[tab]}</span>
           <span style={{ fontFamily: F.d, fontStyle: "italic", fontSize: 13, color: C.coffee }}>{TAB_NAMES[tab]}</span>
         </div>
       </div>
       <div style={{ width: 70, fontFamily: F.u, fontSize: 9, fontWeight: 700, letterSpacing: 1.5, color: C.warmGray, textAlign: "right" }}>EDISI · 01</div>
+      <style>{`@keyframes topbarSwap { from { opacity: 0; transform: translateY(6px) } to { opacity: 1; transform: none } }`}</style>
     </div>
   );
 }
