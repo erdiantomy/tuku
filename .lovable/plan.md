@@ -1,59 +1,60 @@
 
 ## Tujuan
 
-Saat pengguna menekan tautan "🌱 lihat batch ini →" pada item kopi di halaman Pesan, halaman Cerita harus terbuka dengan langkah aktif pada timeline "Perjalanan kopimu" yang disorot sesuai batch yang dipilih (bukan hanya pindah tab).
+Tambahkan kartu ringkasan kecil di atas halaman Cerita (di bawah header "Cerita Kopi", sebelum kartu profil Petani) yang merangkum batch aktif: kota asal, tanggal panen, dan profil perajin (petani kopi + perajin gula aren).
 
 ## Perubahan
 
-Semua di `src/routes/index.tsx` (UI/presentational saja).
+Semua di `src/routes/index.tsx`, dalam komponen `AppCerita` saja. Murni UI/presentational.
 
-### 1. State batch terpilih di tingkat App
+### 1. Data turunan dari batch aktif
 
-- Tambah state `selectedBatchId: string | null` di komponen root tempat `tab`/`setTab` dideklarasikan.
-- Buat helper `openBatch(id)` yang men-set `selectedBatchId` lalu `setTab(3)` (Cerita).
-- Teruskan `openBatch` ke `<AppOrder />` (menggantikan/melengkapi `goTo` untuk tombol "lihat batch ini").
-- Teruskan `selectedBatchId` ke `<AppCerita />`.
+Di dalam `AppCerita`, tambahkan turunan dari `item` (sudah ada):
+- `origin` — kota asal kopi. Diambil dari `FARMER.region` (default "Takengon, Aceh") dengan override per batch via field opsional baru di MENU jika label menyiratkan asal lain (mis. Cold Drip → "Ende, Flores", Robusta → "Lampung"). Tetap memakai `FARMER.region` sebagai default.
+- `harvest` — `FARMER.harvest` ("Januari 2026") sebagai default.
+- `farmerName` — `FARMER.name`.
+- `sugarName` — "Mang Ade" / Cianjur (sudah hardcoded di section gula aren).
 
-### 2. Metadata batch pada MENU
+Untuk menjaga konsistensi tanpa menambah dependency: tambahkan field opsional `origin` dan `harvest` di tipe `MenuItem` (sudah ada `batchStep`, `batchLabel`). Diisi untuk 4 item kopi:
+- Es Kopi Susu Tetangga → origin "Takengon, Aceh", harvest "Januari 2026"
+- Kopi Hitam Tetangga → origin "Lampung Barat", harvest "Desember 2025"
+- Cappuccino → origin "Takengon, Aceh", harvest "Januari 2026"
+- Cold Drip Santai → origin "Ende, Flores", harvest "November 2025"
 
-Tiap item kopi di `MENU` diberi dua field opsional:
-- `batchStep: number` — indeks langkah aktif (0–4) pada timeline.
-- `batchLabel?: string` — label singkat (mis. "Es Kopi Susu Tetangga · Gayo").
+Default fallback bila tidak ada batch dipilih: Takengon, Aceh · Januari 2026.
 
-Default jika item tidak punya `batchStep`: langkah terakhir ("Diseduh").
+### 2. Komponen kartu ringkasan
 
-Pemetaan awal yang masuk akal:
-- Es Kopi Susu Tetangga → step 4 (Diseduh)
-- V60 / pour-over single origin → step 3 (Di-roast)
-- Cold brew batch baru → step 2 (Diproses)
-- House blend musim panen baru → step 1 (Dipanen)
+Diletakkan tepat setelah blok header (setelah `<p>Batch aktif · …</p>`), sebelum kartu Petani Kopi. Layout kompak satu kartu warna parchment dengan border halus:
 
-### 3. AppOrder
+```text
+┌──────────────────────────────────────────────────────┐
+│ RINGKASAN BATCH                              [aktif] │
+│ ──────────────────────────────────────────────────── │
+│ 📍 Takengon, Aceh    📅 Panen Jan 2026               │
+│ ──────────────────────────────────────────────────── │
+│ 🌿 Pak Ahmad Saleh · Petani Kopi                     │
+│ 🌴 Mang Ade · Perajin Gula Aren, Cianjur             │
+└──────────────────────────────────────────────────────┘
+```
 
-- Tombol "🌱 lihat batch ini →" memanggil `openBatch(item.id)` alih-alih `goTo(3)`.
+Detail visual:
+- Background `C.warmWhite`, border `1px solid ${C.softBrown}25`, radius 14, padding 14, marginBottom 16.
+- Eyebrow kecil: "Ringkasan Batch" (uppercase, `C.aren`).
+- Dua baris info utama dalam grid 2 kolom: ikon emoji + label uppercase kecil + nilai bold.
+- Divider tipis (`${C.softBrown}20`).
+- Dua baris perajin: avatar bulat kecil (28px) dengan emoji 🌿 dan 🌴 dan teks nama + peran.
+- Tombol/teks halus "Lihat detail ↓" yang scroll ke kartu petani (gunakan `id="batch-petani"` pada kartu petani + `<a href="#batch-petani">`). Opsional ringan, tetap include karena memudahkan.
+- Re-mount halus saat batch berubah lewat `key={batchId ?? "default"}` + animasi `batchFade` (sudah didefinisikan di komponen).
 
-### 4. AppCerita — highlight langkah aktif
+### 3. Tidak mengubah hal lain
 
-- Terima props `batchId?: string`.
-- Resolve `item = MENU.find(...)`; tentukan `activeStep = item?.batchStep ?? 4` dan `headerSub = item?.batchLabel ?? "Es Kopi Susu Tetangga"`.
-- Subjudul header diubah jadi: `Batch aktif · {headerSub}`.
-- Pada timeline (array 5 langkah saat ini), tiap baris dirender sesuai status:
-  - `i < activeStep` → "completed": lingkaran terisi `C.leaf`, ikon diganti centang kecil tetap menampilkan emoji asli di bawah, garis penghubung warna `C.leaf`.
-  - `i === activeStep` → "active": lingkaran lebih besar (44×44), background `C.aren`, ikon putih, ring/halo lembut (`box-shadow: 0 0 0 4px ${C.aren}25`), label memakai warna `C.aren` + bold, sub-deskripsi penuh, ditambah chip kecil "Sekarang".
-  - `i > activeStep` → "upcoming": lingkaran outline tipis, opacity 0.5, label/sub muted.
-- Garis penghubung antar langkah ikut warna: solid `C.leaf` sebelum/at active, dashed `C.softBrown` setelahnya.
-- Animasi ringan: keyframe `fadeIn` pada item active saat `batchId` berubah (gunakan `key={batchId}` di kontainer timeline supaya re-mount halus).
-
-### 5. Tidak ada perubahan logika bisnis lain
-
-Tidak menyentuh data backend, tidak menambah dependensi, tidak mengubah struktur navigasi tab. Hanya state UI + render highlight.
+Header "Cerita Kopi", kartu profil Petani/Perajin, paragraf cerita, dan timeline "Perjalanan kopimu" tetap apa adanya. Tidak ada perubahan tab nav, state global, atau backend.
 
 ## Catatan teknis
 
-```text
-[Pesan] item.id ──openBatch──▶ root state ──prop──▶ [Cerita]
-                                                   └─▶ Perjalanan kopimu
-                                                       langkah aktif disorot
-```
-
-Setelah perubahan, membuka Cerita lewat tab nav (tanpa menekan "lihat batch ini") tetap menampilkan default (langkah terakhir aktif) sehingga halaman tidak pernah tampak kosong.
+- Tipe `MenuItem` ditambah dua field opsional: `origin?: string; harvest?: string`.
+- Resolver di `AppCerita`:
+  - `origin = item?.origin ?? FARMER.region`
+  - `harvest = item?.harvest ?? FARMER.harvest`
+- Tidak menambah dependency baru, tetap memakai sistem token `C` dan `F`.

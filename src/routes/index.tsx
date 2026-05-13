@@ -84,12 +84,12 @@ const STORES_VISITED = [
   { city: "Surabaya", stores: ["Darmo"], flag: "🇮🇩" },
   { city: "Amsterdam", stores: ["Centrum"], flag: "🇳🇱" },
 ];
-type MenuItem = { id: number; name: string; price: number; cat: string; desc: string; pop?: boolean; batchStep?: number; batchLabel?: string };
+type MenuItem = { id: number; name: string; price: number; cat: string; desc: string; pop?: boolean; batchStep?: number; batchLabel?: string; origin?: string; harvest?: string };
 const MENU: MenuItem[] = [
-  { id: 1, name: "Es Kopi Susu Tetangga", price: 22000, cat: "coffee", desc: "Signature. Espresso + susu + gula aren", pop: true, batchStep: 4, batchLabel: "Es Kopi Susu Tetangga · Gayo" },
-  { id: 2, name: "Kopi Hitam Tetangga", price: 18000, cat: "coffee", desc: "Iced black. Robusta murni.", batchStep: 3, batchLabel: "Robusta Lampung · House blend" },
-  { id: 3, name: "Cappuccino", price: 28000, cat: "coffee", desc: "Classic, creamy, warm", batchStep: 3, batchLabel: "Arabika Gayo · Medium roast" },
-  { id: 4, name: "Cold Drip Santai", price: 32000, cat: "coffee", desc: "12-hour slow drip", batchStep: 2, batchLabel: "Flores Ende · Cold drip batch baru" },
+  { id: 1, name: "Es Kopi Susu Tetangga", price: 22000, cat: "coffee", desc: "Signature. Espresso + susu + gula aren", pop: true, batchStep: 4, batchLabel: "Es Kopi Susu Tetangga · Gayo", origin: "Takengon, Aceh", harvest: "Januari 2026" },
+  { id: 2, name: "Kopi Hitam Tetangga", price: 18000, cat: "coffee", desc: "Iced black. Robusta murni.", batchStep: 3, batchLabel: "Robusta Lampung · House blend", origin: "Lampung Barat", harvest: "Desember 2025" },
+  { id: 3, name: "Cappuccino", price: 28000, cat: "coffee", desc: "Classic, creamy, warm", batchStep: 3, batchLabel: "Arabika Gayo · Medium roast", origin: "Takengon, Aceh", harvest: "Januari 2026" },
+  { id: 4, name: "Cold Drip Santai", price: 32000, cat: "coffee", desc: "12-hour slow drip", batchStep: 2, batchLabel: "Flores Ende · Cold drip batch baru", origin: "Ende, Flores", harvest: "November 2025" },
   { id: 5, name: "Es Teh Susu Tetangga", price: 18000, cat: "non", desc: "Teh tarik khas TUKU" },
   { id: 6, name: "Teh Asam Jawa", price: 16000, cat: "non", desc: "Segar, asam manis" },
   { id: 7, name: "Donat Kampung", price: 12000, cat: "food", desc: "Donat klasik, empuk" },
