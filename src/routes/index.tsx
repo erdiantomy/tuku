@@ -276,6 +276,69 @@ function CornerTicks({ color }: { color: string }) {
   );
 }
 
+type FrameIntensity = "subtle" | "soft" | "feature";
+type FrameTone = "light" | "dark";
+type WatermarkKind = "cup" | "wordmark" | "none";
+type WatermarkPos = "br" | "bl" | "tr" | "tl";
+
+const INTENSITY: Record<FrameIntensity, { grain: number; ticks: number; mark: number }> = {
+  subtle:  { grain: 0.03, ticks: 0.10, mark: 0.025 },
+  soft:    { grain: 0.05, ticks: 0.18, mark: 0.04 },
+  feature: { grain: 0.09, ticks: 0.30, mark: 0.05 },
+};
+
+function Watermark({
+  tone, pos = "br", opacity, kind = "cup", size = 360,
+}: { tone: FrameTone; pos?: WatermarkPos; opacity: number; kind?: "cup" | "wordmark"; size?: number }) {
+  const variant = tone === "light" ? "dark" : "light";
+  const offset = "-6vw";
+  const corner: CSSProperties =
+    pos === "br" ? { right: offset, bottom: offset } :
+    pos === "bl" ? { left: offset, bottom: offset } :
+    pos === "tr" ? { right: offset, top: offset } :
+                   { left: offset, top: offset };
+  return (
+    <TukuLogo
+      variant={variant}
+      withWordmark={kind === "wordmark"}
+      size={size}
+      minSize={Math.round(size * 0.45)}
+      maxSize={size}
+      style={{ position: "absolute", opacity, transform: "rotate(-6deg)", pointerEvents: "none", ...corner }}
+    />
+  );
+}
+
+function EditorialFrame({
+  tone = "light", intensity = "subtle", watermark = "cup", watermarkPos = "br",
+  inset = 14, children, style,
+}: {
+  tone?: FrameTone; intensity?: FrameIntensity;
+  watermark?: WatermarkKind; watermarkPos?: WatermarkPos;
+  inset?: number; children: ReactNode; style?: CSSProperties;
+}) {
+  const v = INTENSITY[intensity];
+  const tickColor = tone === "dark" ? `rgba(245,240,232,${v.ticks})` : `rgba(60,36,21,${v.ticks})`;
+  return (
+    <div style={{ position: "relative", overflow: "hidden", ...style }}>
+      <div aria-hidden style={{ position: "absolute", inset: 0, backgroundImage: GRAIN_BG, opacity: v.grain, pointerEvents: "none", mixBlendMode: "overlay", zIndex: 0 }} />
+      {/* corner ticks */}
+      {([
+        { top: inset, left: inset, borderTopWidth: 1, borderLeftWidth: 1 },
+        { top: inset, right: inset, borderTopWidth: 1, borderRightWidth: 1 },
+        { bottom: inset, left: inset, borderBottomWidth: 1, borderLeftWidth: 1 },
+        { bottom: inset, right: inset, borderBottomWidth: 1, borderRightWidth: 1 },
+      ] as CSSProperties[]).map((p, i) => (
+        <div key={i} aria-hidden style={{ position: "absolute", width: 18, height: 18, borderStyle: "solid", borderColor: tickColor, borderWidth: 0, pointerEvents: "none", zIndex: 0, ...p }} />
+      ))}
+      {watermark !== "none" && (
+        <Watermark tone={tone} pos={watermarkPos} opacity={v.mark} kind={watermark} size={watermark === "wordmark" ? 480 : 360} />
+      )}
+      <div style={{ position: "relative", zIndex: 1 }}>{children}</div>
+    </div>
+  );
+}
+
 function PullQuote({ children, color = C.aren }: { children: ReactNode; color?: string }) {
   return (
     <blockquote style={{ position: "relative", padding: "28px 18px 24px 64px", margin: "32px 0" }}>
