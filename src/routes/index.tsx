@@ -102,7 +102,7 @@ function TukuLogo({
         width: widthCss,
         height: "auto",
         aspectRatio: String(ratio),
-        objectFit: "contain",
+        objectFit: withWordmark ? "contain" : "cover",
         objectPosition: withWordmark ? "center" : "center top",
         display: "block", userSelect: "none", pointerEvents: "none",
         flexShrink: 0,
