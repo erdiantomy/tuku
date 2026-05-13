@@ -703,22 +703,79 @@ function AppPaspor() {
 
       {sub === "p" ? (
         <div>
+          {/* EKSPEDISI PROGRESS */}
+          <h3 style={{ fontFamily: F.d, fontSize: 18, color: C.coffee, margin: "0 0 10px", fontWeight: 700 }}>Ekspedisi Tetangga</h3>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 22 }}>
+            {[
+              { label: "🇮🇩 Nusantara", visited: 6, total: 71, color: C.aren, next: "Berikutnya: TUKU Bali (segera)" },
+              { label: "🌍 Global", visited: 1, total: 1, color: C.leaf, next: "TUKU Amsterdam · ditaklukkan!" },
+            ].map((e, i) => {
+              const pct = Math.round((e.visited / e.total) * 100);
+              return (
+                <div key={i} style={{ background: C.warmWhite, borderRadius: 13, padding: 14, border: `1px solid ${C.softBrown}20` }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 8 }}>
+                    <span style={{ fontFamily: F.u, fontSize: 13, fontWeight: 700, color: C.coffee }}>{e.label}</span>
+                    <span style={{ fontFamily: F.d, fontSize: 16, fontWeight: 700, color: e.color }}>{e.visited}/{e.total}</span>
+                  </div>
+                  <div style={{ height: 7, background: C.parchment, borderRadius: 999, overflow: "hidden", marginBottom: 6 }}>
+                    <div style={{ height: "100%", width: `${pct}%`, background: e.color, borderRadius: 999, transition: "width 0.6s ease" }} />
+                  </div>
+                  <p style={{ fontFamily: F.b, fontSize: 11.5, color: C.warmGray, margin: 0 }}>{e.next}</p>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* JEJAK KOTA & TOKO */}
           <h3 style={{ fontFamily: F.d, fontSize: 18, color: C.coffee, margin: "0 0 12px", fontWeight: 700 }}>Jejak Tetangga Berkunjung</h3>
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 22 }}>
             {STORES_VISITED.map((c, i) => (
               <div key={i} style={{ background: C.warmWhite, borderRadius: 13, padding: 14, border: `1px solid ${C.softBrown}20` }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
                   <span style={{ fontFamily: F.d, fontSize: 17, fontWeight: 700, color: C.coffee }}>{c.flag} {c.city}</span>
-                  <Badge>{c.stores.length}</Badge>
+                  <Badge>{c.stores.length} toko</Badge>
                 </div>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                   {c.stores.map((s, j) => (
-                    <span key={j} style={{ fontFamily: F.u, fontSize: 11, color: C.coffeeMid, background: C.parchment, padding: "4px 10px", borderRadius: 999, fontWeight: 600 }}>TUKU {s}</span>
+                    <span key={j} style={{ fontFamily: F.u, fontSize: 11, color: c.city === USER.rumah.replace("TUKU ", "") ? C.aren : C.coffeeMid, background: C.parchment, padding: "4px 10px", borderRadius: 999, fontWeight: 600 }}>
+                      {s === "Cipete" ? "🏠 " : ""}TUKU {s}
+                    </span>
                   ))}
                 </div>
               </div>
             ))}
           </div>
+
+          {/* BADGE PENCAPAIAN */}
+          <h3 style={{ fontFamily: F.d, fontSize: 18, color: C.coffee, margin: "0 0 4px", fontWeight: 700 }}>Lencana Pencapaian</h3>
+          <p style={{ fontFamily: F.b, fontSize: 12, color: C.warmGray, margin: "0 0 12px" }}>5 dari 8 terkumpul</p>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
+            {[
+              { icon: "☕", name: "Seruput Pertama", earned: true },
+              { icon: "🏠", name: "Warga Cipete", earned: true },
+              { icon: "🤝", name: "Tetangga Baik", earned: true, sub: "10+ traktir" },
+              { icon: "🗺️", name: "Penjelajah", earned: true, sub: "3+ kota" },
+              { icon: "✈️", name: "Pelancong Global", earned: true, sub: "Amsterdam" },
+              { icon: "💯", name: "Setia 100", earned: false, sub: "100 kunjungan" },
+              { icon: "🌱", name: "Sahabat Petani", earned: false, sub: "Kunjungi 5 batch" },
+              { icon: "👑", name: "Sesepuh", earned: false, sub: "Semua kota" },
+            ].map((b, i) => (
+              <div key={i} style={{
+                background: b.earned ? C.warmWhite : C.parchment,
+                border: `1px solid ${b.earned ? C.aren + "40" : C.softBrown + "20"}`,
+                borderRadius: 12, padding: "12px 6px", textAlign: "center",
+                opacity: b.earned ? 1 : 0.5,
+              }}>
+                <div style={{ fontSize: 26, marginBottom: 4, filter: b.earned ? "none" : "grayscale(1)" }}>{b.icon}</div>
+                <div style={{ fontFamily: F.u, fontSize: 9.5, fontWeight: 700, color: C.coffee, lineHeight: 1.2 }}>{b.name}</div>
+                {b.sub && <div style={{ fontFamily: F.u, fontSize: 8, color: C.warmGray, marginTop: 2 }}>{b.sub}</div>}
+              </div>
+            ))}
+          </div>
+
+          <p style={{ fontFamily: F.h, fontSize: 16, color: C.aren, textAlign: "center", marginTop: 18, marginBottom: 0 }}>
+            Tetangga sejati bukan yang paling sering datang — tapi yang membuat tetangga lain merasa di rumah. 🤝
+          </p>
         </div>
       ) : (
         <div>
