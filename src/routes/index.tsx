@@ -36,6 +36,13 @@ const F = {
   u: "'DM Sans', sans-serif",
 };
 
+// ── Motion tokens — one editorial language for every transition ──
+const M = {
+  fast: 160, base: 240, med: 420, slow: 680,
+  out: "cubic-bezier(0.22, 1, 0.36, 1)",
+  inOut: "cubic-bezier(0.65, 0, 0.35, 1)",
+};
+
 // ── Shared Components ──
 
 function Fade({ children, className, delay = 0, style }: { children: ReactNode; className?: string; delay?: number; style?: CSSProperties }) {
