@@ -2240,7 +2240,8 @@ function TukuRukunTetangga() {
             *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
           }
         `}</style>
-        <div style={{ width: "100%", maxWidth: 420, background: C.snow, position: "relative", display: "flex", flexDirection: "column", boxShadow: `0 0 60px ${C.coffee}30, 0 0 0 1px ${C.softBrown}40`, animation: `shellFade ${M.med}ms ${M.out} both` }}>
+        <div style={{ width: "100%", maxWidth: 420, background: C.snow, position: "relative", overflow: "hidden", display: "flex", flexDirection: "column", boxShadow: `0 0 60px ${C.coffee}30, 0 0 0 1px ${C.softBrown}40`, animation: `shellFade ${M.med}ms ${M.out} both` }}>
+          <FrameOverlay tone="light" intensity="subtle" watermark="none" inset={10} />
           <AppTopBar tab={tab} onBack={backToNarrative} />
 
           <div ref={appRef} key={tab} style={{ flex: 1, overflowY: "auto", paddingBottom: 70, animation: `screenSwap ${M.med}ms ${M.out} both` }}>
