@@ -455,8 +455,9 @@ const FONT_INFO: { fam: string; name: string; role: string; sample: string }[] =
 function Colophon() {
   const [openId, setOpenId] = useState<TileId | null>(null);
   return (
-    <section style={{ padding: "56px 24px", background: C.parchment, borderTop: `1px solid ${C.softBrown}40`, borderBottom: `1px solid ${C.softBrown}40` }}>
-      <div style={{ maxWidth: 980, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 16, alignItems: "start" }}>
+    <section style={{ position: "relative", overflow: "hidden", padding: "56px 24px", background: C.parchment, borderTop: `1px solid ${C.softBrown}40`, borderBottom: `1px solid ${C.softBrown}40` }}>
+      <FrameOverlay tone="light" intensity="subtle" watermark="cup" watermarkPos="br" />
+      <div style={{ position: "relative", zIndex: 1, maxWidth: 980, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 16, alignItems: "start" }}>
         <ColophonTile
           id="logo" label="LAMBANG" openId={openId} setOpenId={setOpenId}
           summary={<><TukuLogo variant="dark" size={52} /><p style={{ fontFamily: F.u, fontSize: 9, fontWeight: 700, letterSpacing: 2, color: C.warmGray, marginTop: 10 }}>KOPI TUKU · 2026</p></>}
