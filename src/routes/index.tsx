@@ -1862,13 +1862,22 @@ function TukuRukunTetangga() {
   if (mode === "transition") {
     return (
       <div style={{
-        position: "fixed", inset: 0, background: C.coffee, display: "flex",
-        flexDirection: "column", justifyContent: "center", alignItems: "center",
-        zIndex: 999,
+        position: "fixed", inset: 0,
+        background: `radial-gradient(ellipse at center, ${C.coffeeMid} 0%, ${C.coffee} 50%, #150a05 100%)`,
+        display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center",
+        zIndex: 999, overflow: "hidden",
       }}>
-        <style>{`@keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } } @keyframes pulseGlow { 0%,100% { transform: scale(1); opacity: 0.8 } 50% { transform: scale(1.15); opacity: 1 } }`}</style>
-        <div style={{ fontSize: 56, animation: "pulseGlow 1.2s ease-in-out infinite" }}>☕</div>
-        <p style={{ fontFamily: F.h, fontSize: 22, color: C.arenGlow, marginTop: 18 }}>Membuka pintu tetangga…</p>
+        <style>{`
+          @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+          @keyframes pulseGlow { 0%,100% { transform: scale(1); opacity: 0.85 } 50% { transform: scale(1.08); opacity: 1 } }
+          @keyframes loaderSlide { 0% { transform: translateX(-100%) } 100% { transform: translateX(100%) } }
+        `}</style>
+        <GrainOverlay opacity={0.08} />
+        <TukuLogo variant="light" size={140} style={{ animation: "pulseGlow 1.4s ease-in-out infinite", filter: `drop-shadow(0 8px 30px ${C.aren}50)` }} />
+        <p style={{ fontFamily: F.d, fontStyle: "italic", fontSize: 24, color: C.arenGlow, marginTop: 22, letterSpacing: 0.5 }}>Membuka pintu tetangga…</p>
+        <div style={{ width: 180, height: 1, background: `${C.cream}20`, marginTop: 28, overflow: "hidden", position: "relative" }}>
+          <div style={{ position: "absolute", inset: 0, background: `linear-gradient(90deg, transparent, ${C.arenGlow}, transparent)`, animation: "loaderSlide 1.4s ease-in-out infinite" }} />
+        </div>
       </div>
     );
   }
@@ -1883,10 +1892,10 @@ function TukuRukunTetangga() {
       <AppObrolan key="m" goTo={setTab} openBatch={openBatch} />,
     ];
     return (
-      <div style={{ minHeight: "100vh", background: C.cream, display: "flex", justifyContent: "center", alignItems: "stretch" }}>
+      <div style={{ minHeight: "100vh", background: `radial-gradient(ellipse at center, ${C.cream} 0%, ${C.parchment} 100%)`, display: "flex", justifyContent: "center", alignItems: "stretch" }}>
         <style>{`@keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }`}</style>
-        <div style={{ width: "100%", maxWidth: 420, background: C.snow, position: "relative", display: "flex", flexDirection: "column", boxShadow: `0 0 40px ${C.coffee}15` }}>
-          <button onClick={backToNarrative} style={{ all: "unset", cursor: "pointer", position: "absolute", top: 16, right: 16, zIndex: 10, fontFamily: F.u, fontSize: 11, fontWeight: 600, color: C.warmGray, background: C.warmWhite, padding: "6px 12px", borderRadius: 999, border: `1px solid ${C.softBrown}25` }}>← Proposal</button>
+        <div style={{ width: "100%", maxWidth: 420, background: C.snow, position: "relative", display: "flex", flexDirection: "column", boxShadow: `0 0 60px ${C.coffee}30, 0 0 0 1px ${C.softBrown}40` }}>
+          <AppTopBar tab={tab} onBack={backToNarrative} />
 
           <div ref={appRef} style={{ flex: 1, overflowY: "auto", paddingBottom: 70, animation: "fadeIn 0.4s ease" }}>
             {screens[tab]}
@@ -1908,6 +1917,7 @@ function TukuRukunTetangga() {
   // Narrative mode
   return (
     <main style={{ background: C.cream, color: C.coffee }}>
+      <Masthead />
       <NarrativeHero />
       <NarrativeLetter />
       <NarrativeGap />
