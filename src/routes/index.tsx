@@ -2135,7 +2135,7 @@ function TukuRukunTetangga() {
           @keyframes loaderSlide { 0% { transform: translateX(-100%) } 100% { transform: translateX(100%) } }
         `}</style>
         <GrainOverlay opacity={0.08} />
-        <TukuLogo variant="light" size={140} style={{ animation: "pulseGlow 1.4s ease-in-out infinite", filter: `drop-shadow(0 8px 30px ${C.aren}50)` }} />
+        <TukuLogo variant="light" size={140} minSize={88} maxSize={140} style={{ animation: "pulseGlow 1.4s ease-in-out infinite", filter: `drop-shadow(0 8px 30px ${C.aren}50)` }} />
         <p style={{ fontFamily: F.d, fontStyle: "italic", fontSize: 24, color: C.arenGlow, marginTop: 22, letterSpacing: 0.5 }}>Membuka pintu tetangga…</p>
         <div style={{ width: 180, height: 1, background: `${C.cream}20`, marginTop: 28, overflow: "hidden", position: "relative" }}>
           <div style={{ position: "absolute", inset: 0, background: `linear-gradient(90deg, transparent, ${C.arenGlow}, transparent)`, animation: "loaderSlide 1.4s ease-in-out infinite" }} />
