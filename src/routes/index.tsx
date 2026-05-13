@@ -1548,9 +1548,9 @@ function ChatDetail({ chatId, onBack, onTraktir }: { chatId: string; onBack: () 
   );
 }
 
-function AppObrolan({ goTo }: { goTo: (n: number) => void }) {
+function AppObrolan({ goTo, openBatch }: { goTo: (n: number) => void; openBatch: (id: number) => void }) {
   const [openId, setOpenId] = useState<string | null>(null);
-  if (openId) return <ChatDetail chatId={openId} onBack={() => setOpenId(null)} onTraktir={() => goTo(3)} />;
+  if (openId) return <ChatDetail chatId={openId} onBack={() => setOpenId(null)} onTraktir={() => goTo(3)} onOpenBatch={openBatch} />;
   return <ChatList onOpen={setOpenId} />;
 }
 
