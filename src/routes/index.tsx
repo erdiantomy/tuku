@@ -776,7 +776,7 @@ function NarrativeReframe() {
   return (
     <section style={{ position: "relative", padding: "160px 24px", background: `radial-gradient(ellipse at 30% 20%, ${C.coffeeMid} 0%, ${C.coffee} 60%, #1f130b 100%)`, color: C.cream, overflow: "hidden" }}>
       <FrameOverlay tone="dark" intensity="feature" watermark="none" />
-      <TukuLogo variant="light" size={520} minSize={280} maxSize={520} style={{ position: "absolute", right: "-8vw", bottom: "-6vw", opacity: 0.045, transform: "rotate(-8deg)" }} />
+      <TukuLogo variant="light" size={520} minSize={280} maxSize={520} blend="none" halo={false} style={{ position: "absolute", right: "-8vw", bottom: "-6vw", opacity: 0.045, transform: "rotate(-8deg)" }} />
       <div style={{ position: "relative", maxWidth: 820, margin: "0 auto", textAlign: "center" }}>
         <Fade>
           <ChapterEyebrow
