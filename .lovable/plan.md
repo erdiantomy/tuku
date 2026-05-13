@@ -1,60 +1,101 @@
 
 ## Tujuan
 
-Tambahkan kartu ringkasan kecil di atas halaman Cerita (di bawah header "Cerita Kopi", sebelum kartu profil Petani) yang merangkum batch aktif: kota asal, tanggal panen, dan profil perajin (petani kopi + perajin gula aren).
+Tambahkan tampilan peta visual di tab Paspor yang menunjukkan rute ekspedisi (dari rumah `TUKU Cipete` ke setiap kota yang dikunjungi) dan lokasi toko di tiap kota. Murni UI inline (SVG) — tanpa library peta eksternal, tanpa API key.
 
-## Perubahan
+## Pendekatan
 
-Semua di `src/routes/index.tsx`, dalam komponen `AppCerita` saja. Murni UI/presentational.
+Komponen baru `ExpeditionMap` yang dipasang di sub-tab "Paspor" (`AppPaspor`) di atas section "Jejak Tetangga Berkunjung". Dua mode:
 
-### 1. Data turunan dari batch aktif
+1. **World view** (default) — peta dunia stilistik, pin tiap kota yang sudah dikunjungi, garis putus-putus rute dari Cipete ke tiap kota.
+2. **City view** — saat user mengetuk satu pin atau kartu kota, kanvas zoom ke kota tsb dan menampilkan tile peta-kota stilistik dengan marker tiap toko.
 
-Di dalam `AppCerita`, tambahkan turunan dari `item` (sudah ada):
-- `origin` — kota asal kopi. Diambil dari `FARMER.region` (default "Takengon, Aceh") dengan override per batch via field opsional baru di MENU jika label menyiratkan asal lain (mis. Cold Drip → "Ende, Flores", Robusta → "Lampung"). Tetap memakai `FARMER.region` sebagai default.
-- `harvest` — `FARMER.harvest` ("Januari 2026") sebagai default.
-- `farmerName` — `FARMER.name`.
-- `sugarName` — "Mang Ade" / Cianjur (sudah hardcoded di section gula aren).
+Toggle balik ke world via tombol "← Semua kota". Tidak menambah dependency.
 
-Untuk menjaga konsistensi tanpa menambah dependency: tambahkan field opsional `origin` dan `harvest` di tipe `MenuItem` (sudah ada `batchStep`, `batchLabel`). Diisi untuk 4 item kopi:
-- Es Kopi Susu Tetangga → origin "Takengon, Aceh", harvest "Januari 2026"
-- Kopi Hitam Tetangga → origin "Lampung Barat", harvest "Desember 2025"
-- Cappuccino → origin "Takengon, Aceh", harvest "Januari 2026"
-- Cold Drip Santai → origin "Ende, Flores", harvest "November 2025"
+## Implementasi (semua di `src/routes/index.tsx`)
 
-Default fallback bila tidak ada batch dipilih: Takengon, Aceh · Januari 2026.
+### 1. Data koordinat
 
-### 2. Komponen kartu ringkasan
+Tambah field opsional ke `STORES_VISITED`:
 
-Diletakkan tepat setelah blok header (setelah `<p>Batch aktif · …</p>`), sebelum kartu Petani Kopi. Layout kompak satu kartu warna parchment dengan border halus:
+- `coord: { x, y }` — koordinat di viewBox 360×200 untuk world map.
+- `home?: boolean` — true untuk Jakarta (kota rumah).
+- `stores: { name, x, y }[]` — koordinat tile kota 320×220 untuk tiap toko (Jakarta 4 toko diberi posisi yang menyebar; kota lain 1 toko di tengah).
+
+Koordinat awal (approx, stilistik bukan geografis akurat):
+
+- Jakarta (home) → world (245, 152)
+- Bandung → (256, 154)
+- Surabaya → (275, 155)
+- Amsterdam → (162, 58)
+
+Stores Jakarta di tile kota: Cipete (160, 145) home, Kemang (175, 130), GBK (140, 110), Jatinegara (200, 95).
+
+### 2. Komponen `ExpeditionMap`
+
+Props: `cities: typeof STORES_VISITED`, `homeCity: string`.
+
+State: `selectedCity: string | null`.
+
+Render:
+
+**World view (`selectedCity === null`)**
+
+- Container kartu: `background: C.warmWhite`, border halus, padding, radius 16.
+- Header kecil: "Peta Ekspedisi" + chip "{n} kota · {m} toko".
+- SVG `viewBox="0 0 360 200"`, height ~200px:
+  - Background `C.parchment` dengan grid titik halus (pattern `<circle>` sparse) untuk efek paspor.
+  - Siluet benua sebagai `<path>` blob disederhanakan (Asia Tenggara + Eropa + Australia) dengan fill `${C.softBrown}25`. Tidak akurat geografis — gaya stempel.
+  - Garis rute dari home (Cipete/Jakarta) ke tiap kota lain: `<path>` kurva quadratic, `stroke-dasharray="3 4"`, warna `C.aren`, animasi `dashFlow` (stroke-dashoffset bergerak).
+  - Pin tiap kota: lingkaran 6px (`C.aren` untuk visited, `C.leaf` untuk home), halo pulse (`@keyframes pinPulse`), label kota di atas pin (font kecil uppercase). Tap → `setSelectedCity(c.city)`.
+  - Pin home diberi ikon 🏠 kecil di tengah.
+- Legend mini di bawah SVG: `🏠 Rumah · ● Dikunjungi · ╌ Rute`.
+
+**City view (`selectedCity !== null`)**
+
+- Header: tombol back "← Semua kota" + nama kota + chip jumlah toko.
+- SVG `viewBox="0 0 320 220"`:
+  - Background tile kota: `C.parchment`, garis-garis "jalan" abstrak (beberapa `<path>` lengkung tipis `C.softBrown`40`), 1-2 blob "taman/sungai" (`C.leaf`20` rounded blob).
+  - Marker tiap toko: pin "tear-drop" SVG (`<path>` ukuran 14×18) warna `C.aren` (atau `C.leaf` jika store rumah Cipete), dengan label nama toko di sampingnya. Pin home diberi badge 🏠 kecil.
+  - Untuk kota dengan 1 toko, pin di tengah.
+- Catatan pendek di bawah: jumlah kunjungan ke toko home (gunakan `USER.visits` jika home), atau "Pertama dijelajahi" untuk kota lain (statis sederhana).
+
+### 3. Animasi
+
+Tambahkan dalam `<style>` lokal komponen:
 
 ```text
-┌──────────────────────────────────────────────────────┐
-│ RINGKASAN BATCH                              [aktif] │
-│ ──────────────────────────────────────────────────── │
-│ 📍 Takengon, Aceh    📅 Panen Jan 2026               │
-│ ──────────────────────────────────────────────────── │
-│ 🌿 Pak Ahmad Saleh · Petani Kopi                     │
-│ 🌴 Mang Ade · Perajin Gula Aren, Cianjur             │
-└──────────────────────────────────────────────────────┘
+@keyframes pinPulse { 0%,100% { r: 6 } 50% { r: 8 } }
+@keyframes haloPulse { 0% { opacity: 0.5; r: 8 } 100% { opacity: 0; r: 18 } }
+@keyframes dashFlow { to { stroke-dashoffset: -14 } }
+@keyframes mapFade { from { opacity: 0; transform: scale(0.98) } to { opacity: 1; transform: none } }
 ```
 
-Detail visual:
-- Background `C.warmWhite`, border `1px solid ${C.softBrown}25`, radius 14, padding 14, marginBottom 16.
-- Eyebrow kecil: "Ringkasan Batch" (uppercase, `C.aren`).
-- Dua baris info utama dalam grid 2 kolom: ikon emoji + label uppercase kecil + nilai bold.
-- Divider tipis (`${C.softBrown}20`).
-- Dua baris perajin: avatar bulat kecil (28px) dengan emoji 🌿 dan 🌴 dan teks nama + peran.
-- Tombol/teks halus "Lihat detail ↓" yang scroll ke kartu petani (gunakan `id="batch-petani"` pada kartu petani + `<a href="#batch-petani">`). Opsional ringan, tetap include karena memudahkan.
-- Re-mount halus saat batch berubah lewat `key={batchId ?? "default"}` + animasi `batchFade` (sudah didefinisikan di komponen).
+SVG kanvas `key={selectedCity ?? "world"}` agar transisi `mapFade` muncul saat ganti view.
 
-### 3. Tidak mengubah hal lain
+### 4. Penempatan di `AppPaspor`
 
-Header "Cerita Kopi", kartu profil Petani/Perajin, paragraf cerita, dan timeline "Perjalanan kopimu" tetap apa adanya. Tidak ada perubahan tab nav, state global, atau backend.
+Sisipkan `<ExpeditionMap cities={STORES_VISITED} homeCity={USER.rumah} />` di dalam `sub === "p"`, **di atas** judul "Jejak Tetangga Berkunjung" yang sudah ada (kartu list tetap dipertahankan sebagai daftar tekstual lengkap).
+
+### 5. Tidak diubah
+
+- Tidak menambah library (react-leaflet, mapbox, dsb.) — semua SVG inline.
+- Tidak mengubah backend/data global selain field koordinat di `STORES_VISITED`.
+- Tab nav, Cerita, Pesan, dll tidak tersentuh.
 
 ## Catatan teknis
 
-- Tipe `MenuItem` ditambah dua field opsional: `origin?: string; harvest?: string`.
-- Resolver di `AppCerita`:
-  - `origin = item?.origin ?? FARMER.region`
-  - `harvest = item?.harvest ?? FARMER.harvest`
-- Tidak menambah dependency baru, tetap memakai sistem token `C` dan `F`.
+```text
+World view             City view (Jakarta)
+┌────────────────┐     ┌────────────────┐
+│ AMS●           │     │   ● GBK        │
+│   ╲╌╌╌╌╌╮      │ →   │       ● Kemang │
+│         ╲      │     │ ● Cipete 🏠    │
+│          🏠JKT │     │           ●Jat │
+│    ●BDG ●SBY   │     │                │
+└────────────────┘     └────────────────┘
+```
+
+Karena kanvas kecil (lebar app ~420px), label kota memakai font uppercase 9–10px supaya tidak tabrakan; jika dua pin terlalu dekat (Jakarta–Bandung–Surabaya), label dirender bergantian di atas/bawah pin.
+
+Aksesibilitas: tiap pin adalah `<g role="button" tabIndex={0}>` dengan `aria-label`, `onClick` + `onKeyDown(Enter)`.

@@ -78,11 +78,18 @@ const fmt = (n: number) => "Rp " + n.toLocaleString("id-ID");
 
 // ── Mock Data ──
 const USER = { name: "Andi", rumah: "TUKU Cipete", since: "2023", visits: 147, traktirGiven: 12, citiesVisited: 4 };
-const STORES_VISITED = [
-  { city: "Jakarta", stores: ["Cipete", "Kemang", "GBK", "Jatinegara"], flag: "🇮🇩" },
-  { city: "Bandung", stores: ["Ambon"], flag: "🇮🇩" },
-  { city: "Surabaya", stores: ["Darmo"], flag: "🇮🇩" },
-  { city: "Amsterdam", stores: ["Centrum"], flag: "🇳🇱" },
+type CityStore = { name: string; x: number; y: number; home?: boolean };
+type City = { city: string; flag: string; coord: { x: number; y: number }; home?: boolean; stores: CityStore[] };
+const STORES_VISITED: City[] = [
+  { city: "Jakarta", flag: "🇮🇩", coord: { x: 245, y: 152 }, home: true, stores: [
+    { name: "Cipete", x: 160, y: 145, home: true },
+    { name: "Kemang", x: 180, y: 125 },
+    { name: "GBK", x: 130, y: 105 },
+    { name: "Jatinegara", x: 215, y: 90 },
+  ]},
+  { city: "Bandung", flag: "🇮🇩", coord: { x: 256, y: 158 }, stores: [{ name: "Ambon", x: 160, y: 110 }] },
+  { city: "Surabaya", flag: "🇮🇩", coord: { x: 278, y: 156 }, stores: [{ name: "Darmo", x: 160, y: 110 }] },
+  { city: "Amsterdam", flag: "🇳🇱", coord: { x: 162, y: 58 }, stores: [{ name: "Centrum", x: 160, y: 110 }] },
 ];
 type MenuItem = { id: number; name: string; price: number; cat: string; desc: string; pop?: boolean; batchStep?: number; batchLabel?: string; origin?: string; harvest?: string };
 const MENU: MenuItem[] = [
