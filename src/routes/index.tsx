@@ -531,7 +531,7 @@ function AppHome({ goTo }: { goTo: (n: number) => void }) {
   );
 }
 
-function AppOrder({ goTo }: { goTo: (n: number) => void }) {
+function AppOrder({ goTo, openBatch }: { goTo: (n: number) => void; openBatch: (id: number) => void }) {
   const [cart, setCart] = useState<Record<number, number>>({});
   const [cat, setCat] = useState("coffee");
   const [done, setDone] = useState(false);
