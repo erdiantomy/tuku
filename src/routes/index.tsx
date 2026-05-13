@@ -1088,8 +1088,11 @@ function ExpeditionMap({ cities, query = "", onClear }: { cities: City[]; query?
             {/* Store pins */}
             {current.stores.map((s, i) => {
               const color = s.home ? C.leaf : C.aren;
+              const matched = isMatch(s.name) || isMatch(current.city);
+              const dim = q !== "" && !matched;
               return (
-                <g key={i}>
+                <g key={i} opacity={dim ? 0.4 : 1}>
+                  {matched && <circle cx={s.x} cy={s.y - 4} r="14" fill="none" stroke={C.aren} strokeWidth="1.5" strokeDasharray="3 3" />}
                   <circle cx={s.x} cy={s.y} r="8" fill={color} className="em-halo" opacity="0.35" />
                   <path d={`M${s.x},${s.y - 12} C${s.x - 7},${s.y - 12} ${s.x - 7},${s.y - 2} ${s.x},${s.y + 5} C${s.x + 7},${s.y - 2} ${s.x + 7},${s.y - 12} ${s.x},${s.y - 12} Z`} fill={color} stroke={C.white} strokeWidth="1.3" />
                   <circle cx={s.x} cy={s.y - 7} r="2.5" fill={C.white} />
