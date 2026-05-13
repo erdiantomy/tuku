@@ -323,7 +323,7 @@ function ChapterEyebrow({
   const padX = coarse ? 16 : (dark ? 14 : 10);
 
   return (
-    <div ref={ref} style={{ position: "relative", display: "inline-block", textAlign: align }}>
+    <div ref={ref} style={{ position: "relative", display: "block", textAlign: align }}>
       <button
         type="button"
         onClick={() => setOpen(o => !o)}
