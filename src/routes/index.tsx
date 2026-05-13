@@ -516,7 +516,14 @@ function NarrativeHero() {
         <TukuLogo variant="dark" size={120} style={{ marginBottom: 18, filter: `drop-shadow(0 6px 20px ${C.coffee}25)` }} />
       </Fade>
       <Fade delay={120}>
-        <Label>sebuah undangan untuk bertetangga</Label>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
+          <ChapterEyebrow
+            n="01" label="PEMBUKA" page="I" align="center"
+            title="Sebuah undangan untuk bertetangga."
+            note="Halaman pembuka — niat di balik proposal ini, dan janji kecil: setiap bab adalah pintu, bukan deck."
+          />
+          <Label>sebuah undangan untuk bertetangga</Label>
+        </div>
       </Fade>
       <Fade delay={250}>
         <h1 style={{ fontFamily: F.d, fontSize: "clamp(56px, 11vw, 140px)", fontWeight: 700, color: C.coffee, lineHeight: 1, margin: "10px 0 24px", letterSpacing: -2.5, position: "relative" }}>
