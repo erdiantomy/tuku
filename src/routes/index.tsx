@@ -1012,22 +1012,34 @@ function NarrativeCTA({ onOpen }: { onOpen: () => void }) {
         </p>
       </Fade>
       <Fade delay={550}>
-        <button onClick={onOpen} style={{
-          all: "unset", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 14,
-          background: "transparent", color: C.arenGlow, padding: "18px 38px",
-          borderRadius: 0, fontFamily: F.u, fontSize: 14, fontWeight: 700,
-          letterSpacing: 3, textTransform: "uppercase",
-          border: `1px solid ${C.arenGlow}`,
-          transform: pulse ? "translateY(-2px)" : "translateY(0)",
-          transition: `transform ${M.med}ms ${M.inOut}, background ${M.base}ms ${M.out}, color ${M.base}ms ${M.out}`,
-        }}
-          onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = C.arenGlow; (e.currentTarget as HTMLButtonElement).style.color = C.coffee; }}
-          onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "transparent"; (e.currentTarget as HTMLButtonElement).style.color = C.arenGlow; }}
+        <button
+          onClick={onOpen}
+          className="cta-door"
+          onPointerDown={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = "translateY(0) scale(0.98)"; }}
+          onPointerUp={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = pulse ? "translateY(-2px)" : "translateY(0)"; }}
+          onPointerCancel={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = pulse ? "translateY(-2px)" : "translateY(0)"; }}
+          style={{
+            all: "unset", cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 14,
+            background: "transparent", color: C.arenGlow, padding: "18px 38px",
+            minHeight: 52, minWidth: 240, boxSizing: "border-box",
+            borderRadius: 0, fontFamily: F.u, fontSize: 14, fontWeight: 700,
+            letterSpacing: 3, textTransform: "uppercase",
+            border: `1px solid ${C.arenGlow}`,
+            transform: pulse ? "translateY(-2px)" : "translateY(0)",
+            transition: `transform ${M.med}ms ${M.inOut}, background ${M.base}ms ${M.out}, color ${M.base}ms ${M.out}`,
+            touchAction: "manipulation",
+            WebkitTapHighlightColor: "transparent",
+          }}
         >
           <span>Open the Door</span>
           <span style={{ fontFamily: F.d, fontStyle: "italic", fontSize: 16, letterSpacing: 0, textTransform: "none" }}>buka pintunya</span>
           <span>→</span>
         </button>
+        <style>{`
+          @media (hover: hover) and (pointer: fine) {
+            .cta-door:hover { background: ${C.arenGlow} !important; color: ${C.coffee} !important; }
+          }
+        `}</style>
       </Fade>
       <Fade delay={750}>
         <p style={{ fontFamily: F.h, fontSize: 18, color: C.cream, opacity: 0.45, marginTop: 32 }}>
