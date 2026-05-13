@@ -767,7 +767,13 @@ function NarrativeCTA({ onOpen }: { onOpen: () => void }) {
         <TukuLogo variant="light" size={88} style={{ marginBottom: 22, filter: `drop-shadow(0 6px 24px ${C.aren}40)` }} />
       </Fade>
       <Fade delay={150}>
-        <p style={{ fontFamily: F.u, fontSize: 10, fontWeight: 700, letterSpacing: 4, color: C.arenGlow, opacity: 0.8, marginBottom: 18 }}>CH · 09 — UNDANGAN</p>
+        <div style={{ marginBottom: 18 }}>
+          <ChapterEyebrow
+            n="09" label="UNDANGAN" page="IX" tone="dark" align="center"
+            title="Bukan mockup. Sebuah pintu yang bisa dibuka."
+            note="Bab penutup. Yang ada di balik tombol bukan slide deck — tapi prototipe interaktif yang bisa kamu jelajahi sebagai tetangga TUKU."
+          />
+        </div>
       </Fade>
       <Fade delay={250}>
         <h2 style={{ fontFamily: F.d, fontSize: "clamp(36px, 6vw, 60px)", color: C.cream, lineHeight: 1.15, margin: "0 0 20px", letterSpacing: -1.2, fontWeight: 400 }}>
