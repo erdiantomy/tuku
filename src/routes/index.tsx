@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect, useRef, useCallback, useMemo, type ReactNode, type CSSProperties } from "react";
+import logoDark from "@/assets/tuku-logo-dark.png";
+import logoLight from "@/assets/tuku-logo-light.png";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -74,6 +76,156 @@ function Badge({ children, color = C.aren }: { children: ReactNode; color?: stri
   return <span style={{ display: "inline-block", padding: "3px 9px", borderRadius: 999, background: color + "20", color, fontFamily: F.u, fontSize: 10, fontWeight: 700, letterSpacing: 0.5 }}>{children}</span>;
 }
 
+function TukuLogo({ variant = "dark", size = 48, withWordmark = true, style }: { variant?: "dark" | "light"; size?: number; withWordmark?: boolean; style?: CSSProperties }) {
+  const src = variant === "dark" ? logoDark : logoLight;
+  // Source images contain the bucket + wordmark stacked. We crop via object-position when wordmark hidden.
+  return (
+    <img
+      src={src}
+      alt="TUKU"
+      style={{
+        width: size, height: withWordmark ? size : size * 0.6, objectFit: "contain",
+        objectPosition: withWordmark ? "center" : "center top",
+        display: "inline-block", userSelect: "none", pointerEvents: "none",
+        ...style,
+      }}
+    />
+  );
+}
+
+function Masthead() {
+  const [solid, setSolid] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setSolid(window.scrollY > 24);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+  return (
+    <div style={{
+      position: "sticky", top: 0, zIndex: 50,
+      display: "flex", alignItems: "center", justifyContent: "space-between",
+      padding: "10px 22px",
+      background: solid ? `${C.cream}EE` : "transparent",
+      backdropFilter: solid ? "blur(8px)" : "none",
+      WebkitBackdropFilter: solid ? "blur(8px)" : "none",
+      borderBottom: solid ? `1px solid ${C.softBrown}30` : "1px solid transparent",
+      transition: "background 0.3s ease, border-color 0.3s ease",
+    }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <TukuLogo variant="dark" size={34} />
+        <div style={{ borderLeft: `1px solid ${C.softBrown}80`, paddingLeft: 12, display: "none" }} className="masthead-tag">
+          <div style={{ fontFamily: F.u, fontSize: 9, fontWeight: 700, letterSpacing: 2, color: C.warmGray }}>EDISI 01</div>
+          <div style={{ fontFamily: F.u, fontSize: 10, fontWeight: 700, letterSpacing: 1.4, color: C.coffee }}>RUKUN TETANGGA DIGITAL</div>
+        </div>
+      </div>
+      <div style={{ textAlign: "right" }}>
+        <div style={{ fontFamily: F.u, fontSize: 9, fontWeight: 700, letterSpacing: 2, color: C.warmGray }}>PROPOSAL</div>
+        <div style={{ fontFamily: F.d, fontStyle: "italic", fontSize: 13, color: C.coffee, lineHeight: 1 }}>MMXXVI</div>
+      </div>
+      <style>{`@media (min-width: 640px) { .masthead-tag { display: block !important; } }`}</style>
+    </div>
+  );
+}
+
+function ChapterMarker({ n, label }: { n: string; label: string }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 28 }}>
+      <span style={{ fontFamily: F.d, fontStyle: "italic", fontSize: 56, fontWeight: 400, color: C.aren, lineHeight: 0.8, letterSpacing: -1 }}>{n}</span>
+      <div style={{ flex: 1, height: 1, background: `linear-gradient(90deg, ${C.aren}80, transparent)` }} />
+      <span style={{ fontFamily: F.u, fontSize: 10, fontWeight: 700, letterSpacing: 3, color: C.warmGray, textTransform: "uppercase" }}>{label}</span>
+    </div>
+  );
+}
+
+const GRAIN_BG = `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.55 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/></svg>")`;
+
+function GrainOverlay({ opacity = 0.06 }: { opacity?: number }) {
+  return <div aria-hidden style={{ position: "absolute", inset: 0, backgroundImage: GRAIN_BG, opacity, pointerEvents: "none", mixBlendMode: "overlay" }} />;
+}
+
+function CornerTicks({ color }: { color: string }) {
+  const tick = (pos: CSSProperties) => <div style={{ position: "absolute", width: 14, height: 14, ...pos }}>
+    <div style={{ position: "absolute", inset: 0, borderColor: color, borderStyle: "solid", borderWidth: 0, ...((pos as any).borderTop ? {} : {}) }} />
+  </div>;
+  void tick;
+  const base: CSSProperties = { position: "absolute", width: 18, height: 18, borderColor: color, borderStyle: "solid" };
+  return (
+    <>
+      <div aria-hidden style={{ ...base, top: 14, left: 14, borderTopWidth: 1, borderLeftWidth: 1, borderRightWidth: 0, borderBottomWidth: 0 }} />
+      <div aria-hidden style={{ ...base, top: 14, right: 14, borderTopWidth: 1, borderRightWidth: 1, borderLeftWidth: 0, borderBottomWidth: 0 }} />
+      <div aria-hidden style={{ ...base, bottom: 14, left: 14, borderBottomWidth: 1, borderLeftWidth: 1, borderRightWidth: 0, borderTopWidth: 0 }} />
+      <div aria-hidden style={{ ...base, bottom: 14, right: 14, borderBottomWidth: 1, borderRightWidth: 1, borderLeftWidth: 0, borderTopWidth: 0 }} />
+    </>
+  );
+}
+
+function PullQuote({ children, color = C.aren }: { children: ReactNode; color?: string }) {
+  return (
+    <blockquote style={{ position: "relative", padding: "28px 18px 24px 64px", margin: "32px 0" }}>
+      <span aria-hidden style={{ position: "absolute", top: -10, left: 0, fontFamily: F.d, fontSize: 120, lineHeight: 1, color, opacity: 0.35, fontStyle: "italic" }}>&ldquo;</span>
+      <p style={{ fontFamily: F.d, fontStyle: "italic", fontSize: "clamp(22px, 3.4vw, 36px)", lineHeight: 1.35, color: C.coffee, margin: 0, fontWeight: 400 }}>
+        {children}
+      </p>
+    </blockquote>
+  );
+}
+
+function Colophon() {
+  return (
+    <section style={{ padding: "56px 24px", background: C.parchment, borderTop: `1px solid ${C.softBrown}40`, borderBottom: `1px solid ${C.softBrown}40` }}>
+      <div style={{ maxWidth: 980, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 28, alignItems: "start" }}>
+        <div>
+          <TukuLogo variant="dark" size={52} />
+          <p style={{ fontFamily: F.u, fontSize: 9, fontWeight: 700, letterSpacing: 2, color: C.warmGray, marginTop: 10 }}>KOPI TUKU · 2026</p>
+        </div>
+        <div>
+          <div style={{ fontFamily: F.u, fontSize: 9, fontWeight: 700, letterSpacing: 2, color: C.warmGray, marginBottom: 8 }}>HURUF</div>
+          <p style={{ fontFamily: F.d, fontSize: 16, color: C.coffee, margin: "0 0 2px" }}>Playfair Display</p>
+          <p style={{ fontFamily: F.b, fontSize: 14, color: C.coffeeMid, margin: "0 0 2px" }}>Source Serif 4</p>
+          <p style={{ fontFamily: F.h, fontSize: 16, color: C.aren, margin: "0 0 2px" }}>Caveat</p>
+          <p style={{ fontFamily: F.u, fontSize: 12, color: C.coffeeMid, letterSpacing: 1 }}>DM Sans</p>
+        </div>
+        <div>
+          <div style={{ fontFamily: F.u, fontSize: 9, fontWeight: 700, letterSpacing: 2, color: C.warmGray, marginBottom: 8 }}>PALET</div>
+          <div style={{ display: "flex", gap: 6 }}>
+            {[C.coffee, C.aren, C.leaf, C.parchment, C.cream].map((c) => (
+              <div key={c} title={c} style={{ width: 22, height: 32, background: c, border: `1px solid ${C.softBrown}40` }} />
+            ))}
+          </div>
+        </div>
+        <div>
+          <div style={{ fontFamily: F.u, fontSize: 9, fontWeight: 700, letterSpacing: 2, color: C.warmGray, marginBottom: 8 }}>EDISI</div>
+          <p style={{ fontFamily: F.d, fontStyle: "italic", fontSize: 22, color: C.coffee, margin: 0, lineHeight: 1.1 }}>Vol. 01</p>
+          <p style={{ fontFamily: F.u, fontSize: 11, color: C.coffeeMid, letterSpacing: 1, marginTop: 4 }}>Jakarta · Amsterdam</p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+const TAB_NAMES = ["Rumah", "Pesan", "Traktir", "Cerita", "Paspor", "Obrolan"] as const;
+const TAB_EYEBROWS = ["beranda", "katalog harian", "rukun tetangga", "di balik gelas", "kartu identitas", "percakapan"] as const;
+function AppTopBar({ tab, onBack }: { tab: number; onBack: () => void }) {
+  return (
+    <div style={{
+      display: "flex", alignItems: "center", justifyContent: "space-between",
+      padding: "12px 16px", background: C.snow,
+      borderBottom: `1px solid ${C.softBrown}25`,
+      position: "sticky", top: 0, zIndex: 8,
+    }}>
+      <button onClick={onBack} aria-label="Kembali ke proposal" style={{ all: "unset", cursor: "pointer", fontFamily: F.u, fontSize: 11, fontWeight: 700, color: C.warmGray, letterSpacing: 1, padding: "4px 8px", borderRadius: 999, border: `1px solid ${C.softBrown}40` }}>← Proposal</button>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", lineHeight: 1 }}>
+        <TukuLogo variant="dark" size={26} withWordmark={false} />
+        <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginTop: 4 }}>
+          <span style={{ fontFamily: F.u, fontSize: 8.5, fontWeight: 700, letterSpacing: 2, color: C.warmGray, textTransform: "uppercase" }}>{TAB_EYEBROWS[tab]}</span>
+          <span style={{ fontFamily: F.d, fontStyle: "italic", fontSize: 13, color: C.coffee }}>{TAB_NAMES[tab]}</span>
+        </div>
+      </div>
+      <div style={{ width: 70, fontFamily: F.u, fontSize: 9, fontWeight: 700, letterSpacing: 1.5, color: C.warmGray, textAlign: "right" }}>EDISI · 01</div>
+    </div>
+  );
+}
+
 const fmt = (n: number) => "Rp " + n.toLocaleString("id-ID");
 
 // ── Mock Data ──
@@ -129,24 +281,43 @@ const MERCH = [
 
 function NarrativeHero() {
   return (
-    <section style={{ minHeight: "100vh", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", padding: "80px 24px", background: `linear-gradient(180deg, ${C.cream} 0%, ${C.warmWhite} 100%)`, textAlign: "center" }}>
+    <section style={{ position: "relative", minHeight: "calc(100vh - 60px)", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", padding: "60px 24px 80px", background: `radial-gradient(ellipse at top, ${C.warmWhite} 0%, ${C.cream} 60%, ${C.parchment} 100%)`, textAlign: "center", overflow: "hidden" }}>
+      <GrainOverlay opacity={0.05} />
+      <div aria-hidden style={{ position: "absolute", top: "8%", left: "50%", transform: "translateX(-50%)", fontFamily: F.d, fontStyle: "italic", fontSize: "clamp(180px, 28vw, 380px)", color: `${C.aren}10`, lineHeight: 0.8, letterSpacing: -8, fontWeight: 700, userSelect: "none", pointerEvents: "none" }}>tetangga</div>
       <Fade>
+        <TukuLogo variant="dark" size={120} style={{ marginBottom: 18, filter: `drop-shadow(0 6px 20px ${C.coffee}25)` }} />
+      </Fade>
+      <Fade delay={120}>
         <Label>sebuah undangan untuk bertetangga</Label>
       </Fade>
-      <Fade delay={200}>
-        <h1 style={{ fontFamily: F.d, fontSize: "clamp(48px, 9vw, 104px)", fontWeight: 700, color: C.coffee, lineHeight: 1.05, margin: "12px 0 28px", letterSpacing: -1.5 }}>
+      <Fade delay={250}>
+        <h1 style={{ fontFamily: F.d, fontSize: "clamp(56px, 11vw, 140px)", fontWeight: 700, color: C.coffee, lineHeight: 1, margin: "10px 0 24px", letterSpacing: -2.5, position: "relative" }}>
           Rukun Tetangga<br />
           <span style={{ fontStyle: "italic", color: C.aren }}>Digital</span>
         </h1>
       </Fade>
-      <Fade delay={400}>
-        <p style={{ fontFamily: F.b, fontSize: 19, color: C.coffeeMid, maxWidth: 580, lineHeight: 1.6, margin: 0 }}>
+      <Fade delay={420}>
+        <p style={{ fontFamily: F.b, fontSize: 20, color: C.coffeeMid, maxWidth: 600, lineHeight: 1.6, margin: 0, fontStyle: "italic" }}>
           Membawa jiwa tetangga ke dunia digital — dari Cipete hingga Amsterdam.
         </p>
       </Fade>
-      <Fade delay={800}>
-        <div style={{ marginTop: 80, fontFamily: F.h, fontSize: 18, color: C.warmGray }}>gulir ke bawah ↓</div>
+      <Fade delay={620}>
+        <div style={{ marginTop: 56, display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap", justifyContent: "center" }}>
+          {[["VOL", "01"], ["TAHUN", "2026"], ["RUTE", "JAKARTA → AMSTERDAM"], ["EDISI", "PROPOSAL"]].map(([k, v]) => (
+            <div key={k} style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "6px 14px", borderLeft: `1px solid ${C.softBrown}80`, borderRight: `1px solid ${C.softBrown}80` }}>
+              <span style={{ fontFamily: F.u, fontSize: 8.5, fontWeight: 700, letterSpacing: 2, color: C.warmGray }}>{k}</span>
+              <span style={{ fontFamily: F.d, fontStyle: "italic", fontSize: 14, color: C.coffee, marginTop: 2 }}>{v}</span>
+            </div>
+          ))}
+        </div>
       </Fade>
+      <Fade delay={900}>
+        <div style={{ marginTop: 70, display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
+          <div style={{ fontFamily: F.h, fontSize: 18, color: C.warmGray }}>gulir ke bawah</div>
+          <div style={{ width: 1, height: 48, background: `linear-gradient(180deg, ${C.aren}, transparent)`, animation: "scrollCue 2s ease-in-out infinite" }} />
+        </div>
+      </Fade>
+      <style>{`@keyframes scrollCue { 0%,100% { transform: scaleY(0.6); transform-origin: top; opacity: 0.4 } 50% { transform: scaleY(1); opacity: 1 } }`}</style>
     </section>
   );
 }
@@ -218,30 +389,40 @@ function NarrativeGap() {
 
 function NarrativeReframe() {
   return (
-    <section style={{ padding: "120px 24px", background: C.coffee, color: C.cream }}>
-      <div style={{ maxWidth: 760, margin: "0 auto", textAlign: "center" }}>
+    <section style={{ position: "relative", padding: "160px 24px", background: `radial-gradient(ellipse at 30% 20%, ${C.coffeeMid} 0%, ${C.coffee} 60%, #1f130b 100%)`, color: C.cream, overflow: "hidden" }}>
+      <GrainOverlay opacity={0.10} />
+      <CornerTicks color={`${C.cream}30`} />
+      <TukuLogo variant="light" size={520} style={{ position: "absolute", right: -80, bottom: -60, opacity: 0.045, transform: "rotate(-8deg)" }} />
+      <div style={{ position: "relative", maxWidth: 820, margin: "0 auto", textAlign: "center" }}>
         <Fade>
-          <Label>Pergeseran</Label>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 10, padding: "5px 14px", border: `1px solid ${C.arenGlow}40`, borderRadius: 999 }}>
+            <span style={{ fontFamily: F.u, fontSize: 9, fontWeight: 700, letterSpacing: 3, color: C.arenGlow }}>CH · 04 — PERGESERAN</span>
+          </div>
         </Fade>
         <Fade delay={150}>
-          <p style={{ fontFamily: F.d, fontSize: "clamp(28px, 4vw, 40px)", color: C.cream, lineHeight: 1.3, margin: "12px 0 40px", opacity: 0.7 }}>
+          <p style={{ fontFamily: F.d, fontSize: "clamp(28px, 4vw, 44px)", color: C.cream, lineHeight: 1.3, margin: "26px 0 56px", opacity: 0.62 }}>
             Setiap brand kopi di dunia membangun<br />
             <span style={{ fontStyle: "italic" }}>loyalty program.</span>
           </p>
         </Fade>
         <Fade delay={400}>
-          <h2 style={{ fontFamily: F.d, fontSize: "clamp(36px, 6vw, 64px)", color: C.arenGlow, lineHeight: 1.15, margin: "0 0 48px", letterSpacing: -1, fontWeight: 700 }}>
-            TUKU bisa membangun yang belum pernah ada:<br />
+          <h2 style={{ fontFamily: F.d, fontSize: "clamp(40px, 7vw, 78px)", color: C.arenGlow, lineHeight: 1.1, margin: "0 0 56px", letterSpacing: -1.5, fontWeight: 700 }}>
+            TUKU bisa membangun<br />yang belum pernah ada:<br />
             <span style={{ fontStyle: "italic" }}>sebuah rukun tetangga.</span>
           </h2>
         </Fade>
         <Fade delay={650}>
-          <p style={{ fontFamily: F.h, fontSize: 26, color: C.cream, opacity: 0.8, marginBottom: 12 }}>
-            Starbucks memberi reward karena kamu belanja.
-          </p>
-          <p style={{ fontFamily: F.h, fontSize: 30, color: C.arenGlow, fontWeight: 600 }}>
-            TUKU memberi reward karena kamu tetangga yang baik.
-          </p>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", gap: 24, alignItems: "center", maxWidth: 720, margin: "0 auto", padding: "28px 18px", border: `1px solid ${C.cream}18`, borderRadius: 4 }}>
+            <div style={{ textAlign: "right" }}>
+              <div style={{ fontFamily: F.u, fontSize: 9, fontWeight: 700, letterSpacing: 2, color: C.cream, opacity: 0.5, marginBottom: 6 }}>MEREKA</div>
+              <p style={{ fontFamily: F.h, fontSize: 22, color: C.cream, opacity: 0.85, margin: 0, lineHeight: 1.3 }}>Reward karena kamu <em>belanja</em>.</p>
+            </div>
+            <div style={{ width: 1, height: 56, background: `${C.arenGlow}40` }} />
+            <div style={{ textAlign: "left" }}>
+              <div style={{ fontFamily: F.u, fontSize: 9, fontWeight: 700, letterSpacing: 2, color: C.arenGlow, marginBottom: 6 }}>TUKU</div>
+              <p style={{ fontFamily: F.h, fontSize: 26, color: C.arenGlow, fontWeight: 600, margin: 0, lineHeight: 1.3 }}>Reward karena kamu <em>tetangga yang baik</em>.</p>
+            </div>
+          </div>
         </Fade>
       </div>
     </section>
@@ -349,30 +530,45 @@ function NarrativeCTA({ onOpen }: { onOpen: () => void }) {
   const [pulse, setPulse] = useState(false);
   useEffect(() => { const i = setInterval(() => setPulse(p => !p), 1800); return () => clearInterval(i); }, []);
   return (
-    <section style={{ padding: "140px 24px", background: C.coffee, color: C.cream, textAlign: "center" }}>
+    <section style={{ position: "relative", padding: "160px 24px", background: `radial-gradient(ellipse at 50% 0%, ${C.coffeeMid} 0%, ${C.coffee} 55%, #1a0e07 100%)`, color: C.cream, textAlign: "center", overflow: "hidden" }}>
+      <GrainOverlay opacity={0.09} />
+      <CornerTicks color={`${C.cream}25`} />
       <Fade>
-        <p style={{ fontFamily: F.h, fontSize: 32, color: C.arenGlow, marginBottom: 12 }}>
-          Sekarang, bayangkan kamu<br />membuka app ini.
-        </p>
+        <TukuLogo variant="light" size={88} style={{ marginBottom: 22, filter: `drop-shadow(0 6px 24px ${C.aren}40)` }} />
       </Fade>
-      <Fade delay={200}>
-        <p style={{ fontFamily: F.b, fontSize: 17, color: C.cream, opacity: 0.7, marginBottom: 56, maxWidth: 480, marginLeft: "auto", marginRight: "auto" }}>
+      <Fade delay={150}>
+        <p style={{ fontFamily: F.u, fontSize: 10, fontWeight: 700, letterSpacing: 4, color: C.arenGlow, opacity: 0.8, marginBottom: 18 }}>CH · 09 — UNDANGAN</p>
+      </Fade>
+      <Fade delay={250}>
+        <h2 style={{ fontFamily: F.d, fontSize: "clamp(36px, 6vw, 60px)", color: C.cream, lineHeight: 1.15, margin: "0 0 20px", letterSpacing: -1.2, fontWeight: 400 }}>
+          Sekarang, bayangkan kamu<br /><span style={{ fontStyle: "italic", color: C.arenGlow }}>membuka pintu ini.</span>
+        </h2>
+      </Fade>
+      <Fade delay={420}>
+        <p style={{ fontFamily: F.h, fontSize: 22, color: C.cream, opacity: 0.7, marginBottom: 56, maxWidth: 520, marginLeft: "auto", marginRight: "auto" }}>
           Ini bukan mockup. Ini sketsa di serbet — yang bisa kamu sentuh.
         </p>
       </Fade>
-      <Fade delay={400}>
+      <Fade delay={550}>
         <button onClick={onOpen} style={{
-          all: "unset", cursor: "pointer", display: "inline-block",
-          background: C.aren, color: C.coffee, padding: "20px 44px",
-          borderRadius: 999, fontFamily: F.u, fontSize: 17, fontWeight: 700,
-          letterSpacing: 0.5, transform: pulse ? "scale(1.04)" : "scale(1)",
-          transition: "transform 0.6s ease", boxShadow: `0 8px 32px ${C.aren}50`,
-        }}>
-          ☕  Buka Pintunya
+          all: "unset", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 14,
+          background: "transparent", color: C.arenGlow, padding: "18px 38px",
+          borderRadius: 0, fontFamily: F.u, fontSize: 14, fontWeight: 700,
+          letterSpacing: 3, textTransform: "uppercase",
+          border: `1px solid ${C.arenGlow}`,
+          transform: pulse ? "translateY(-2px)" : "translateY(0)",
+          transition: "transform 0.6s ease, background 0.3s ease, color 0.3s ease",
+        }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = C.arenGlow; (e.currentTarget as HTMLButtonElement).style.color = C.coffee; }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "transparent"; (e.currentTarget as HTMLButtonElement).style.color = C.arenGlow; }}
+        >
+          <span>Open the Door</span>
+          <span style={{ fontFamily: F.d, fontStyle: "italic", fontSize: 16, letterSpacing: 0, textTransform: "none" }}>buka pintunya</span>
+          <span>→</span>
         </button>
       </Fade>
-      <Fade delay={600}>
-        <p style={{ fontFamily: F.h, fontSize: 18, color: C.cream, opacity: 0.5, marginTop: 24 }}>
+      <Fade delay={750}>
+        <p style={{ fontFamily: F.h, fontSize: 18, color: C.cream, opacity: 0.45, marginTop: 32 }}>
           tap untuk merasakan Rukun Tetangga Digital
         </p>
       </Fade>
@@ -1666,13 +1862,22 @@ function TukuRukunTetangga() {
   if (mode === "transition") {
     return (
       <div style={{
-        position: "fixed", inset: 0, background: C.coffee, display: "flex",
-        flexDirection: "column", justifyContent: "center", alignItems: "center",
-        zIndex: 999,
+        position: "fixed", inset: 0,
+        background: `radial-gradient(ellipse at center, ${C.coffeeMid} 0%, ${C.coffee} 50%, #150a05 100%)`,
+        display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center",
+        zIndex: 999, overflow: "hidden",
       }}>
-        <style>{`@keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } } @keyframes pulseGlow { 0%,100% { transform: scale(1); opacity: 0.8 } 50% { transform: scale(1.15); opacity: 1 } }`}</style>
-        <div style={{ fontSize: 56, animation: "pulseGlow 1.2s ease-in-out infinite" }}>☕</div>
-        <p style={{ fontFamily: F.h, fontSize: 22, color: C.arenGlow, marginTop: 18 }}>Membuka pintu tetangga…</p>
+        <style>{`
+          @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+          @keyframes pulseGlow { 0%,100% { transform: scale(1); opacity: 0.85 } 50% { transform: scale(1.08); opacity: 1 } }
+          @keyframes loaderSlide { 0% { transform: translateX(-100%) } 100% { transform: translateX(100%) } }
+        `}</style>
+        <GrainOverlay opacity={0.08} />
+        <TukuLogo variant="light" size={140} style={{ animation: "pulseGlow 1.4s ease-in-out infinite", filter: `drop-shadow(0 8px 30px ${C.aren}50)` }} />
+        <p style={{ fontFamily: F.d, fontStyle: "italic", fontSize: 24, color: C.arenGlow, marginTop: 22, letterSpacing: 0.5 }}>Membuka pintu tetangga…</p>
+        <div style={{ width: 180, height: 1, background: `${C.cream}20`, marginTop: 28, overflow: "hidden", position: "relative" }}>
+          <div style={{ position: "absolute", inset: 0, background: `linear-gradient(90deg, transparent, ${C.arenGlow}, transparent)`, animation: "loaderSlide 1.4s ease-in-out infinite" }} />
+        </div>
       </div>
     );
   }
@@ -1687,10 +1892,10 @@ function TukuRukunTetangga() {
       <AppObrolan key="m" goTo={setTab} openBatch={openBatch} />,
     ];
     return (
-      <div style={{ minHeight: "100vh", background: C.cream, display: "flex", justifyContent: "center", alignItems: "stretch" }}>
+      <div style={{ minHeight: "100vh", background: `radial-gradient(ellipse at center, ${C.cream} 0%, ${C.parchment} 100%)`, display: "flex", justifyContent: "center", alignItems: "stretch" }}>
         <style>{`@keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }`}</style>
-        <div style={{ width: "100%", maxWidth: 420, background: C.snow, position: "relative", display: "flex", flexDirection: "column", boxShadow: `0 0 40px ${C.coffee}15` }}>
-          <button onClick={backToNarrative} style={{ all: "unset", cursor: "pointer", position: "absolute", top: 16, right: 16, zIndex: 10, fontFamily: F.u, fontSize: 11, fontWeight: 600, color: C.warmGray, background: C.warmWhite, padding: "6px 12px", borderRadius: 999, border: `1px solid ${C.softBrown}25` }}>← Proposal</button>
+        <div style={{ width: "100%", maxWidth: 420, background: C.snow, position: "relative", display: "flex", flexDirection: "column", boxShadow: `0 0 60px ${C.coffee}30, 0 0 0 1px ${C.softBrown}40` }}>
+          <AppTopBar tab={tab} onBack={backToNarrative} />
 
           <div ref={appRef} style={{ flex: 1, overflowY: "auto", paddingBottom: 70, animation: "fadeIn 0.4s ease" }}>
             {screens[tab]}
@@ -1712,6 +1917,7 @@ function TukuRukunTetangga() {
   // Narrative mode
   return (
     <main style={{ background: C.cream, color: C.coffee }}>
+      <Masthead />
       <NarrativeHero />
       <NarrativeLetter />
       <NarrativeGap />
@@ -1747,11 +1953,15 @@ function TukuRukunTetangga() {
         </Fade>
       </section>
 
-      <footer style={{ padding: "60px 24px", background: C.coffee, color: C.cream, textAlign: "center" }}>
-        <p style={{ fontFamily: F.h, fontSize: 24, color: C.arenGlow, margin: "0 0 12px" }}>Mari bertetangga baik. 🤝</p>
-        <p style={{ fontFamily: F.u, fontSize: 12, color: C.cream, opacity: 0.6, lineHeight: 1.7, margin: 0 }}>
-          Strategic Advisory · Digital Transformation<br />
-          F&amp;B &amp; Coffee Industry Practice
+      <Colophon />
+      <footer style={{ position: "relative", padding: "80px 24px", background: `radial-gradient(ellipse at center, ${C.coffeeMid} 0%, ${C.coffee} 60%, #15090480 100%)`, color: C.cream, textAlign: "center", overflow: "hidden" }}>
+        <GrainOverlay opacity={0.08} />
+        <TukuLogo variant="light" size={64} style={{ marginBottom: 18, opacity: 0.95 }} />
+        <p style={{ fontFamily: F.d, fontStyle: "italic", fontSize: 26, color: C.arenGlow, margin: "0 0 14px" }}>Mari bertetangga baik.</p>
+        <div style={{ width: 40, height: 1, background: `${C.arenGlow}60`, margin: "0 auto 18px" }} />
+        <p style={{ fontFamily: F.u, fontSize: 11, color: C.cream, opacity: 0.6, lineHeight: 1.9, margin: 0, letterSpacing: 1.5 }}>
+          STRATEGIC ADVISORY · DIGITAL TRANSFORMATION<br />
+          F&amp;B &amp; COFFEE INDUSTRY PRACTICE · MMXXVI
         </p>
       </footer>
     </main>

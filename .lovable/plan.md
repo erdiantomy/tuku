@@ -1,92 +1,75 @@
-
 ## Tujuan
 
-Saat user mengetuk salah satu lencana di section "Lencana Pencapaian" pada Paspor, tampilkan halaman detail (overlay modal) berisi: ikon besar, nama, status, syarat, progres, dan tanggal earned.
+1. Pasang logo TUKU (handmade bucket + wordmark) di section yang relevan — masthead proposal, splash app, header app, paspor card, footer.
+2. Naikkan keseluruhan rasa visual proposal (NarrativeHero → Footer) dan layar MVP jadi *editorial cinematic*: tipografi lebih dramatis, framing magazine, separator chapter, tonal kontras gelap-terang, sinematik full-bleed, grain halus.
 
-## Scope
+## Aset
 
-Semua di `src/routes/index.tsx`, dalam `AppPaspor`. UI/state lokal — tanpa backend.
+- Salin `user-uploads://IMG_0651-2.png` → `src/assets/tuku-logo-dark.png` (logo hitam untuk background terang).
+- Salin `user-uploads://IMG_0652-2.png` → `src/assets/tuku-logo-light.png` (logo putih untuk background gelap).
+- Buat komponen `<TukuLogo variant="dark" | "light" size={...} />` di file yang sama (pakai `<img>` import ES6).
 
-## Implementasi
+## Penempatan logo
 
-### 1. Naikkan data lencana ke konstanta
+| Lokasi | Varian | Ukuran |
+|---|---|---|
+| `Masthead` baru di top proposal (sticky, transparan→solid setelah scroll) | dark | wordmark 28px |
+| `NarrativeHero` di atas headline | dark | logo+wordmark 96px |
+| `NarrativeReframe` (background gelap) sebagai watermark besar di kanan bawah, opacity 0.06 | light | 480px |
+| Splash transition (mode "transition") menggantikan ☕ emoji | light | logo 120px dengan halo |
+| App header bar baru di phone frame (di atas konten masing-masing screen) | dark | wordmark kecil 22px + label "Rukun Tetangga Digital" |
+| `AppPaspor` kartu identitas — watermark logo di pojok | light | 80px opacity 0.18 |
+| Footer | light | logo 56px tengah |
 
-Pindahkan array inline ke konstanta `BADGES` di luar komponen, dengan tipe lengkap:
+Tidak menambah logo di header AppHome lama (ada teks "Halo, Andi 👋"). Header app baru tampil di atas semua tab kecuali ChatDetail (yang punya header sendiri).
 
-```ts
-type Badge = {
-  id: string;
-  icon: string;
-  name: string;
-  sub?: string;
-  desc: string;          // narasi singkat lencana
-  req: string;           // syarat raih (1 kalimat)
-  current: number;
-  target: number;
-  unit: string;          // "kunjungan" / "kota" / "traktir" / "batch"
-  earned: boolean;
-  earnedAt?: string;     // ISO date, hanya untuk earned
-};
-```
+## Editorial / cinematic upgrades (proposal)
 
-Isi 8 lencana yang sudah ada, contoh nilai (current/target/earnedAt) konsisten dengan `USER`:
+### Global
+- **Magazine masthead bar** sticky di paling atas: kiri = `<TukuLogo>` + tagline "EDISI 01 · RUKUN TETANGGA DIGITAL"; kanan = "PROPOSAL · 2026". Latar kremasi semi-transparan dengan blur saat di-scroll.
+- **Chapter dividers**: tiap section narrative didahului penanda numerik besar serif italic — `I`, `II`, `III`, … di pinggir kiri (margin) seperti coffee table book.
+- **Grain overlay** halus (SVG noise data-uri) jadi ::after pada section gelap supaya terasa film.
+- **Vertikal rhythm dinaikkan**: padding section 140–180px, max-width body 720, headline boleh sampai clamp(56px, 10vw, 132px).
+- **Drop cap** Playfair pada paragraf pertama tiap surat/section panjang.
+- **Pull quote treatment**: italic Playfair besar (clamp 32–56px) dengan tanda kutip raksasa berwarna `C.aren` di belakang.
+- **Cinematic frame**: section gelap pakai inset border 1px `${C.cream}15` + corner ticks (4 garis pendek di sudut) ala film slate.
+- **Eyebrow chapter**: `Label` dipertahankan tapi ditambah nomor chapter monospace di sebelahnya (`CH·02 — YANG KAMI AMATI`).
 
-- `seruput` ☕ Seruput Pertama — req "Pesan kopi pertamamu" · 1/1 · earned 12 Mar 2023
-- `cipete` 🏠 Warga Cipete — req "20 kunjungan ke TUKU rumah" · 147/20 · earned 4 Jul 2023
-- `tetangga` 🤝 Tetangga Baik — req "Traktir 10 tetangga" · 12/10 · earned 19 Sep 2024
-- `penjelajah` 🗺️ Penjelajah — req "Kunjungi 3 kota berbeda" · 4/3 · earned 5 Feb 2025
-- `pelancong` ✈️ Pelancong Global — req "Kunjungi 1 toko di luar negeri" · 1/1 · earned 21 Apr 2025
-- `setia100` 💯 Setia 100 — req "100 kunjungan total" · 147/100 → **earned**? Jika current ≥ target → earned otomatis (auto-derive). Tapi tampilan saat ini "5/8 terkumpul" dan ini ditandai `earned: false`. Untuk mempertahankan tampilan: tetap `earned: false` di prototype, anggap badge ini "naik kelas" → ubah `target` jadi 200 supaya konsisten (147/200, belum earned).
-- `petani` 🌱 Sahabat Petani — req "Pesan dari 5 batch petani berbeda" · 2/5
-- `sesepuh` 👑 Sesepuh — req "Kunjungi semua kota TUKU (71)" · 6/71
+### Section per section
+1. **NarrativeHero** — full-bleed cream→warmWhite gradient, logo besar di atas, headline naik ke clamp(56,10vw,140), tambah "issue plate" kecil bawah headline ("VOL.01 / OKT 2026 / JAKARTA → AMSTERDAM"). Scroll cue dengan garis vertikal animated.
+2. **NarrativeLetter** — drop cap "S" pada paragraf pertama; tanda tangan handwriting Caveat di akhir ("— hormat kami,") + paraf garis. Garis kerangka serbet di samping.
+3. **NarrativeGap** — angka "80%" diperbesar jadi numeral display (clamp 120–220px) sebagai latar di belakang teks.
+4. **NarrativeReframe** — background `C.coffee` dengan watermark logo TUKU light raksasa kanan bawah; pull quote Starbucks vs TUKU dibingkai ganda.
+5. **NarrativePillars** — kartu pilar diubah jadi editorial "spread": nomor besar (01/02/03) sebagai numeral background card; gambar kotak duotone (hanya CSS gradient + ikon emoji besar di tengah lingkaran texture). Tata kolom asimetris pada desktop.
+6. **NarrativeTraktir** — pull quote ala majalah, kutipan barista jadi "callout box" dengan tepi double border.
+7. **NarrativeGlobal** — peta minimalis SVG titik Cipete↔Amsterdam (sudah punya world map di ExpeditionMap; reuse style sederhana). Ada timestamp baris ("07.42 WIB · CIPETE — 02.42 CET · AMSTERDAM").
+8. **NarrativeCTA** — background gelap, logo light di atas tombol, tombol jadi outlined dengan tipografi serif ("Open the door" + sub Indonesia), micro-credit di bawah.
+9. **Closing sections** — tambah **colophon** ala buku: typeface, palette swatch, tahun, dengan logo light kecil. Footer pakai layout 3 kolom mini: logo · credit · year.
 
-Counter "5 dari 8 terkumpul" dihitung dari `BADGES.filter(b => b.earned).length`.
+### Layar MVP (app)
 
-### 2. State + interaksi di `AppPaspor`
+- Masukkan **ApplicationFrame** baru: bar atas berisi logo + nama tab aktif (uppercase tracking lebar) di dalam phone frame, mengganti tombol "← Proposal" lama (tombol dipindah ke kiri bar). Latar bar `C.snow` dengan border bawah hairline.
+- Tipografi tab judul dinaikkan jadi serif italic (Playfair italic 14) berdampingan dengan eyebrow uppercase tipis.
+- Splash transition: gradient radial coffee→hitam, logo light pulse, garis loader tipis horizontal bergeser kanan.
+- Kartu Paspor (AppPaspor header gradient) tambah watermark logo light dan ticket-edge perforation kecil di kiri/kanan untuk feel boarding pass sinematik.
+- Tab nav: ikon active dapat underline tipis aren + label uppercase tracking 1.5; tombol tengah Traktir tetap, halo pulse halus.
+- Cerita header dapat eyebrow "CHAPTER · BATCH AKTIF" + numeral besar di pojok.
 
-Tambahkan state lokal: `selectedBadge: string | null`.
+### Penambahan utility
 
-Di grid lencana, ubah tiap cell jadi `<button>` (all-unset, cursor pointer) dengan `onClick={() => setSelectedBadge(b.id)}` dan `aria-label`. Sisanya tampilan tetap (ikon, name, sub).
+- Tambah komponen kecil di file yang sama:
+  - `Masthead`
+  - `ChapterMarker` (angka romawi serif italic + garis tipis)
+  - `PullQuote`
+  - `GrainOverlay` (absolute positioned div with SVG noise)
+  - `Colophon`
+  - `AppTopBar`
 
-### 3. Komponen overlay `BadgeDetail`
-
-Modal positioned `position: absolute` di dalam frame app (parent sudah `position: relative` via container max-w 420). Tidak `position: fixed` global supaya overlay tetap di dalam mockup HP.
-
-Layout:
-
-- Backdrop semi-transparan `${C.coffee}55` dengan `backdropFilter: blur(2px)`. Click → close.
-- Card panel: bottom-sheet style — `position: absolute`, bottom 0, left 0, right 0, radius top 20, background `C.snow`, padding 22, max-height 80%, overflow-y auto. Slide-up animation.
-- Tombol close "✕" pojok kanan atas.
-- Header:
-  - Ikon besar 64px dalam lingkaran 88px (background `${C.aren}20` jika earned, `${C.softBrown}20` jika belum). Earned diberi efek halo (`box-shadow: 0 0 0 6px ${C.aren}25`).
-  - Nama lencana (display font 22, bold).
-  - Chip status: "✓ Sudah diraih" warna leaf (jika earned) atau "🔒 Belum" warna warmGray.
-- Section "Syarat" — paragraf `req` dengan eyebrow uppercase kecil "SYARAT".
-- Section "Progres" — bar progres (height 9, radius 999, background parchment, fill `C.aren`/`C.leaf` jika earned). Label di atas bar: `{current}/{target} {unit}` + persentase di kanan. Cap visual 100% jika current ≥ target.
-- Section "Tanggal" — jika earned: 📅 + format Indonesia (`tgl bulan tahun`, contoh "21 April 2025") menggunakan `Date.toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })`. Jika belum: tampilan estimatif "Berikutnya: butuh {target - current} {unit} lagi".
-- CTA bawah:
-  - Earned → tombol sekunder "Tutup".
-  - Belum → tombol utama warna aren "Lanjutkan ekspedisi" yang menutup modal (placeholder, tidak navigate ke tab lain agar scope kecil).
-- ESC key untuk close (`useEffect` keydown listener).
-
-### 4. Animasi
-
-Tambah `<style>` dalam komponen modal:
-
-```text
-@keyframes badgeIn { from { transform: translateY(20px); opacity: 0 } to { transform: none; opacity: 1 } }
-@keyframes backdropIn { from { opacity: 0 } to { opacity: 1 } }
-```
-
-Backdrop pakai `backdropIn 0.2s`, panel pakai `badgeIn 0.28s ease`.
-
-### 5. Tidak diubah
-
-- Layout grid lencana, posisi section.
-- Sub-tab Toserbaku, peta, filter, dll.
+Tidak ada perubahan business logic / data / routing. Hanya presentasi.
 
 ## Catatan teknis
 
-- Tidak tambah dependency.
-- Karena container app sudah `position: relative` dengan `overflow-y: auto`, modal `position: absolute; inset: 0;` cukup. Pastikan `z-index` lebih tinggi dari nav bawah.
-- Jika user pindah sub-tab atau tab utama, modal otomatis unmount karena state lokal `AppPaspor`.
+- Asset dipakai via `import logoDark from "@/assets/tuku-logo-dark.png"`.
+- Tidak menambah dependency baru. Semua animasi pakai keyframes inline `<style>`.
+- Pertahankan kontras AA: warna teks tetap `C.coffee/coffeeMid` di terang, `C.cream/arenGlow` di gelap.
+- Edit terbatas pada `src/routes/index.tsx` + 2 file aset baru di `src/assets/`.
