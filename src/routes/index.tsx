@@ -323,7 +323,7 @@ function ChapterEyebrow({
   const padX = coarse ? 16 : (dark ? 14 : 10);
 
   return (
-    <div ref={ref} style={{ position: "relative", display: "inline-block", textAlign: align }}>
+    <div ref={ref} style={{ position: "relative", display: "block", textAlign: align }}>
       <button
         type="button"
         onClick={() => setOpen(o => !o)}
@@ -365,13 +365,14 @@ function ChapterEyebrow({
           id={id}
           role="region"
           style={{
-            position: "absolute", top: "calc(100% + 10px)",
-            ...(align === "center" ? { left: "50%", transform: "translateX(-50%)" } : { left: 0 }),
-            width: coarse ? "min(94vw, 380px)" : "min(92vw, 360px)", textAlign: "left", zIndex: 20,
+            position: "relative", display: "block",
+            marginTop: 10,
+            marginInline: align === "center" ? "auto" : 0,
+            width: coarse ? "min(94vw, 380px)" : "min(92vw, 360px)",
+            textAlign: "left", zIndex: 20,
             background: panelBg, border: `1px solid ${panelBorder}`, borderRadius: 4,
             padding: coarse ? "18px 20px 16px" : "16px 18px 14px",
             boxShadow: dark ? `0 24px 60px ${C.coffee}80` : `0 18px 40px ${C.coffee}25`,
-            backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)",
             animation: "ebReveal 240ms ease-out both",
           }}
         >
@@ -757,7 +758,7 @@ function NarrativeHero() {
       <FrameOverlay tone="light" intensity="subtle" watermark="none" />
       <div aria-hidden style={{ position: "absolute", top: "8%", left: "50%", transform: "translateX(-50%)", fontFamily: F.d, fontStyle: "italic", fontSize: "clamp(180px, 28vw, 380px)", color: `${C.aren}10`, lineHeight: 0.8, letterSpacing: -8, fontWeight: 700, userSelect: "none", pointerEvents: "none" }}>tetangga</div>
       <Fade>
-        <TukuLogo variant="dark" size={120} minSize={72} maxSize={120} style={{ margin: "0 auto 18px" }} />
+        <TukuLogo variant="dark" size={72} minSize={48} maxSize={72} halo={false} style={{ margin: "0 auto 18px", opacity: 0.55 }} />
       </Fade>
       <Fade delay={120}>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
@@ -1018,7 +1019,7 @@ function NarrativeCTA({ onOpen }: { onOpen: () => void }) {
     <section style={{ position: "relative", padding: "160px 24px", background: `radial-gradient(ellipse at 50% 0%, ${C.coffeeMid} 0%, ${C.coffee} 55%, #1a0e07 100%)`, color: C.cream, textAlign: "center", overflow: "hidden" }}>
       <FrameOverlay tone="dark" intensity="feature" watermark="cup" watermarkPos="tl" />
       <Fade>
-        <TukuLogo variant="light" size={88} minSize={56} maxSize={88} style={{ margin: "0 auto 22px" }} />
+        <TukuLogo variant="light" size={56} minSize={40} maxSize={56} halo={false} style={{ margin: "0 auto 22px", opacity: 0.5 }} />
       </Fade>
       <Fade delay={150}>
         <div style={{ marginBottom: 18 }}>
@@ -1047,11 +1048,10 @@ function NarrativeCTA({ onOpen }: { onOpen: () => void }) {
           onPointerUp={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = pulse ? "translateY(-2px)" : "translateY(0)"; }}
           onPointerCancel={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = pulse ? "translateY(-2px)" : "translateY(0)"; }}
           style={{
-            all: "unset", cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 14,
-            background: "transparent", color: C.arenGlow, padding: "18px 38px",
-            minHeight: 52, minWidth: 240, boxSizing: "border-box",
-            borderRadius: 0, fontFamily: F.u, fontSize: 14, fontWeight: 700,
-            letterSpacing: 3, textTransform: "uppercase",
+            all: "unset", cursor: "pointer", display: "inline-flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4,
+            background: "transparent", color: C.arenGlow, padding: "16px 32px",
+            minHeight: 64, minWidth: 220, maxWidth: "92vw", boxSizing: "border-box",
+            borderRadius: 0,
             border: `1px solid ${C.arenGlow}`,
             transform: pulse ? "translateY(-2px)" : "translateY(0)",
             transition: `transform ${M.med}ms ${M.inOut}, background ${M.base}ms ${M.out}, color ${M.base}ms ${M.out}`,
@@ -1059,9 +1059,11 @@ function NarrativeCTA({ onOpen }: { onOpen: () => void }) {
             WebkitTapHighlightColor: "transparent",
           }}
         >
-          <span>Open the Door</span>
-          <span style={{ fontFamily: F.d, fontStyle: "italic", fontSize: 16, letterSpacing: 0, textTransform: "none" }}>buka pintunya</span>
-          <span>→</span>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 10, fontFamily: F.u, fontSize: 13, fontWeight: 700, letterSpacing: 3, textTransform: "uppercase" }}>
+            <span>Open the Door</span>
+            <span aria-hidden>→</span>
+          </span>
+          <span style={{ fontFamily: F.d, fontStyle: "italic", fontSize: 14, letterSpacing: 0, textTransform: "none", opacity: 0.75 }}>buka pintunya</span>
         </button>
         <style>{`
           @media (hover: hover) and (pointer: fine) {
@@ -2383,7 +2385,7 @@ function TukuRukunTetangga() {
           @keyframes staggerIn { from { opacity: 0; transform: translateY(8px) } to { opacity: 1; transform: none } }
         `}</style>
         <FrameOverlay tone="dark" intensity="feature" watermark="none" />
-        <TukuLogo variant="light" size={140} minSize={88} maxSize={140} style={{ marginInline: "auto", animation: `staggerIn ${M.med}ms ${M.out} both, pulseGlow 1.6s ${M.inOut} ${M.base}ms infinite`, willChange: "filter, transform, opacity" }} />
+        <TukuLogo variant="light" size={96} minSize={64} maxSize={96} halo={false} style={{ marginInline: "auto", opacity: 0.7, animation: `staggerIn ${M.med}ms ${M.out} both`, willChange: "transform, opacity" }} />
         <p style={{ fontFamily: F.d, fontStyle: "italic", fontSize: 24, color: C.arenGlow, marginTop: 22, letterSpacing: 0.5, animation: `staggerIn ${M.med}ms ${M.out} 80ms both` }}>Membuka pintu tetangga…</p>
         <div style={{ width: 180, height: 1, background: `${C.cream}20`, marginTop: 28, overflow: "hidden", position: "relative", animation: `staggerIn ${M.med}ms ${M.out} 160ms both` }}>
           <div style={{ position: "absolute", inset: 0, background: `linear-gradient(90deg, transparent, ${C.arenGlow}, transparent)`, animation: `loaderSlide 1.6s ${M.inOut} infinite` }} />
@@ -2479,7 +2481,7 @@ function TukuRukunTetangga() {
       <Colophon />
       <footer style={{ position: "relative", padding: "80px 24px", background: `radial-gradient(ellipse at center, ${C.coffeeMid} 0%, ${C.coffee} 60%, #15090480 100%)`, color: C.cream, textAlign: "center", overflow: "hidden" }}>
         <FrameOverlay tone="dark" intensity="soft" watermark="none" />
-        <TukuLogo variant="light" size={64} minSize={48} maxSize={64} halo={false} style={{ margin: "0 auto 18px", opacity: 0.95 }} />
+        <TukuLogo variant="light" size={48} minSize={40} maxSize={48} halo={false} style={{ margin: "0 auto 18px", opacity: 0.55 }} />
         <p style={{ fontFamily: F.d, fontStyle: "italic", fontSize: 26, color: C.arenGlow, margin: "0 0 14px" }}>Mari bertetangga baik.</p>
         <div style={{ width: 40, height: 1, background: `${C.arenGlow}60`, margin: "0 auto 18px" }} />
         <p style={{ fontFamily: F.u, fontSize: 11, color: C.cream, opacity: 0.6, lineHeight: 1.9, margin: 0, letterSpacing: 1.5 }}>
