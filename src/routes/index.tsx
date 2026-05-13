@@ -1166,7 +1166,7 @@ function AppPaspor() {
     return (<>{text.slice(0, idx)}<mark style={{ background: `${C.aren}30`, color: C.coffee, padding: "0 2px", borderRadius: 3 }}>{text.slice(idx, idx + q.length)}</mark>{text.slice(idx + q.length)}</>);
   };
   return (
-    <div style={{ padding: 18 }}>
+    <div style={{ padding: 18, position: "relative" }}>
       <div style={{ background: `linear-gradient(135deg, ${C.coffee} 0%, ${C.coffeeMid} 100%)`, borderRadius: 18, padding: 22, color: C.cream, textAlign: "center", marginBottom: 18 }}>
         <div style={{ width: 64, height: 64, borderRadius: "50%", background: C.aren, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 10px", fontFamily: F.d, fontSize: 28, fontWeight: 700, color: C.coffee }}>{USER.name[0]}</div>
         <h2 style={{ fontFamily: F.d, fontSize: 22, margin: "0 0 4px", fontWeight: 700 }}>{USER.name}</h2>
