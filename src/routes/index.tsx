@@ -2125,12 +2125,12 @@ function TukuRukunTetangga() {
 
   const openApp = useCallback(() => {
     setMode("transition");
-    setTimeout(() => setMode("app"), 600);
+    setTimeout(() => setMode("app"), M.slow);
   }, []);
 
   const backToNarrative = useCallback(() => {
     setMode("transition");
-    setTimeout(() => setMode("narrative"), 400);
+    setTimeout(() => setMode("narrative"), M.med);
   }, []);
 
   if (mode === "transition") {
@@ -2140,17 +2140,19 @@ function TukuRukunTetangga() {
         background: `radial-gradient(ellipse at center, ${C.coffeeMid} 0%, ${C.coffee} 50%, #150a05 100%)`,
         display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center",
         zIndex: 999, overflow: "hidden",
+        animation: `shellFade ${M.med}ms ${M.out} both`,
       }}>
         <style>{`
-          @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
-          @keyframes pulseGlow { 0%,100% { transform: scale(1); opacity: 0.85 } 50% { transform: scale(1.08); opacity: 1 } }
+          @keyframes shellFade { from { opacity: 0 } to { opacity: 1 } }
+          @keyframes pulseGlow { 0%,100% { transform: scale(1); opacity: 0.88 } 50% { transform: scale(1.04); opacity: 1 } }
           @keyframes loaderSlide { 0% { transform: translateX(-100%) } 100% { transform: translateX(100%) } }
+          @keyframes staggerIn { from { opacity: 0; transform: translateY(8px) } to { opacity: 1; transform: none } }
         `}</style>
         <GrainOverlay opacity={0.08} />
-        <TukuLogo variant="light" size={140} minSize={88} maxSize={140} style={{ animation: "pulseGlow 1.4s ease-in-out infinite", filter: `drop-shadow(0 8px 30px ${C.aren}50)` }} />
-        <p style={{ fontFamily: F.d, fontStyle: "italic", fontSize: 24, color: C.arenGlow, marginTop: 22, letterSpacing: 0.5 }}>Membuka pintu tetangga…</p>
-        <div style={{ width: 180, height: 1, background: `${C.cream}20`, marginTop: 28, overflow: "hidden", position: "relative" }}>
-          <div style={{ position: "absolute", inset: 0, background: `linear-gradient(90deg, transparent, ${C.arenGlow}, transparent)`, animation: "loaderSlide 1.4s ease-in-out infinite" }} />
+        <TukuLogo variant="light" size={140} minSize={88} maxSize={140} style={{ animation: `staggerIn ${M.med}ms ${M.out} both, pulseGlow 1.6s ${M.inOut} ${M.base}ms infinite`, filter: `drop-shadow(0 8px 30px ${C.aren}50)` }} />
+        <p style={{ fontFamily: F.d, fontStyle: "italic", fontSize: 24, color: C.arenGlow, marginTop: 22, letterSpacing: 0.5, animation: `staggerIn ${M.med}ms ${M.out} 80ms both` }}>Membuka pintu tetangga…</p>
+        <div style={{ width: 180, height: 1, background: `${C.cream}20`, marginTop: 28, overflow: "hidden", position: "relative", animation: `staggerIn ${M.med}ms ${M.out} 160ms both` }}>
+          <div style={{ position: "absolute", inset: 0, background: `linear-gradient(90deg, transparent, ${C.arenGlow}, transparent)`, animation: `loaderSlide 1.6s ${M.inOut} infinite` }} />
         </div>
       </div>
     );
