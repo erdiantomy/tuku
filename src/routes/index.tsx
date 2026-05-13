@@ -946,7 +946,7 @@ function NarrativeCTA({ onOpen }: { onOpen: () => void }) {
     <section style={{ position: "relative", padding: "160px 24px", background: `radial-gradient(ellipse at 50% 0%, ${C.coffeeMid} 0%, ${C.coffee} 55%, #1a0e07 100%)`, color: C.cream, textAlign: "center", overflow: "hidden" }}>
       <FrameOverlay tone="dark" intensity="feature" watermark="cup" watermarkPos="tl" />
       <Fade>
-        <TukuLogo variant="light" size={88} minSize={56} maxSize={88} style={{ marginBottom: 22 }} />
+        <TukuLogo variant="light" size={88} minSize={56} maxSize={88} style={{ margin: "0 auto 22px" }} />
       </Fade>
       <Fade delay={150}>
         <div style={{ marginBottom: 18 }}>
