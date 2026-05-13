@@ -245,6 +245,21 @@ function ChapterMarker({ n, label }: { n: string; label: string }) {
   );
 }
 
+// True when the primary input has no hover (touch / pen). Drives tap-friendly UX:
+// always-on affordances, larger tap targets, press feedback instead of hover swap.
+function useCoarsePointer() {
+  const [coarse, setCoarse] = useState(false);
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return;
+    const mq = window.matchMedia("(hover: none), (pointer: coarse)");
+    const sync = () => setCoarse(mq.matches);
+    sync();
+    mq.addEventListener?.("change", sync);
+    return () => mq.removeEventListener?.("change", sync);
+  }, []);
+  return coarse;
+}
+
 function ChapterEyebrow({
   n, label, title, note, page, total = "IX", tone = "light", align = "left",
 }: {
@@ -253,15 +268,17 @@ function ChapterEyebrow({
 }) {
   const [open, setOpen] = useState(false);
   const [hover, setHover] = useState(false);
+  const [pressed, setPressed] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const coarse = useCoarsePointer();
   const id = `eb-${n}-${label}`.replace(/\s+/g, "-").toLowerCase();
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
-    const onDoc = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false); };
+    const onDoc = (e: Event) => { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false); };
     document.addEventListener("keydown", onKey);
-    document.addEventListener("mousedown", onDoc);
-    return () => { document.removeEventListener("keydown", onKey); document.removeEventListener("mousedown", onDoc); };
+    document.addEventListener("pointerdown", onDoc);
+    return () => { document.removeEventListener("keydown", onKey); document.removeEventListener("pointerdown", onDoc); };
   }, [open]);
 
   const dark = tone === "dark";
@@ -271,6 +288,12 @@ function ChapterEyebrow({
   const panelBg = dark ? `${C.coffee}f2` : C.warmWhite;
   const panelBorder = dark ? `${C.arenGlow}40` : `${C.aren}35`;
 
+  // On touch, affordances are always on so the eyebrow reads as tappable.
+  const showAffordance = coarse || hover || open;
+  // Comfortable tap area on touch (≥44px height).
+  const padY = coarse ? 10 : (dark ? 5 : 4);
+  const padX = coarse ? 16 : (dark ? 14 : 10);
+
   return (
     <div ref={ref} style={{ position: "relative", display: "inline-block", textAlign: align }}>
       <button
@@ -278,27 +301,35 @@ function ChapterEyebrow({
         onClick={() => setOpen(o => !o)}
         onMouseEnter={() => setHover(true)}
         onMouseLeave={() => setHover(false)}
+        onPointerDown={() => setPressed(true)}
+        onPointerUp={() => setPressed(false)}
+        onPointerCancel={() => setPressed(false)}
         aria-expanded={open}
         aria-controls={id}
         style={{
-          all: "unset", cursor: "help", display: "inline-flex", alignItems: "center", gap: 8,
-          padding: dark ? "5px 14px" : "4px 10px",
+          all: "unset", cursor: coarse ? "pointer" : "help", display: "inline-flex", alignItems: "center", gap: 8,
+          padding: `${padY}px ${padX}px`,
+          minHeight: coarse ? 44 : undefined,
           border: dark ? `1px solid ${C.arenGlow}40` : `1px solid transparent`,
           borderRadius: 999,
           fontFamily: F.u, fontSize: dark ? 9 : 10, fontWeight: 700, letterSpacing: dark ? 3 : 4,
           color: ink, textTransform: "uppercase", position: "relative",
+          touchAction: "manipulation",
+          WebkitTapHighlightColor: "transparent",
+          transform: pressed ? "scale(0.97)" : "scale(1)",
+          transition: "transform 140ms cubic-bezier(0.22,1,0.36,1)",
         }}
       >
         <span>CH · {n} — {label}</span>
         <span aria-hidden style={{
           display: "inline-block", width: 12, textAlign: "center",
-          opacity: hover || open ? 1 : 0, transform: open ? "rotate(45deg)" : "rotate(0)",
+          opacity: showAffordance ? 1 : 0, transform: open ? "rotate(45deg)" : "rotate(0)",
           transition: "opacity 200ms ease, transform 220ms ease", color: ink, fontSize: 11,
         }}>＋</span>
         <span aria-hidden style={{
           position: "absolute", left: 10, right: 10, bottom: 2, height: 1, background: ink,
-          transform: hover || open ? "scaleX(1)" : "scaleX(0)", transformOrigin: "left",
-          transition: "transform 260ms ease", opacity: 0.7,
+          transform: showAffordance ? "scaleX(1)" : "scaleX(0)", transformOrigin: "left",
+          transition: "transform 260ms ease", opacity: coarse ? 0.45 : 0.7,
         }} />
       </button>
       {open && (
@@ -308,9 +339,9 @@ function ChapterEyebrow({
           style={{
             position: "absolute", top: "calc(100% + 10px)",
             ...(align === "center" ? { left: "50%", transform: "translateX(-50%)" } : { left: 0 }),
-            width: "min(92vw, 360px)", textAlign: "left", zIndex: 20,
+            width: coarse ? "min(94vw, 380px)" : "min(92vw, 360px)", textAlign: "left", zIndex: 20,
             background: panelBg, border: `1px solid ${panelBorder}`, borderRadius: 4,
-            padding: "16px 18px 14px",
+            padding: coarse ? "18px 20px 16px" : "16px 18px 14px",
             boxShadow: dark ? `0 24px 60px ${C.coffee}80` : `0 18px 40px ${C.coffee}25`,
             backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)",
             animation: "ebReveal 240ms ease-out both",
@@ -318,7 +349,7 @@ function ChapterEyebrow({
         >
           <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12 }}>
             <span style={{ fontFamily: F.u, fontSize: 9, fontWeight: 700, letterSpacing: 2.5, color: dark ? C.arenGlow : C.warmGray }}>BAB {n}</span>
-            <button type="button" onClick={() => setOpen(false)} aria-label="Tutup" style={{ all: "unset", cursor: "pointer", fontFamily: F.u, fontSize: 11, color: dark ? `${C.cream}80` : C.warmGray, padding: "0 4px" }}>✕</button>
+            <button type="button" onClick={() => setOpen(false)} aria-label="Tutup" style={{ all: "unset", cursor: "pointer", fontFamily: F.u, fontSize: 13, color: dark ? `${C.cream}80` : C.warmGray, padding: coarse ? "6px 10px" : "0 4px", minHeight: coarse ? 32 : undefined, minWidth: coarse ? 32 : undefined, textAlign: "center", touchAction: "manipulation", WebkitTapHighlightColor: "transparent" }}>✕</button>
           </div>
           <p style={{ fontFamily: F.d, fontStyle: "italic", fontSize: 22, color: subInk, lineHeight: 1.2, margin: "6px 0 10px", fontWeight: 400 }}>{title}</p>
           <p style={{ fontFamily: F.b, fontSize: 13.5, color: noteInk, lineHeight: 1.55, margin: 0 }}>{note}</p>
@@ -437,6 +468,11 @@ function ColophonTile({
 }) {
   const open = openId === id;
   const [hover, setHover] = useState(false);
+  const [pressed, setPressed] = useState(false);
+  const coarse = useCoarsePointer();
+  // On touch, the tile already shows its tappable affordance — keep visual rest state
+  // calm but always reveal the "+ tap" cues so users know it's interactive.
+  const active = hover || open;
   return (
     <div
       style={{
@@ -449,29 +485,37 @@ function ColophonTile({
         onClick={() => setOpenId(open ? null : id)}
         onMouseEnter={() => setHover(true)}
         onMouseLeave={() => setHover(false)}
+        onPointerDown={() => setPressed(true)}
+        onPointerUp={() => setPressed(false)}
+        onPointerCancel={() => setPressed(false)}
         aria-expanded={open}
         aria-controls={`tile-${id}`}
         style={{
           all: "unset", cursor: "pointer", display: "block", width: "100%", boxSizing: "border-box",
-          padding: 16, borderRadius: 4, position: "relative",
-          background: hover || open ? C.warmWhite : "transparent",
-          border: `1px solid ${hover || open ? `${C.aren}55` : `${C.softBrown}30`}`,
-          transition: "background 220ms ease, border-color 220ms ease, box-shadow 220ms ease",
-          boxShadow: hover || open ? `0 10px 28px ${C.coffee}12` : "none",
+          padding: coarse ? 18 : 16, borderRadius: 4, position: "relative",
+          minHeight: coarse ? 96 : undefined,
+          background: active ? C.warmWhite : (coarse ? `${C.warmWhite}80` : "transparent"),
+          border: `1px solid ${active ? `${C.aren}55` : (coarse ? `${C.softBrown}55` : `${C.softBrown}30`)}`,
+          transition: "background 220ms ease, border-color 220ms ease, box-shadow 220ms ease, transform 140ms cubic-bezier(0.22,1,0.36,1)",
+          boxShadow: active ? `0 10px 28px ${C.coffee}12` : "none",
+          transform: pressed ? "scale(0.985)" : "scale(1)",
+          touchAction: "manipulation",
+          WebkitTapHighlightColor: "transparent",
         }}
       >
-        <div style={{ fontFamily: F.u, fontSize: 9, fontWeight: 700, letterSpacing: 2, color: hover || open ? C.aren : C.warmGray, marginBottom: 8, transition: "color 200ms ease" }}>
+        <div style={{ fontFamily: F.u, fontSize: 9, fontWeight: 700, letterSpacing: 2, color: active ? C.aren : (coarse ? C.coffeeMid : C.warmGray), marginBottom: 8, transition: "color 200ms ease" }}>
           {label}
         </div>
         {summary}
         <span aria-hidden style={{
           position: "absolute", right: 12, bottom: 8,
           fontFamily: F.u, fontSize: 8.5, fontWeight: 700, letterSpacing: 1.5, color: C.aren,
-          opacity: hover && !open ? 0.85 : 0, transition: "opacity 200ms ease",
-        }}>klik untuk detail →</span>
+          opacity: open ? 0 : (coarse ? 0.7 : (hover ? 0.85 : 0)), transition: "opacity 200ms ease",
+        }}>{coarse ? "tap untuk detail →" : "klik untuk detail →"}</span>
         <span aria-hidden style={{
-          position: "absolute", right: 12, top: 12, fontFamily: F.u, fontSize: 11, color: C.aren,
-          transform: open ? "rotate(45deg)" : "rotate(0)", transition: "transform 220ms ease",
+          position: "absolute", right: 12, top: 12, fontFamily: F.u, fontSize: 13, color: C.aren,
+          opacity: coarse || active ? 1 : 0,
+          transform: open ? "rotate(45deg)" : "rotate(0)", transition: "transform 220ms ease, opacity 200ms ease",
         }}>＋</span>
       </button>
       {open && (
@@ -485,7 +529,7 @@ function ColophonTile({
             animation: "tileReveal 240ms ease-out both", position: "relative",
           }}
         >
-          <button type="button" onClick={() => setOpenId(null)} aria-label="Tutup detail" style={{ all: "unset", cursor: "pointer", position: "absolute", top: 10, right: 12, fontFamily: F.u, fontSize: 12, color: C.warmGray, padding: 4 }}>✕</button>
+          <button type="button" onClick={() => setOpenId(null)} aria-label="Tutup detail" style={{ all: "unset", cursor: "pointer", position: "absolute", top: 8, right: 8, fontFamily: F.u, fontSize: 14, color: C.warmGray, padding: 8, minWidth: 32, minHeight: 32, textAlign: "center", touchAction: "manipulation", WebkitTapHighlightColor: "transparent" }}>✕</button>
           {detail}
         </div>
       )}
@@ -968,22 +1012,34 @@ function NarrativeCTA({ onOpen }: { onOpen: () => void }) {
         </p>
       </Fade>
       <Fade delay={550}>
-        <button onClick={onOpen} style={{
-          all: "unset", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 14,
-          background: "transparent", color: C.arenGlow, padding: "18px 38px",
-          borderRadius: 0, fontFamily: F.u, fontSize: 14, fontWeight: 700,
-          letterSpacing: 3, textTransform: "uppercase",
-          border: `1px solid ${C.arenGlow}`,
-          transform: pulse ? "translateY(-2px)" : "translateY(0)",
-          transition: `transform ${M.med}ms ${M.inOut}, background ${M.base}ms ${M.out}, color ${M.base}ms ${M.out}`,
-        }}
-          onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = C.arenGlow; (e.currentTarget as HTMLButtonElement).style.color = C.coffee; }}
-          onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "transparent"; (e.currentTarget as HTMLButtonElement).style.color = C.arenGlow; }}
+        <button
+          onClick={onOpen}
+          className="cta-door"
+          onPointerDown={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = "translateY(0) scale(0.98)"; }}
+          onPointerUp={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = pulse ? "translateY(-2px)" : "translateY(0)"; }}
+          onPointerCancel={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = pulse ? "translateY(-2px)" : "translateY(0)"; }}
+          style={{
+            all: "unset", cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 14,
+            background: "transparent", color: C.arenGlow, padding: "18px 38px",
+            minHeight: 52, minWidth: 240, boxSizing: "border-box",
+            borderRadius: 0, fontFamily: F.u, fontSize: 14, fontWeight: 700,
+            letterSpacing: 3, textTransform: "uppercase",
+            border: `1px solid ${C.arenGlow}`,
+            transform: pulse ? "translateY(-2px)" : "translateY(0)",
+            transition: `transform ${M.med}ms ${M.inOut}, background ${M.base}ms ${M.out}, color ${M.base}ms ${M.out}`,
+            touchAction: "manipulation",
+            WebkitTapHighlightColor: "transparent",
+          }}
         >
           <span>Open the Door</span>
           <span style={{ fontFamily: F.d, fontStyle: "italic", fontSize: 16, letterSpacing: 0, textTransform: "none" }}>buka pintunya</span>
           <span>→</span>
         </button>
+        <style>{`
+          @media (hover: hover) and (pointer: fine) {
+            .cta-door:hover { background: ${C.arenGlow} !important; color: ${C.coffee} !important; }
+          }
+        `}</style>
       </Fade>
       <Fade delay={750}>
         <p style={{ fontFamily: F.h, fontSize: 18, color: C.cream, opacity: 0.45, marginTop: 32 }}>
@@ -1661,8 +1717,9 @@ function ExpeditionMap({ cities, query = "", onClear }: { cities: City[]; query?
     @keyframes mapFade { from { opacity: 0; transform: scale(0.985) } to { opacity: 1; transform: none } }
     @keyframes haloPulse { 0% { opacity: 0.55; r: 7 } 100% { opacity: 0; r: 18 } }
     @keyframes dashFlow { to { stroke-dashoffset: -14 } }
-    .em-pin { cursor: pointer; transition: transform 0.2s ease; transform-origin: center; transform-box: fill-box; }
-    .em-pin:hover { transform: scale(1.18); }
+    .em-pin { cursor: pointer; transition: transform 0.2s ease; transform-origin: center; transform-box: fill-box; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+    @media (hover: hover) and (pointer: fine) { .em-pin:hover { transform: scale(1.18); } }
+    .em-pin:active { transform: scale(1.12); }
     .em-route { stroke-dasharray: 3 4; animation: dashFlow 1.4s linear infinite; }
     .em-halo { animation: haloPulse 2s ease-out infinite; transform-origin: center; transform-box: fill-box; }
     .em-canvas { animation: mapFade 0.4s ease; }
@@ -1946,15 +2003,20 @@ function AppPaspor() {
                 key={b.id}
                 onClick={() => setSelectedBadge(b.id)}
                 aria-label={`Lihat detail lencana ${b.name}`}
+                className="badge-tap"
+                onPointerDown={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = "scale(0.96)"; }}
+                onPointerUp={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = "none"; }}
+                onPointerCancel={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = "none"; }}
                 style={{
                   all: "unset", cursor: "pointer", display: "block",
                   background: b.earned ? C.warmWhite : C.parchment,
                   border: `1px solid ${b.earned ? C.aren + "40" : C.softBrown + "20"}`,
-                  borderRadius: 12, padding: "12px 6px", textAlign: "center",
-                  opacity: b.earned ? 1 : 0.55, transition: "transform 0.15s ease",
+                  borderRadius: 12, padding: "14px 6px", textAlign: "center",
+                  minHeight: 64, boxSizing: "border-box",
+                  opacity: b.earned ? 1 : 0.55, transition: "transform 0.15s cubic-bezier(0.22,1,0.36,1)",
+                  touchAction: "manipulation",
+                  WebkitTapHighlightColor: "transparent",
                 }}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-2px)"; }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = "none"; }}
               >
                 <div style={{ fontSize: 26, marginBottom: 4, filter: b.earned ? "none" : "grayscale(1)" }}>{b.icon}</div>
                 <div style={{ fontFamily: F.u, fontSize: 9.5, fontWeight: 700, color: C.coffee, lineHeight: 1.2 }}>{b.name}</div>
