@@ -1,81 +1,79 @@
-## Diagnosis singkat
+## Diagnosis
 
-Saat ini animasi tersebar dengan timing & easing yang tidak konsisten:
+Tiga elemen editorial sudah ada tapi tersebar tidak merata:
+- **Grain**: hanya di Hero, Reframe, CTA, splash, footer.
+- **Corner ticks**: hanya di Reframe & CTA.
+- **Watermark logo**: hanya di Reframe.
 
-- `Fade` (intersection): 900 ms `ease`, translateY(24px) — kelewat lambat dan terasa "berat".
-- Splash open: 600 ms; splash close: 400 ms; spinner `loaderSlide 1.4s` linear.
-- App screen masuk: `fadeIn 0.4s ease` (cuma opacity, tanpa lift).
-- AppTopBar: teks eyebrow & tab name berganti instan tanpa transisi.
-- Tab icon: campuran `transform 0.6s` + `background 0.3s` + `color 0.3s`.
-- Masthead solid: `0.3s ease`.
+Section lain (Letter, Gap, Pillars, Traktir, Global, Colophon) terasa "telanjang" dibanding section dramatik. App MVP (frame 420 px) sama sekali tidak punya tekstur editorial → terasa beda kanvas dengan proposal.
 
 ## Tujuan
 
-Satu bahasa motion editorial: cepat-tapi-mengalir, easing seragam, durasi terukur. Tetap jadi UI editorial (bukan playful spring).
+Satu lapisan editorial yang konsisten dari proposal sampai MVP, dengan **opacity sangat rendah** supaya tidak mengganggu keterbacaan teks/UI. Bukan dekorasi keras — sebatas tekstur kertas.
 
-## Token motion (top of `src/routes/index.tsx`)
+## Implementasi (presentational, satu file)
 
-```ts
-const M = {
-  // Durations
-  fast:  160,   // micro hover
-  base:  240,   // umumnya UI feedback
-  med:   420,   // section reveal, tab swap
-  slow:  680,   // splash opening
-  // Easing — satu kurva editorial untuk semua
-  out:   "cubic-bezier(0.22, 1, 0.36, 1)",   // ease-out kuat
-  inOut: "cubic-bezier(0.65, 0, 0.35, 1)",   // halus untuk loop / sticky
-};
+### 1. Komponen baru: `EditorialFrame`
+
+Wrapper opsional yang membungkus `<section>` content. Render absolute children: grain + corner ticks + watermark, semua `pointer-events:none` dan di belakang konten (z-index relative).
+
+```tsx
+<EditorialFrame
+  tone="light" | "dark"           // pilih warna ticks/watermark
+  intensity="subtle" | "soft" | "feature"
+  watermark="cup" | "wordmark" | "none"
+  watermarkPos="br" | "bl" | "tr" | "tl"  // default br
+>
+  ...children...
+</EditorialFrame>
 ```
 
-## Perubahan (presentational, satu file)
+Mapping intensity → nilai konkret:
+- `subtle`: grain 0.03, ticks opacity 0.10, watermark opacity 0.025
+- `soft`: grain 0.05, ticks 0.18, watermark 0.04
+- `feature`: grain 0.09, ticks 0.30, watermark 0.05 (untuk section dramatik dark)
 
-### 1. `Fade` jadi seragam & lebih ringan
-- Durasi 900 ms `ease` → `M.med` (420 ms) `M.out`.
-- `translateY(24px)` → `translateY(14px)` supaya gerakan terasa terhubung, tidak kelewat jauh.
-- Tambah `prefers-reduced-motion`: opacity-only.
+`EditorialFrame` membungkus konten dengan `position: relative; overflow: hidden` dan menambahkan satu `<div style={{ position:"relative", zIndex:1 }}>` untuk children agar tidak tertimpa overlay. Section yang dipakai sudah `position: relative` → tidak break layout existing.
 
-### 2. Splash / transition antar mode (narrative ↔ app)
-- Bungkus dengan `<div style={{ animation: "shellFade <M.med>ms <M.out> both" }}>` di luar konten splash; logo + caption + bar dibungkus pula dengan `staggerIn` 80 ms beruntun.
-- Durasi `setTimeout(setMode("app"), 600)` → samakan dengan token: open 680 ms (`M.slow`), close 420 ms (`M.med`).
-- Ganti `pulseGlow` (scale 1↔1.08) jadi nafas halus 1.4s `M.inOut` scale 1↔1.04 supaya tidak "berdetak".
-- `loaderSlide` 1.4s linear → 1.6s `M.inOut`.
-- Tambah `crossFade` saat keluar transition: pakai `pointer-events:none` + opacity fade-out 240 ms sebelum pindah, agar tidak ada "jump".
+### 2. Pemakaian di proposal (samakan tone)
 
-### 3. AppTopBar — transisi saat ganti tab
-- Bungkus eyebrow + tab name dalam `<div key={tab}>` dengan animasi `topbarSwap M.base M.out both` (opacity 0→1 + translateY 6→0). Karena `key` berubah per tab, React remount → animasi berjalan tiap pindah.
-- TukuLogo di top bar tetap (tidak dianimasi).
+Pakai `EditorialFrame intensity="subtle"` di section terang (Letter, Gap, Pillars, Traktir, Global, Colophon, "Kenapa Sekarang") — watermark `cup` kecil di pojok kanan bawah `tone="light"` (variant dark logo, opacity ≤0.04).
 
-### 4. App screen swap (di `appRef` div)
-- Sekarang `animation: fadeIn 0.4s ease`. Ganti jadi `screenSwap M.med M.out both` (opacity 0→1 + translateY 8→0). Tetap pakai `key={tab}` agar replay tiap pindah.
-- Sertakan reset scrollTop yang sudah ada.
+Section dark dramatik (Hero, Reframe, CTA) **upgrade** dari dekorasi manual sekarang ke `EditorialFrame intensity="feature" tone="dark" watermark="cup"` — hapus `<GrainOverlay>` & `<CornerTicks>` & watermark manual yang ada untuk hindari duplikasi (Reframe sudah punya watermark besar — biarkan watermark besar custom-nya, set `watermark="none"` agar tidak dobel, tetap ambil grain+ticks dari frame).
 
-### 5. Masthead sticky
-- Transisi `0.3s ease` → `M.base M.out` untuk `background`, `border-color`, `backdrop-filter`. Tidak mengubah min-height.
+Footer: ganti grain manual jadi `EditorialFrame intensity="soft" tone="dark" watermark="none"` (footer sudah punya logo besar di kontennya).
 
-### 6. TabIcon (bottom nav)
-- Satukan transisi: `transition: transform M.base M.out, background M.base M.out, color M.base M.out, opacity M.base M.out`.
-- Hapus `0.6s` yang berbeda.
+### 3. Pemakaian di MVP (lebih halus, jaga keterbacaan)
 
-### 7. Bagian utama (section reveal)
-- Tetap pakai `Fade` yang sudah disamakan; tidak menambah library.
-- Untuk `NarrativeGap` & `NarrativeReframe` (yang punya entrance dramatik), biarkan stagger antar `Fade delay` yang ada — hanya nilai delay dirapikan jadi kelipatan 120 ms (120/240/360/480) supaya berirama satu ketuk.
+App shell (mode === "app", `<div maxWidth: 420 ...>`):
+- Tambah satu lapis grain `intensity="subtle"` (opacity 0.025) sebagai overlay di luar `appRef` (di bawah AppTopBar dan bottom nav, behind content) → membuat seluruh kanvas app punya tekstur kertas yang sama dengan proposal.
+- Tambah corner ticks tipis di shell (opacity 0.10, color `${C.softBrown}`) → memperkuat kesan kartu editorial.
+- TIDAK menyentuh tiap screen (Home, Pesan, dll.) supaya komponen UI (form, list, harga) tetap bersih dan kontras.
 
-### 8. Reduced motion
-- Satu blok `<style>` global di komponen utama:
-  ```css
-  @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
-  }
-  ```
+Splash transition: sudah punya grain — tambah ticks `${C.cream}20` agar konsisten dengan section dark.
+
+### 4. Aturan keterbacaan
+
+- Semua overlay `pointerEvents: "none"` dan `mixBlendMode: "overlay"` (sudah default `GrainOverlay`).
+- Nilai opacity dipatok di range [0.025–0.09] grain, [0.10–0.30] ticks, [0.025–0.05] watermark — tidak boleh lebih tinggi tanpa diskusi ulang.
+- Watermark di `tone="light"` pakai logo dark dengan opacity ≤0.04 → secara visual jadi shading hangat, tidak berbentuk tegas yang mengganggu mata.
+- Tidak ada overlay di area MVP screen content (cukup di shell) supaya angka, harga, dan tombol tetap jelas.
+
+### 5. Refactor minor
+
+- Pindahkan `GrainOverlay` & `CornerTicks` (sudah ada) menjadi internal helper `EditorialFrame`. Tetap export keduanya in-file (mungkin masih dipakai di splash). 
+- Tambah util `Watermark({ tone, pos, opacity })` yang me-render `<TukuLogo>` cup-only besar (size 240 mobile / 420 desktop via clamp) dengan `position: absolute`.
 
 ## Non-goals
 
-- Tidak menambah Framer Motion / library animasi.
-- Tidak mengubah konten teks, layout, warna, atau navigasi.
-- Tidak menyentuh animasi konten yang sangat lokal (`batchPulse`, `mapFade`, `dashFlow`, lvSheet) — sudah bagian dari karakter masing-masing scene.
+- Tidak menambah library/animasi.
+- Tidak mengubah konten teks, urutan section, atau warna semantik.
+- Tidak menerapkan watermark pada tiap screen MVP — hanya shell.
 
 ## Verifikasi
 
 - `bunx tsc --noEmit` lulus.
-- Cek visual: scroll melewati setiap section (Fade reveal terasa satu irama), buka splash → app (timing nyambung), pindah tab di app (top bar + content swap halus & sinkron), kembali ke proposal (close splash juga halus).
+- Cek visual:
+  - Scroll proposal: tiap section punya grain+ticks halus yang seragam, watermark tidak mendominasi background.
+  - MVP shell: ada tekstur kertas konsisten, tapi konten (list pesanan, harga, form) tetap tajam.
+  - Mode dark (Hero/Reframe/CTA/splash/footer): ticks & grain terlihat tapi tidak menutupi headline.

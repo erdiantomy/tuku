@@ -276,6 +276,66 @@ function CornerTicks({ color }: { color: string }) {
   );
 }
 
+type FrameIntensity = "subtle" | "soft" | "feature";
+type FrameTone = "light" | "dark";
+type WatermarkKind = "cup" | "wordmark" | "none";
+type WatermarkPos = "br" | "bl" | "tr" | "tl";
+
+const INTENSITY: Record<FrameIntensity, { grain: number; ticks: number; mark: number }> = {
+  subtle:  { grain: 0.03, ticks: 0.10, mark: 0.025 },
+  soft:    { grain: 0.05, ticks: 0.18, mark: 0.04 },
+  feature: { grain: 0.09, ticks: 0.30, mark: 0.05 },
+};
+
+function Watermark({
+  tone, pos = "br", opacity, kind = "cup", size = 360,
+}: { tone: FrameTone; pos?: WatermarkPos; opacity: number; kind?: "cup" | "wordmark"; size?: number }) {
+  const variant = tone === "light" ? "dark" : "light";
+  const offset = "-6vw";
+  const corner: CSSProperties =
+    pos === "br" ? { right: offset, bottom: offset } :
+    pos === "bl" ? { left: offset, bottom: offset } :
+    pos === "tr" ? { right: offset, top: offset } :
+                   { left: offset, top: offset };
+  return (
+    <TukuLogo
+      variant={variant}
+      withWordmark={kind === "wordmark"}
+      size={size}
+      minSize={Math.round(size * 0.45)}
+      maxSize={size}
+      style={{ position: "absolute", opacity, transform: "rotate(-6deg)", pointerEvents: "none", ...corner }}
+    />
+  );
+}
+
+function FrameOverlay({
+  tone = "light", intensity = "subtle", watermark = "cup", watermarkPos = "br", inset = 14,
+}: {
+  tone?: FrameTone; intensity?: FrameIntensity;
+  watermark?: WatermarkKind; watermarkPos?: WatermarkPos; inset?: number;
+}) {
+  const v = INTENSITY[intensity];
+  const tickColor = tone === "dark" ? `rgba(245,240,232,${v.ticks})` : `rgba(60,36,21,${v.ticks})`;
+  const corners: CSSProperties[] = [
+    { top: inset, left: inset, borderTopWidth: 1, borderLeftWidth: 1 },
+    { top: inset, right: inset, borderTopWidth: 1, borderRightWidth: 1 },
+    { bottom: inset, left: inset, borderBottomWidth: 1, borderLeftWidth: 1 },
+    { bottom: inset, right: inset, borderBottomWidth: 1, borderRightWidth: 1 },
+  ];
+  return (
+    <>
+      <div aria-hidden style={{ position: "absolute", inset: 0, backgroundImage: GRAIN_BG, opacity: v.grain, pointerEvents: "none", mixBlendMode: "overlay", zIndex: 0 }} />
+      {corners.map((p, i) => (
+        <div key={i} aria-hidden style={{ position: "absolute", width: 18, height: 18, borderStyle: "solid", borderColor: tickColor, borderWidth: 0, pointerEvents: "none", zIndex: 0, ...p }} />
+      ))}
+      {watermark !== "none" && (
+        <Watermark tone={tone} pos={watermarkPos} opacity={v.mark} kind={watermark} size={watermark === "wordmark" ? 480 : 360} />
+      )}
+    </>
+  );
+}
+
 function PullQuote({ children, color = C.aren }: { children: ReactNode; color?: string }) {
   return (
     <blockquote style={{ position: "relative", padding: "28px 18px 24px 64px", margin: "32px 0" }}>
@@ -395,8 +455,9 @@ const FONT_INFO: { fam: string; name: string; role: string; sample: string }[] =
 function Colophon() {
   const [openId, setOpenId] = useState<TileId | null>(null);
   return (
-    <section style={{ padding: "56px 24px", background: C.parchment, borderTop: `1px solid ${C.softBrown}40`, borderBottom: `1px solid ${C.softBrown}40` }}>
-      <div style={{ maxWidth: 980, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 16, alignItems: "start" }}>
+    <section style={{ position: "relative", overflow: "hidden", padding: "56px 24px", background: C.parchment, borderTop: `1px solid ${C.softBrown}40`, borderBottom: `1px solid ${C.softBrown}40` }}>
+      <FrameOverlay tone="light" intensity="subtle" watermark="cup" watermarkPos="br" />
+      <div style={{ position: "relative", zIndex: 1, maxWidth: 980, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 16, alignItems: "start" }}>
         <ColophonTile
           id="logo" label="LAMBANG" openId={openId} setOpenId={setOpenId}
           summary={<><TukuLogo variant="dark" size={52} /><p style={{ fontFamily: F.u, fontSize: 9, fontWeight: 700, letterSpacing: 2, color: C.warmGray, marginTop: 10 }}>KOPI TUKU · 2026</p></>}
@@ -541,7 +602,7 @@ const MERCH = [
 function NarrativeHero() {
   return (
     <section style={{ position: "relative", minHeight: "calc(100vh - 60px)", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", padding: "60px 24px 80px", background: `radial-gradient(ellipse at top, ${C.warmWhite} 0%, ${C.cream} 60%, ${C.parchment} 100%)`, textAlign: "center", overflow: "hidden" }}>
-      <GrainOverlay opacity={0.05} />
+      <FrameOverlay tone="light" intensity="subtle" watermark="none" />
       <div aria-hidden style={{ position: "absolute", top: "8%", left: "50%", transform: "translateX(-50%)", fontFamily: F.d, fontStyle: "italic", fontSize: "clamp(180px, 28vw, 380px)", color: `${C.aren}10`, lineHeight: 0.8, letterSpacing: -8, fontWeight: 700, userSelect: "none", pointerEvents: "none" }}>tetangga</div>
       <Fade>
         <TukuLogo variant="dark" size={120} minSize={72} maxSize={120} style={{ marginBottom: 18, filter: `drop-shadow(0 6px 20px ${C.coffee}25)` }} />
@@ -590,8 +651,9 @@ function NarrativeHero() {
 
 function NarrativeLetter() {
   return (
-    <section style={{ padding: "120px 24px", background: C.warmWhite }}>
-      <div style={{ maxWidth: 680, margin: "0 auto" }}>
+    <section style={{ position: "relative", overflow: "hidden", padding: "120px 24px", background: C.warmWhite }}>
+      <FrameOverlay tone="light" intensity="subtle" watermark="cup" watermarkPos="br" />
+      <div style={{ position: "relative", zIndex: 1, maxWidth: 680, margin: "0 auto" }}>
         <Fade><Label>Surat untuk Tetangga</Label></Fade>
         <Fade delay={150}>
           <p style={{ fontFamily: F.h, fontSize: 32, color: C.coffee, lineHeight: 1.4, margin: "0 0 32px" }}>Mas Tyo,</p>
@@ -624,8 +686,9 @@ function NarrativeLetter() {
 
 function NarrativeGap() {
   return (
-    <section style={{ padding: "120px 24px", background: C.cream }}>
-      <div style={{ maxWidth: 720, margin: "0 auto" }}>
+    <section style={{ position: "relative", overflow: "hidden", padding: "120px 24px", background: C.cream }}>
+      <FrameOverlay tone="light" intensity="subtle" watermark="cup" watermarkPos="bl" />
+      <div style={{ position: "relative", zIndex: 1, maxWidth: 720, margin: "0 auto" }}>
         <Fade><Label>Yang Kami Amati</Label></Fade>
         <Fade delay={150}>
           <h2 style={{ fontFamily: F.d, fontSize: "clamp(36px, 6vw, 64px)", fontWeight: 700, color: C.coffee, lineHeight: 1.1, margin: "12px 0 36px", letterSpacing: -1 }}>
@@ -656,8 +719,7 @@ function NarrativeGap() {
 function NarrativeReframe() {
   return (
     <section style={{ position: "relative", padding: "160px 24px", background: `radial-gradient(ellipse at 30% 20%, ${C.coffeeMid} 0%, ${C.coffee} 60%, #1f130b 100%)`, color: C.cream, overflow: "hidden" }}>
-      <GrainOverlay opacity={0.10} />
-      <CornerTicks color={`${C.cream}30`} />
+      <FrameOverlay tone="dark" intensity="feature" watermark="none" />
       <TukuLogo variant="light" size={520} minSize={280} maxSize={520} style={{ position: "absolute", right: "-8vw", bottom: "-6vw", opacity: 0.045, transform: "rotate(-8deg)" }} />
       <div style={{ position: "relative", maxWidth: 820, margin: "0 auto", textAlign: "center" }}>
         <Fade>
@@ -704,8 +766,9 @@ function NarrativePillars() {
     { n: "03", icon: "🤝", t: "Gotong Royong", sub: "The neighborhood helps each other.", desc: "Pilar paling berani. Mekanisme sosial, bukan transaksional. Tetangga mentraktir tetangga. Komunitas satu toko unlock pengalaman bersama. Kebaikan jadi currency. Ini bukan loyalty — ini gotong royong digital." },
   ];
   return (
-    <section style={{ padding: "120px 24px", background: C.warmWhite }}>
-      <div style={{ maxWidth: 1080, margin: "0 auto" }}>
+    <section style={{ position: "relative", overflow: "hidden", padding: "120px 24px", background: C.warmWhite }}>
+      <FrameOverlay tone="light" intensity="subtle" watermark="cup" watermarkPos="tr" />
+      <div style={{ position: "relative", zIndex: 1, maxWidth: 1080, margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: 80 }}>
           <Fade><Label>Tiga Pilar</Label></Fade>
           <Fade delay={150}>
@@ -735,8 +798,9 @@ function NarrativePillars() {
 
 function NarrativeTraktir() {
   return (
-    <section style={{ padding: "120px 24px", background: `linear-gradient(180deg, ${C.cream} 0%, ${C.parchment} 100%)` }}>
-      <div style={{ maxWidth: 720, margin: "0 auto" }}>
+    <section style={{ position: "relative", overflow: "hidden", padding: "120px 24px", background: `linear-gradient(180deg, ${C.cream} 0%, ${C.parchment} 100%)` }}>
+      <FrameOverlay tone="light" intensity="subtle" watermark="cup" watermarkPos="bl" />
+      <div style={{ position: "relative", zIndex: 1, maxWidth: 720, margin: "0 auto" }}>
         <Fade><Label>Yang Akan Dibicarakan Dunia</Label></Fade>
         <Fade delay={150}>
           <h2 style={{ fontFamily: F.d, fontSize: "clamp(36px, 6vw, 64px)", fontWeight: 700, color: C.coffee, lineHeight: 1.1, margin: "12px 0 32px", letterSpacing: -1 }}>
@@ -770,8 +834,9 @@ function NarrativeTraktir() {
 
 function NarrativeGlobal() {
   return (
-    <section style={{ padding: "120px 24px", background: C.warmWhite }}>
-      <div style={{ maxWidth: 720, margin: "0 auto" }}>
+    <section style={{ position: "relative", overflow: "hidden", padding: "120px 24px", background: C.warmWhite }}>
+      <FrameOverlay tone="light" intensity="subtle" watermark="cup" watermarkPos="tl" />
+      <div style={{ position: "relative", zIndex: 1, maxWidth: 720, margin: "0 auto" }}>
         <Fade><Label>Dari Cipete ke Dunia</Label></Fade>
         <Fade delay={150}>
           <h2 style={{ fontFamily: F.d, fontSize: "clamp(36px, 6vw, 60px)", fontWeight: 700, color: C.coffee, lineHeight: 1.1, margin: "12px 0 32px", letterSpacing: -1 }}>
@@ -799,8 +864,7 @@ function NarrativeCTA({ onOpen }: { onOpen: () => void }) {
   useEffect(() => { const i = setInterval(() => setPulse(p => !p), 1800); return () => clearInterval(i); }, []);
   return (
     <section style={{ position: "relative", padding: "160px 24px", background: `radial-gradient(ellipse at 50% 0%, ${C.coffeeMid} 0%, ${C.coffee} 55%, #1a0e07 100%)`, color: C.cream, textAlign: "center", overflow: "hidden" }}>
-      <GrainOverlay opacity={0.09} />
-      <CornerTicks color={`${C.cream}25`} />
+      <FrameOverlay tone="dark" intensity="feature" watermark="cup" watermarkPos="tl" />
       <Fade>
         <TukuLogo variant="light" size={88} minSize={56} maxSize={88} style={{ marginBottom: 22, filter: `drop-shadow(0 6px 24px ${C.aren}40)` }} />
       </Fade>
@@ -2148,7 +2212,7 @@ function TukuRukunTetangga() {
           @keyframes loaderSlide { 0% { transform: translateX(-100%) } 100% { transform: translateX(100%) } }
           @keyframes staggerIn { from { opacity: 0; transform: translateY(8px) } to { opacity: 1; transform: none } }
         `}</style>
-        <GrainOverlay opacity={0.08} />
+        <FrameOverlay tone="dark" intensity="feature" watermark="none" />
         <TukuLogo variant="light" size={140} minSize={88} maxSize={140} style={{ animation: `staggerIn ${M.med}ms ${M.out} both, pulseGlow 1.6s ${M.inOut} ${M.base}ms infinite`, filter: `drop-shadow(0 8px 30px ${C.aren}50)` }} />
         <p style={{ fontFamily: F.d, fontStyle: "italic", fontSize: 24, color: C.arenGlow, marginTop: 22, letterSpacing: 0.5, animation: `staggerIn ${M.med}ms ${M.out} 80ms both` }}>Membuka pintu tetangga…</p>
         <div style={{ width: 180, height: 1, background: `${C.cream}20`, marginTop: 28, overflow: "hidden", position: "relative", animation: `staggerIn ${M.med}ms ${M.out} 160ms both` }}>
@@ -2176,7 +2240,8 @@ function TukuRukunTetangga() {
             *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
           }
         `}</style>
-        <div style={{ width: "100%", maxWidth: 420, background: C.snow, position: "relative", display: "flex", flexDirection: "column", boxShadow: `0 0 60px ${C.coffee}30, 0 0 0 1px ${C.softBrown}40`, animation: `shellFade ${M.med}ms ${M.out} both` }}>
+        <div style={{ width: "100%", maxWidth: 420, background: C.snow, position: "relative", overflow: "hidden", display: "flex", flexDirection: "column", boxShadow: `0 0 60px ${C.coffee}30, 0 0 0 1px ${C.softBrown}40`, animation: `shellFade ${M.med}ms ${M.out} both` }}>
+          <FrameOverlay tone="light" intensity="subtle" watermark="none" inset={10} />
           <AppTopBar tab={tab} onBack={backToNarrative} />
 
           <div ref={appRef} key={tab} style={{ flex: 1, overflowY: "auto", paddingBottom: 70, animation: `screenSwap ${M.med}ms ${M.out} both` }}>
@@ -2210,8 +2275,9 @@ function TukuRukunTetangga() {
       <NarrativeGlobal />
       <NarrativeCTA onOpen={openApp} />
 
-      <section style={{ padding: "100px 24px", background: C.warmWhite }}>
-        <div style={{ maxWidth: 720, margin: "0 auto" }}>
+      <section style={{ position: "relative", overflow: "hidden", padding: "100px 24px", background: C.warmWhite }}>
+        <FrameOverlay tone="light" intensity="subtle" watermark="cup" watermarkPos="br" />
+        <div style={{ position: "relative", zIndex: 1, maxWidth: 720, margin: "0 auto" }}>
           <Fade><Label>Kenapa Sekarang</Label></Fade>
           <Fade delay={150}>
             <p style={{ fontFamily: F.b, fontSize: 19, color: C.coffeeMid, lineHeight: 1.8 }}>
@@ -2221,16 +2287,20 @@ function TukuRukunTetangga() {
         </div>
       </section>
 
-      <section style={{ padding: "60px 24px", background: C.cream, textAlign: "center" }}>
+      <section style={{ position: "relative", overflow: "hidden", padding: "60px 24px", background: C.cream, textAlign: "center" }}>
+        <FrameOverlay tone="light" intensity="subtle" watermark="none" />
         <Fade>
-          <p style={{ fontFamily: F.h, fontSize: 26, color: C.coffee, margin: "0 0 6px" }}>Ini bukan pitch dari konsultan ke klien.</p>
-          <p style={{ fontFamily: F.h, fontSize: 30, color: C.aren, fontWeight: 600 }}>Ini undangan dari tetangga ke tetangga.</p>
+          <div style={{ position: "relative", zIndex: 1 }}>
+            <p style={{ fontFamily: F.h, fontSize: 26, color: C.coffee, margin: "0 0 6px" }}>Ini bukan pitch dari konsultan ke klien.</p>
+            <p style={{ fontFamily: F.h, fontSize: 30, color: C.aren, fontWeight: 600 }}>Ini undangan dari tetangga ke tetangga.</p>
+          </div>
         </Fade>
       </section>
 
-      <section style={{ padding: "40px 24px 80px", background: C.cream }}>
+      <section style={{ position: "relative", overflow: "hidden", padding: "40px 24px 80px", background: C.cream }}>
+        <FrameOverlay tone="light" intensity="subtle" watermark="cup" watermarkPos="bl" />
         <Fade>
-          <p style={{ fontFamily: F.b, fontSize: 17, color: C.coffeeMid, lineHeight: 1.7, maxWidth: 620, margin: "0 auto", textAlign: "center", fontStyle: "italic" }}>
+          <p style={{ position: "relative", zIndex: 1, fontFamily: F.b, fontSize: 17, color: C.coffeeMid, lineHeight: 1.7, maxWidth: 620, margin: "0 auto", textAlign: "center", fontStyle: "italic" }}>
             Sesuatu yang belum pernah dilakukan brand kopi manapun — harus dimulai dari percakapan yang jujur, di atas secangkir Kopi Susu Tetangga.
           </p>
         </Fade>
@@ -2238,7 +2308,7 @@ function TukuRukunTetangga() {
 
       <Colophon />
       <footer style={{ position: "relative", padding: "80px 24px", background: `radial-gradient(ellipse at center, ${C.coffeeMid} 0%, ${C.coffee} 60%, #15090480 100%)`, color: C.cream, textAlign: "center", overflow: "hidden" }}>
-        <GrainOverlay opacity={0.08} />
+        <FrameOverlay tone="dark" intensity="soft" watermark="none" />
         <TukuLogo variant="light" size={64} minSize={48} maxSize={64} style={{ marginBottom: 18, opacity: 0.95 }} />
         <p style={{ fontFamily: F.d, fontStyle: "italic", fontSize: 26, color: C.arenGlow, margin: "0 0 14px" }}>Mari bertetangga baik.</p>
         <div style={{ width: 40, height: 1, background: `${C.arenGlow}60`, margin: "0 auto 18px" }} />
