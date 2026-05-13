@@ -1139,6 +1139,9 @@ function AppPaspor() {
             })}
           </div>
 
+          {/* PETA EKSPEDISI */}
+          <ExpeditionMap cities={STORES_VISITED} />
+
           {/* JEJAK KOTA & TOKO */}
           <h3 style={{ fontFamily: F.d, fontSize: 18, color: C.coffee, margin: "0 0 12px", fontWeight: 700 }}>Jejak Tetangga Berkunjung</h3>
           <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 22 }}>
