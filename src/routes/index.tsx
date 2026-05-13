@@ -808,6 +808,8 @@ function AppTraktir() {
 function AppCerita({ batchId }: { batchId: number | null }) {
   const item = batchId != null ? MENU.find(m => m.id === batchId) : undefined;
   const activeStep = item?.batchStep ?? 4;
+  const [openStep, setOpenStep] = useState<number | null>(null);
+  useEffect(() => { setOpenStep(null); }, [batchId]);
   const headerSub = item?.batchLabel ?? "Es Kopi Susu Tetangga";
   const origin = item?.origin ?? FARMER.region;
   const harvest = item?.harvest ?? FARMER.harvest;
