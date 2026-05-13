@@ -1114,10 +1114,36 @@ function ExpeditionMap({ cities, query = "", onClear }: { cities: City[]; query?
   );
 }
 
+type Badge = {
+  id: string; icon: string; name: string; sub?: string;
+  desc: string; req: string;
+  current: number; target: number; unit: string;
+  earned: boolean; earnedAt?: string;
+};
+const BADGES: Badge[] = [
+  { id: "seruput", icon: "☕", name: "Seruput Pertama", desc: "Awal dari segalanya — kopi pertama yang membuka ribuan cerita berikutnya.", req: "Pesan kopi pertamamu di TUKU.", current: 1, target: 1, unit: "pesanan", earned: true, earnedAt: "2023-03-12" },
+  { id: "cipete", icon: "🏠", name: "Warga Cipete", desc: "Gelas-gelasmu di TUKU rumah sudah cukup untuk menamai kursi favoritmu.", req: "Kunjungi TUKU Cipete sebanyak 20 kali.", current: 147, target: 20, unit: "kunjungan", earned: true, earnedAt: "2023-07-04" },
+  { id: "tetangga", icon: "🤝", name: "Tetangga Baik", sub: "10+ traktir", desc: "Tetangga sejati: yang ingat memesan dua, bukan satu.", req: "Traktir kopi 10 tetangga berbeda.", current: 12, target: 10, unit: "traktir", earned: true, earnedAt: "2024-09-19" },
+  { id: "penjelajah", icon: "🗺️", name: "Penjelajah", sub: "3+ kota", desc: "Tiap kota meninggalkan aroma yang berbeda di gelasmu.", req: "Kunjungi TUKU di 3 kota berbeda.", current: 4, target: 3, unit: "kota", earned: true, earnedAt: "2025-02-05" },
+  { id: "pelancong", icon: "✈️", name: "Pelancong Global", sub: "Amsterdam", desc: "Cerita TUKU melintasi benua — dan kamu ikut membawanya pulang.", req: "Kunjungi 1 toko TUKU di luar negeri.", current: 1, target: 1, unit: "toko", earned: true, earnedAt: "2025-04-21" },
+  { id: "setia100", icon: "💯", name: "Setia 100", sub: "100 kunjungan", desc: "Setia bukan sekadar angka — tapi gelas demi gelas yang sama.", req: "Kumpulkan 200 kunjungan total.", current: 147, target: 200, unit: "kunjungan", earned: false },
+  { id: "petani", icon: "🌱", name: "Sahabat Petani", sub: "Kunjungi 5 batch", desc: "Kopi yang baik dimulai dari tanah — kamu menyusurinya.", req: "Pesan dari 5 batch petani berbeda.", current: 2, target: 5, unit: "batch", earned: false },
+  { id: "sesepuh", icon: "👑", name: "Sesepuh", sub: "Semua kota", desc: "Hanya untuk yang sudah singgah di setiap toko TUKU di dunia.", req: "Kunjungi seluruh 71 kota TUKU.", current: 6, target: 71, unit: "kota", earned: false },
+];
+
 function AppPaspor() {
   const [sub, setSub] = useState("p");
   const [region, setRegion] = useState<"all" | "nusantara" | "global">("all");
   const [query, setQuery] = useState("");
+  const [selectedBadge, setSelectedBadge] = useState<string | null>(null);
+  const earnedCount = BADGES.filter(b => b.earned).length;
+  const activeBadge = BADGES.find(b => b.id === selectedBadge) || null;
+  useEffect(() => {
+    if (!selectedBadge) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setSelectedBadge(null); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [selectedBadge]);
   const filteredCities = useMemo(() => {
     const q = query.trim().toLowerCase();
     return STORES_VISITED
@@ -1140,7 +1166,7 @@ function AppPaspor() {
     return (<>{text.slice(0, idx)}<mark style={{ background: `${C.aren}30`, color: C.coffee, padding: "0 2px", borderRadius: 3 }}>{text.slice(idx, idx + q.length)}</mark>{text.slice(idx + q.length)}</>);
   };
   return (
-    <div style={{ padding: 18 }}>
+    <div style={{ padding: 18, position: "relative" }}>
       <div style={{ background: `linear-gradient(135deg, ${C.coffee} 0%, ${C.coffeeMid} 100%)`, borderRadius: 18, padding: 22, color: C.cream, textAlign: "center", marginBottom: 18 }}>
         <div style={{ width: 64, height: 64, borderRadius: "50%", background: C.aren, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 10px", fontFamily: F.d, fontSize: 28, fontWeight: 700, color: C.coffee }}>{USER.name[0]}</div>
         <h2 style={{ fontFamily: F.d, fontSize: 22, margin: "0 0 4px", fontWeight: 700 }}>{USER.name}</h2>
@@ -1242,28 +1268,27 @@ function AppPaspor() {
 
           {/* BADGE PENCAPAIAN */}
           <h3 style={{ fontFamily: F.d, fontSize: 18, color: C.coffee, margin: "0 0 4px", fontWeight: 700 }}>Lencana Pencapaian</h3>
-          <p style={{ fontFamily: F.b, fontSize: 12, color: C.warmGray, margin: "0 0 12px" }}>5 dari 8 terkumpul</p>
+          <p style={{ fontFamily: F.b, fontSize: 12, color: C.warmGray, margin: "0 0 12px" }}>{earnedCount} dari {BADGES.length} terkumpul</p>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
-            {[
-              { icon: "☕", name: "Seruput Pertama", earned: true },
-              { icon: "🏠", name: "Warga Cipete", earned: true },
-              { icon: "🤝", name: "Tetangga Baik", earned: true, sub: "10+ traktir" },
-              { icon: "🗺️", name: "Penjelajah", earned: true, sub: "3+ kota" },
-              { icon: "✈️", name: "Pelancong Global", earned: true, sub: "Amsterdam" },
-              { icon: "💯", name: "Setia 100", earned: false, sub: "100 kunjungan" },
-              { icon: "🌱", name: "Sahabat Petani", earned: false, sub: "Kunjungi 5 batch" },
-              { icon: "👑", name: "Sesepuh", earned: false, sub: "Semua kota" },
-            ].map((b, i) => (
-              <div key={i} style={{
-                background: b.earned ? C.warmWhite : C.parchment,
-                border: `1px solid ${b.earned ? C.aren + "40" : C.softBrown + "20"}`,
-                borderRadius: 12, padding: "12px 6px", textAlign: "center",
-                opacity: b.earned ? 1 : 0.5,
-              }}>
+            {BADGES.map((b) => (
+              <button
+                key={b.id}
+                onClick={() => setSelectedBadge(b.id)}
+                aria-label={`Lihat detail lencana ${b.name}`}
+                style={{
+                  all: "unset", cursor: "pointer", display: "block",
+                  background: b.earned ? C.warmWhite : C.parchment,
+                  border: `1px solid ${b.earned ? C.aren + "40" : C.softBrown + "20"}`,
+                  borderRadius: 12, padding: "12px 6px", textAlign: "center",
+                  opacity: b.earned ? 1 : 0.55, transition: "transform 0.15s ease",
+                }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-2px)"; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = "none"; }}
+              >
                 <div style={{ fontSize: 26, marginBottom: 4, filter: b.earned ? "none" : "grayscale(1)" }}>{b.icon}</div>
                 <div style={{ fontFamily: F.u, fontSize: 9.5, fontWeight: 700, color: C.coffee, lineHeight: 1.2 }}>{b.name}</div>
                 {b.sub && <div style={{ fontFamily: F.u, fontSize: 8, color: C.warmGray, marginTop: 2 }}>{b.sub}</div>}
-              </div>
+              </button>
             ))}
           </div>
 
@@ -1287,6 +1312,73 @@ function AppPaspor() {
           </div>
         </div>
       )}
+      {activeBadge && (() => {
+        const b = activeBadge;
+        const pct = Math.min(100, Math.round((b.current / b.target) * 100));
+        const remaining = Math.max(0, b.target - b.current);
+        const dateStr = b.earnedAt ? new Date(b.earnedAt).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }) : null;
+        const fillColor = b.earned ? C.leaf : C.aren;
+        return (
+          <div role="dialog" aria-modal="true" aria-label={`Detail lencana ${b.name}`} style={{ position: "absolute", inset: 0, zIndex: 50 }}>
+            <style>{`
+              @keyframes lvBackdropIn { from { opacity: 0 } to { opacity: 1 } }
+              @keyframes lvSheetIn { from { transform: translateY(28px); opacity: 0 } to { transform: none; opacity: 1 } }
+              @keyframes lvHalo { 0%,100% { box-shadow: 0 0 0 6px ${C.aren}25 } 50% { box-shadow: 0 0 0 10px ${C.aren}10 } }
+            `}</style>
+            <div onClick={() => setSelectedBadge(null)} style={{ position: "absolute", inset: 0, background: `${C.coffee}66`, backdropFilter: "blur(2px)", animation: "lvBackdropIn 0.2s ease both" }} />
+            <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, background: C.snow, borderRadius: "20px 20px 0 0", padding: 22, maxHeight: "85%", overflowY: "auto", boxShadow: `0 -10px 40px ${C.coffee}30`, animation: "lvSheetIn 0.3s ease both" }}>
+              <button onClick={() => setSelectedBadge(null)} aria-label="Tutup" style={{ all: "unset", cursor: "pointer", position: "absolute", top: 12, right: 14, width: 28, height: 28, borderRadius: "50%", background: C.parchment, color: C.coffee, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700 }}>✕</button>
+
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", marginBottom: 18 }}>
+                <div style={{
+                  width: 88, height: 88, borderRadius: "50%",
+                  background: b.earned ? `${C.aren}22` : `${C.softBrown}20`,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: 48, marginBottom: 12, filter: b.earned ? "none" : "grayscale(0.6)",
+                  animation: b.earned ? "lvHalo 2.4s ease-in-out infinite" : "none",
+                }}>{b.icon}</div>
+                <h3 style={{ fontFamily: F.d, fontSize: 22, fontWeight: 700, color: C.coffee, margin: "0 0 8px" }}>{b.name}</h3>
+                <span style={{
+                  fontFamily: F.u, fontSize: 11, fontWeight: 700, letterSpacing: 0.6,
+                  padding: "4px 10px", borderRadius: 999,
+                  background: b.earned ? `${C.leaf}22` : `${C.softBrown}25`,
+                  color: b.earned ? C.leaf : C.warmGray,
+                }}>{b.earned ? "✓ SUDAH DIRAIH" : "🔒 BELUM DIRAIH"}</span>
+                <p style={{ fontFamily: F.h, fontSize: 14, color: C.coffeeMid, margin: "12px 4px 0", lineHeight: 1.5 }}>{b.desc}</p>
+              </div>
+
+              <div style={{ marginBottom: 16 }}>
+                <p style={{ fontFamily: F.u, fontSize: 10, fontWeight: 700, letterSpacing: 1, color: C.warmGray, margin: "0 0 6px" }}>SYARAT</p>
+                <p style={{ fontFamily: F.b, fontSize: 13.5, color: C.coffee, margin: 0, lineHeight: 1.5 }}>{b.req}</p>
+              </div>
+
+              <div style={{ marginBottom: 16 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 6 }}>
+                  <p style={{ fontFamily: F.u, fontSize: 10, fontWeight: 700, letterSpacing: 1, color: C.warmGray, margin: 0 }}>PROGRES</p>
+                  <span style={{ fontFamily: F.u, fontSize: 12, fontWeight: 700, color: C.coffee }}>{b.current}/{b.target} {b.unit} <span style={{ color: C.warmGray, fontWeight: 600 }}>· {pct}%</span></span>
+                </div>
+                <div style={{ height: 9, background: C.parchment, borderRadius: 999, overflow: "hidden" }}>
+                  <div style={{ height: "100%", width: `${pct}%`, background: fillColor, borderRadius: 999, transition: "width 0.6s ease" }} />
+                </div>
+              </div>
+
+              <div style={{ marginBottom: 18, padding: "12px 14px", background: C.parchment, borderRadius: 12 }}>
+                <p style={{ fontFamily: F.u, fontSize: 10, fontWeight: 700, letterSpacing: 1, color: C.warmGray, margin: "0 0 4px" }}>TANGGAL</p>
+                {b.earned && dateStr ? (
+                  <p style={{ fontFamily: F.b, fontSize: 13.5, color: C.coffee, margin: 0 }}>📅 Diraih pada <strong>{dateStr}</strong></p>
+                ) : (
+                  <p style={{ fontFamily: F.b, fontSize: 13.5, color: C.coffee, margin: 0 }}>⏳ Butuh <strong>{remaining} {b.unit}</strong> lagi untuk meraihnya</p>
+                )}
+              </div>
+
+              <button
+                onClick={() => setSelectedBadge(null)}
+                style={{ all: "unset", cursor: "pointer", display: "block", width: "100%", boxSizing: "border-box", textAlign: "center", padding: "12px 0", borderRadius: 12, background: b.earned ? C.coffee : C.aren, color: b.earned ? C.cream : C.coffee, fontFamily: F.u, fontSize: 13, fontWeight: 700, letterSpacing: 0.5 }}
+              >{b.earned ? "Tutup" : "Lanjutkan ekspedisi"}</button>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }
