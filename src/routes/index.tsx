@@ -365,13 +365,14 @@ function ChapterEyebrow({
           id={id}
           role="region"
           style={{
-            position: "absolute", top: "calc(100% + 10px)",
-            ...(align === "center" ? { left: "50%", transform: "translateX(-50%)" } : { left: 0 }),
-            width: coarse ? "min(94vw, 380px)" : "min(92vw, 360px)", textAlign: "left", zIndex: 20,
+            position: "relative", display: "block",
+            marginTop: 10,
+            marginInline: align === "center" ? "auto" : 0,
+            width: "100%", maxWidth: coarse ? 380 : 360,
+            textAlign: "left", zIndex: 20,
             background: panelBg, border: `1px solid ${panelBorder}`, borderRadius: 4,
             padding: coarse ? "18px 20px 16px" : "16px 18px 14px",
             boxShadow: dark ? `0 24px 60px ${C.coffee}80` : `0 18px 40px ${C.coffee}25`,
-            backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)",
             animation: "ebReveal 240ms ease-out both",
           }}
         >
