@@ -651,8 +651,9 @@ function NarrativeHero() {
 
 function NarrativeLetter() {
   return (
-    <section style={{ padding: "120px 24px", background: C.warmWhite }}>
-      <div style={{ maxWidth: 680, margin: "0 auto" }}>
+    <section style={{ position: "relative", overflow: "hidden", padding: "120px 24px", background: C.warmWhite }}>
+      <FrameOverlay tone="light" intensity="subtle" watermark="cup" watermarkPos="br" />
+      <div style={{ position: "relative", zIndex: 1, maxWidth: 680, margin: "0 auto" }}>
         <Fade><Label>Surat untuk Tetangga</Label></Fade>
         <Fade delay={150}>
           <p style={{ fontFamily: F.h, fontSize: 32, color: C.coffee, lineHeight: 1.4, margin: "0 0 32px" }}>Mas Tyo,</p>
