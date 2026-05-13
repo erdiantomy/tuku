@@ -90,6 +90,27 @@ const LOGO_BLEND: Record<"light" | "dark" | "none", string> = {
   none: "",
 };
 
+// Vector logo paths (potrace-derived from the original brushed wordmark).
+// One shared SVG renders both variants; `currentColor` swaps ink per tone.
+const TUKU_VIEWBOX = "0 0 369.842496 390.782264";
+// Tight crop around the cup glyph in the same coordinate space.
+const TUKU_CUP_VIEWBOX = "92 0 178 178";
+const TUKU_FULL_RATIO = 369.842496 / 390.782264; // ≈ 0.946
+const TUKU_CUP_RATIO = 1;
+const TUKU_PATHS = (
+  <g
+    transform="translate(-527.157504,569.875666) scale(0.100000,-0.100000)"
+    fill="currentColor"
+    stroke="none"
+  >
+    <path d="M6992 5684 c-224 -40 -368 -130 -441 -271 -11 -23 -21 -51 -21 -62 0 -15 -11 -23 -41 -33 -46 -13 -79 -55 -79 -99 0 -35 33 -75 83 -100 23 -12 52 -33 63 -47 l22 -27 -24 -22 c-30 -27 -31 -61 -5 -186 11 -50 22 -141 26 -202 7 -137 39 -358 65 -460 31 -122 79 -189 165 -234 53 -27 108 -37 300 -51 149 -12 170 -11 309 9 210 31 240 38 267 67 18 19 24 37 24 71 0 38 -5 49 -34 75 -38 34 -27 34 -206 -2 -130 -26 -450 -33 -521 -12 -109 32 -129 99 -179 616 -9 88 -18 163 -21 168 -7 12 -2 11 78 -16 112 -37 141 -41 318 -41 163 1 166 1 272 38 99 33 177 69 220 99 9 7 19 10 22 7 3 -3 -4 -41 -14 -85 -39 -161 -73 -372 -86 -529 l-7 -91 32 -27 c43 -36 102 -37 135 -4 26 26 33 61 60 287 9 69 22 154 31 190 53 226 65 281 65 291 0 22 -51 79 -71 79 -43 0 -14 47 47 74 80 35 91 111 25 170 -12 11 -21 24 -21 30 0 24 -49 114 -81 151 -65 73 -193 140 -319 164 -36 7 -87 17 -113 22 -68 13 -259 9 -345 -7z m428 -210 c54 -18 55 -18 20 -21 -100 -8 -211 -40 -355 -103 -135 -59 -244 -89 -322 -90 -58 0 -62 6 -42 57 22 59 78 100 194 144 87 32 138 38 300 34 111 -2 164 -8 205 -21z m180 -234 c38 -24 -63 -116 -177 -162 -104 -42 -187 -58 -306 -58 -103 0 -241 22 -252 40 -3 4 32 18 78 30 45 12 147 47 227 77 80 30 165 61 190 68 54 15 219 19 240 5z" />
+    <path d="M5835 3389 c-16 -5 -45 -24 -64 -44 -54 -58 -82 -67 -226 -75 -158 -10 -186 -18 -236 -69 -45 -46 -49 -72 -15 -116 38 -49 87 -59 193 -39 150 28 187 31 221 22 58 -16 61 -29 61 -278 0 -314 18 -478 57 -521 27 -30 86 -25 128 11 50 44 67 103 55 184 -13 81 -8 562 6 575 15 14 119 21 216 14 l87 -6 11 -37 c6 -21 11 -72 11 -115 0 -112 27 -265 61 -348 38 -92 125 -205 194 -252 46 -32 64 -38 123 -43 107 -7 176 35 261 162 127 190 177 378 170 646 -5 156 -17 189 -81 215 -34 13 -43 13 -73 1 -44 -19 -52 -39 -65 -178 -20 -207 -54 -352 -112 -474 -47 -98 -133 -110 -175 -24 -48 98 -63 187 -63 377 0 294 -20 323 -195 282 -158 -37 -292 -12 -384 72 -64 58 -109 74 -166 58z" />
+    <path d="M7330 3391 c-79 -14 -90 -43 -90 -245 0 -83 -5 -257 -10 -386 -17 -367 -17 -441 -1 -470 19 -34 30 -40 73 -40 57 0 89 35 138 149 23 55 49 102 58 106 10 3 46 -9 87 -29 114 -57 149 -66 272 -66 102 0 114 2 138 23 26 23 44 100 28 124 -5 6 -52 21 -106 32 -161 33 -299 111 -293 166 4 33 29 68 70 100 39 30 65 38 195 65 119 24 141 38 141 90 0 30 -6 43 -26 59 -80 63 -211 48 -391 -43 -117 -58 -113 -62 -113 114 0 157 -8 199 -46 231 -23 20 -76 28 -124 20z" />
+    <path d="M8804 3208 c-28 -13 -54 -70 -54 -117 0 -58 -29 -218 -55 -299 -45 -141 -151 -285 -227 -308 -31 -10 -41 -9 -68 7 -17 11 -37 34 -45 52 -14 34 -31 177 -41 337 -3 52 -7 120 -9 150 -4 69 -19 102 -55 123 -65 39 -148 9 -171 -60 -16 -49 -5 -304 22 -483 24 -162 48 -213 129 -277 92 -72 129 -86 218 -81 118 7 217 66 322 190 74 88 119 175 165 312 32 99 35 119 35 226 0 148 -21 206 -84 230 -33 12 -54 12 -82 -2z" />
+    <path d="M7180 2110 c-143 -19 -378 -102 -432 -152 -27 -25 -30 -33 -25 -71 4 -30 15 -50 37 -69 38 -35 75 -36 138 -4 69 35 185 72 286 92 68 13 122 16 235 12 81 -3 157 -1 170 3 61 23 60 142 -2 179 -28 18 -50 20 -192 19 -88 -1 -185 -5 -215 -9z" />
+  </g>
+);
+
 function TukuLogo({
   variant = "dark", size = 48, withWordmark = true, minSize, maxSize, style,
   blend = "auto", halo = true,
@@ -99,50 +120,55 @@ function TukuLogo({
   blend?: "auto" | "light" | "dark" | "none";
   halo?: boolean;
 }) {
-  const src = variant === "dark" ? logoDark : logoLight;
-  // Native aspect ratios of the trimmed source files.
-  const fullRatio = variant === "dark" ? 1424 / 748 : 1246 / 848;
-  // When wordmark hidden we crop to the top portion (cup glyph only) — roughly square.
-  const ratio = withWordmark ? fullRatio : 1;
+  const ratio = withWordmark ? TUKU_FULL_RATIO : TUKU_CUP_RATIO;
+  const viewBox = withWordmark ? TUKU_VIEWBOX : TUKU_CUP_VIEWBOX;
 
   const max = maxSize ?? size;
   const min = minSize ?? size;
   // Fluid scaling between min and max, baseline ~12vw of viewport so it grows with width.
   const widthCss = min === max ? `${max}px` : `clamp(${min}px, ${Math.round((max / 1280) * 100)}vw, ${max}px)`;
 
-  // Tone resolution: auto follows variant (dark logo → "dark" filter on light bg, etc.)
+  // Ink color follows variant; deep coffee on light bg, cream on dark bg.
+  const ink = variant === "dark" ? C.coffee : C.cream;
+
+  // Tone resolution for shadow/halo: auto follows variant (dark logo → "dark" filter on light bg).
   const tone: "light" | "dark" | "none" = blend === "auto" ? variant : blend;
   const internalFilter = LOGO_BLEND[tone];
   const callerFilter = (style?.filter as string | undefined) ?? "";
   const mergedFilter = [internalFilter, callerFilter].filter(Boolean).join(" ").trim() || undefined;
 
-  // Strip filter from passthrough style — we re-apply the merged value.
-  const { filter: _omit, ...restStyle } = style ?? {};
+  // Strip filter/color from passthrough style — we re-apply them ourselves.
+  const { filter: _filter, color: _color, ...restStyle } = style ?? {};
 
   const showHalo = halo && tone !== "none" && max >= 40;
 
-  const img = (
-    <img
-      src={src}
-      alt="TUKU"
-      draggable={false}
+  const svg = (
+    <svg
+      role="img"
+      aria-label="TUKU"
+      viewBox={viewBox}
+      preserveAspectRatio="xMidYMid meet"
       style={{
         width: widthCss,
         height: "auto",
         aspectRatio: String(ratio),
-        objectFit: withWordmark ? "contain" : "cover",
-        objectPosition: withWordmark ? "center" : "center top",
-        display: "block", userSelect: "none", pointerEvents: "none",
+        display: "block",
+        userSelect: "none",
+        pointerEvents: "none",
         flexShrink: 0,
         position: "relative",
         zIndex: 1,
+        color: ink,
+        overflow: "visible",
         filter: mergedFilter,
         ...restStyle,
       }}
-    />
+    >
+      {TUKU_PATHS}
+    </svg>
   );
 
-  if (!showHalo) return img;
+  if (!showHalo) return svg;
 
   const haloBg = tone === "light"
     ? "radial-gradient(closest-side, rgba(242,217,168,0.22), transparent 70%)"
@@ -167,7 +193,7 @@ function TukuLogo({
           zIndex: 0,
         }}
       />
-      {img}
+      {svg}
     </span>
   );
 }
