@@ -530,30 +530,45 @@ function NarrativeCTA({ onOpen }: { onOpen: () => void }) {
   const [pulse, setPulse] = useState(false);
   useEffect(() => { const i = setInterval(() => setPulse(p => !p), 1800); return () => clearInterval(i); }, []);
   return (
-    <section style={{ padding: "140px 24px", background: C.coffee, color: C.cream, textAlign: "center" }}>
+    <section style={{ position: "relative", padding: "160px 24px", background: `radial-gradient(ellipse at 50% 0%, ${C.coffeeMid} 0%, ${C.coffee} 55%, #1a0e07 100%)`, color: C.cream, textAlign: "center", overflow: "hidden" }}>
+      <GrainOverlay opacity={0.09} />
+      <CornerTicks color={`${C.cream}25`} />
       <Fade>
-        <p style={{ fontFamily: F.h, fontSize: 32, color: C.arenGlow, marginBottom: 12 }}>
-          Sekarang, bayangkan kamu<br />membuka app ini.
-        </p>
+        <TukuLogo variant="light" size={88} style={{ marginBottom: 22, filter: `drop-shadow(0 6px 24px ${C.aren}40)` }} />
       </Fade>
-      <Fade delay={200}>
-        <p style={{ fontFamily: F.b, fontSize: 17, color: C.cream, opacity: 0.7, marginBottom: 56, maxWidth: 480, marginLeft: "auto", marginRight: "auto" }}>
+      <Fade delay={150}>
+        <p style={{ fontFamily: F.u, fontSize: 10, fontWeight: 700, letterSpacing: 4, color: C.arenGlow, opacity: 0.8, marginBottom: 18 }}>CH · 09 — UNDANGAN</p>
+      </Fade>
+      <Fade delay={250}>
+        <h2 style={{ fontFamily: F.d, fontSize: "clamp(36px, 6vw, 60px)", color: C.cream, lineHeight: 1.15, margin: "0 0 20px", letterSpacing: -1.2, fontWeight: 400 }}>
+          Sekarang, bayangkan kamu<br /><span style={{ fontStyle: "italic", color: C.arenGlow }}>membuka pintu ini.</span>
+        </h2>
+      </Fade>
+      <Fade delay={420}>
+        <p style={{ fontFamily: F.h, fontSize: 22, color: C.cream, opacity: 0.7, marginBottom: 56, maxWidth: 520, marginLeft: "auto", marginRight: "auto" }}>
           Ini bukan mockup. Ini sketsa di serbet — yang bisa kamu sentuh.
         </p>
       </Fade>
-      <Fade delay={400}>
+      <Fade delay={550}>
         <button onClick={onOpen} style={{
-          all: "unset", cursor: "pointer", display: "inline-block",
-          background: C.aren, color: C.coffee, padding: "20px 44px",
-          borderRadius: 999, fontFamily: F.u, fontSize: 17, fontWeight: 700,
-          letterSpacing: 0.5, transform: pulse ? "scale(1.04)" : "scale(1)",
-          transition: "transform 0.6s ease", boxShadow: `0 8px 32px ${C.aren}50`,
-        }}>
-          ☕  Buka Pintunya
+          all: "unset", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 14,
+          background: "transparent", color: C.arenGlow, padding: "18px 38px",
+          borderRadius: 0, fontFamily: F.u, fontSize: 14, fontWeight: 700,
+          letterSpacing: 3, textTransform: "uppercase",
+          border: `1px solid ${C.arenGlow}`,
+          transform: pulse ? "translateY(-2px)" : "translateY(0)",
+          transition: "transform 0.6s ease, background 0.3s ease, color 0.3s ease",
+        }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = C.arenGlow; (e.currentTarget as HTMLButtonElement).style.color = C.coffee; }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "transparent"; (e.currentTarget as HTMLButtonElement).style.color = C.arenGlow; }}
+        >
+          <span>Open the Door</span>
+          <span style={{ fontFamily: F.d, fontStyle: "italic", fontSize: 16, letterSpacing: 0, textTransform: "none" }}>buka pintunya</span>
+          <span>→</span>
         </button>
       </Fade>
-      <Fade delay={600}>
-        <p style={{ fontFamily: F.h, fontSize: 18, color: C.cream, opacity: 0.5, marginTop: 24 }}>
+      <Fade delay={750}>
+        <p style={{ fontFamily: F.h, fontSize: 18, color: C.cream, opacity: 0.45, marginTop: 32 }}>
           tap untuk merasakan Rukun Tetangga Digital
         </p>
       </Fade>
