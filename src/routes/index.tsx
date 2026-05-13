@@ -76,6 +76,156 @@ function Badge({ children, color = C.aren }: { children: ReactNode; color?: stri
   return <span style={{ display: "inline-block", padding: "3px 9px", borderRadius: 999, background: color + "20", color, fontFamily: F.u, fontSize: 10, fontWeight: 700, letterSpacing: 0.5 }}>{children}</span>;
 }
 
+function TukuLogo({ variant = "dark", size = 48, withWordmark = true, style }: { variant?: "dark" | "light"; size?: number; withWordmark?: boolean; style?: CSSProperties }) {
+  const src = variant === "dark" ? logoDark : logoLight;
+  // Source images contain the bucket + wordmark stacked. We crop via object-position when wordmark hidden.
+  return (
+    <img
+      src={src}
+      alt="TUKU"
+      style={{
+        width: size, height: withWordmark ? size : size * 0.6, objectFit: "contain",
+        objectPosition: withWordmark ? "center" : "center top",
+        display: "inline-block", userSelect: "none", pointerEvents: "none",
+        ...style,
+      }}
+    />
+  );
+}
+
+function Masthead() {
+  const [solid, setSolid] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setSolid(window.scrollY > 24);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+  return (
+    <div style={{
+      position: "sticky", top: 0, zIndex: 50,
+      display: "flex", alignItems: "center", justifyContent: "space-between",
+      padding: "10px 22px",
+      background: solid ? `${C.cream}EE` : "transparent",
+      backdropFilter: solid ? "blur(8px)" : "none",
+      WebkitBackdropFilter: solid ? "blur(8px)" : "none",
+      borderBottom: solid ? `1px solid ${C.softBrown}30` : "1px solid transparent",
+      transition: "background 0.3s ease, border-color 0.3s ease",
+    }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <TukuLogo variant="dark" size={34} />
+        <div style={{ borderLeft: `1px solid ${C.softBrown}80`, paddingLeft: 12, display: "none" }} className="masthead-tag">
+          <div style={{ fontFamily: F.u, fontSize: 9, fontWeight: 700, letterSpacing: 2, color: C.warmGray }}>EDISI 01</div>
+          <div style={{ fontFamily: F.u, fontSize: 10, fontWeight: 700, letterSpacing: 1.4, color: C.coffee }}>RUKUN TETANGGA DIGITAL</div>
+        </div>
+      </div>
+      <div style={{ textAlign: "right" }}>
+        <div style={{ fontFamily: F.u, fontSize: 9, fontWeight: 700, letterSpacing: 2, color: C.warmGray }}>PROPOSAL</div>
+        <div style={{ fontFamily: F.d, fontStyle: "italic", fontSize: 13, color: C.coffee, lineHeight: 1 }}>MMXXVI</div>
+      </div>
+      <style>{`@media (min-width: 640px) { .masthead-tag { display: block !important; } }`}</style>
+    </div>
+  );
+}
+
+function ChapterMarker({ n, label }: { n: string; label: string }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 28 }}>
+      <span style={{ fontFamily: F.d, fontStyle: "italic", fontSize: 56, fontWeight: 400, color: C.aren, lineHeight: 0.8, letterSpacing: -1 }}>{n}</span>
+      <div style={{ flex: 1, height: 1, background: `linear-gradient(90deg, ${C.aren}80, transparent)` }} />
+      <span style={{ fontFamily: F.u, fontSize: 10, fontWeight: 700, letterSpacing: 3, color: C.warmGray, textTransform: "uppercase" }}>{label}</span>
+    </div>
+  );
+}
+
+const GRAIN_BG = `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.55 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/></svg>")`;
+
+function GrainOverlay({ opacity = 0.06 }: { opacity?: number }) {
+  return <div aria-hidden style={{ position: "absolute", inset: 0, backgroundImage: GRAIN_BG, opacity, pointerEvents: "none", mixBlendMode: "overlay" }} />;
+}
+
+function CornerTicks({ color }: { color: string }) {
+  const tick = (pos: CSSProperties) => <div style={{ position: "absolute", width: 14, height: 14, ...pos }}>
+    <div style={{ position: "absolute", inset: 0, borderColor: color, borderStyle: "solid", borderWidth: 0, ...((pos as any).borderTop ? {} : {}) }} />
+  </div>;
+  void tick;
+  const base: CSSProperties = { position: "absolute", width: 18, height: 18, borderColor: color, borderStyle: "solid" };
+  return (
+    <>
+      <div aria-hidden style={{ ...base, top: 14, left: 14, borderTopWidth: 1, borderLeftWidth: 1, borderRightWidth: 0, borderBottomWidth: 0 }} />
+      <div aria-hidden style={{ ...base, top: 14, right: 14, borderTopWidth: 1, borderRightWidth: 1, borderLeftWidth: 0, borderBottomWidth: 0 }} />
+      <div aria-hidden style={{ ...base, bottom: 14, left: 14, borderBottomWidth: 1, borderLeftWidth: 1, borderRightWidth: 0, borderTopWidth: 0 }} />
+      <div aria-hidden style={{ ...base, bottom: 14, right: 14, borderBottomWidth: 1, borderRightWidth: 1, borderLeftWidth: 0, borderTopWidth: 0 }} />
+    </>
+  );
+}
+
+function PullQuote({ children, color = C.aren }: { children: ReactNode; color?: string }) {
+  return (
+    <blockquote style={{ position: "relative", padding: "28px 18px 24px 64px", margin: "32px 0" }}>
+      <span aria-hidden style={{ position: "absolute", top: -10, left: 0, fontFamily: F.d, fontSize: 120, lineHeight: 1, color, opacity: 0.35, fontStyle: "italic" }}>&ldquo;</span>
+      <p style={{ fontFamily: F.d, fontStyle: "italic", fontSize: "clamp(22px, 3.4vw, 36px)", lineHeight: 1.35, color: C.coffee, margin: 0, fontWeight: 400 }}>
+        {children}
+      </p>
+    </blockquote>
+  );
+}
+
+function Colophon() {
+  return (
+    <section style={{ padding: "56px 24px", background: C.parchment, borderTop: `1px solid ${C.softBrown}40`, borderBottom: `1px solid ${C.softBrown}40` }}>
+      <div style={{ maxWidth: 980, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 28, alignItems: "start" }}>
+        <div>
+          <TukuLogo variant="dark" size={52} />
+          <p style={{ fontFamily: F.u, fontSize: 9, fontWeight: 700, letterSpacing: 2, color: C.warmGray, marginTop: 10 }}>KOPI TUKU · 2026</p>
+        </div>
+        <div>
+          <div style={{ fontFamily: F.u, fontSize: 9, fontWeight: 700, letterSpacing: 2, color: C.warmGray, marginBottom: 8 }}>HURUF</div>
+          <p style={{ fontFamily: F.d, fontSize: 16, color: C.coffee, margin: "0 0 2px" }}>Playfair Display</p>
+          <p style={{ fontFamily: F.b, fontSize: 14, color: C.coffeeMid, margin: "0 0 2px" }}>Source Serif 4</p>
+          <p style={{ fontFamily: F.h, fontSize: 16, color: C.aren, margin: "0 0 2px" }}>Caveat</p>
+          <p style={{ fontFamily: F.u, fontSize: 12, color: C.coffeeMid, letterSpacing: 1 }}>DM Sans</p>
+        </div>
+        <div>
+          <div style={{ fontFamily: F.u, fontSize: 9, fontWeight: 700, letterSpacing: 2, color: C.warmGray, marginBottom: 8 }}>PALET</div>
+          <div style={{ display: "flex", gap: 6 }}>
+            {[C.coffee, C.aren, C.leaf, C.parchment, C.cream].map((c) => (
+              <div key={c} title={c} style={{ width: 22, height: 32, background: c, border: `1px solid ${C.softBrown}40` }} />
+            ))}
+          </div>
+        </div>
+        <div>
+          <div style={{ fontFamily: F.u, fontSize: 9, fontWeight: 700, letterSpacing: 2, color: C.warmGray, marginBottom: 8 }}>EDISI</div>
+          <p style={{ fontFamily: F.d, fontStyle: "italic", fontSize: 22, color: C.coffee, margin: 0, lineHeight: 1.1 }}>Vol. 01</p>
+          <p style={{ fontFamily: F.u, fontSize: 11, color: C.coffeeMid, letterSpacing: 1, marginTop: 4 }}>Jakarta · Amsterdam</p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+const TAB_NAMES = ["Rumah", "Pesan", "Traktir", "Cerita", "Paspor", "Obrolan"] as const;
+const TAB_EYEBROWS = ["beranda", "katalog harian", "rukun tetangga", "di balik gelas", "kartu identitas", "percakapan"] as const;
+function AppTopBar({ tab, onBack }: { tab: number; onBack: () => void }) {
+  return (
+    <div style={{
+      display: "flex", alignItems: "center", justifyContent: "space-between",
+      padding: "12px 16px", background: C.snow,
+      borderBottom: `1px solid ${C.softBrown}25`,
+      position: "sticky", top: 0, zIndex: 8,
+    }}>
+      <button onClick={onBack} aria-label="Kembali ke proposal" style={{ all: "unset", cursor: "pointer", fontFamily: F.u, fontSize: 11, fontWeight: 700, color: C.warmGray, letterSpacing: 1, padding: "4px 8px", borderRadius: 999, border: `1px solid ${C.softBrown}40` }}>← Proposal</button>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", lineHeight: 1 }}>
+        <TukuLogo variant="dark" size={26} withWordmark={false} />
+        <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginTop: 4 }}>
+          <span style={{ fontFamily: F.u, fontSize: 8.5, fontWeight: 700, letterSpacing: 2, color: C.warmGray, textTransform: "uppercase" }}>{TAB_EYEBROWS[tab]}</span>
+          <span style={{ fontFamily: F.d, fontStyle: "italic", fontSize: 13, color: C.coffee }}>{TAB_NAMES[tab]}</span>
+        </div>
+      </div>
+      <div style={{ width: 70, fontFamily: F.u, fontSize: 9, fontWeight: 700, letterSpacing: 1.5, color: C.warmGray, textAlign: "right" }}>EDISI · 01</div>
+    </div>
+  );
+}
+
 const fmt = (n: number) => "Rp " + n.toLocaleString("id-ID");
 
 // ── Mock Data ──
