@@ -1953,11 +1953,15 @@ function TukuRukunTetangga() {
         </Fade>
       </section>
 
-      <footer style={{ padding: "60px 24px", background: C.coffee, color: C.cream, textAlign: "center" }}>
-        <p style={{ fontFamily: F.h, fontSize: 24, color: C.arenGlow, margin: "0 0 12px" }}>Mari bertetangga baik. 🤝</p>
-        <p style={{ fontFamily: F.u, fontSize: 12, color: C.cream, opacity: 0.6, lineHeight: 1.7, margin: 0 }}>
-          Strategic Advisory · Digital Transformation<br />
-          F&amp;B &amp; Coffee Industry Practice
+      <Colophon />
+      <footer style={{ position: "relative", padding: "80px 24px", background: `radial-gradient(ellipse at center, ${C.coffeeMid} 0%, ${C.coffee} 60%, #15090480 100%)`, color: C.cream, textAlign: "center", overflow: "hidden" }}>
+        <GrainOverlay opacity={0.08} />
+        <TukuLogo variant="light" size={64} style={{ marginBottom: 18, opacity: 0.95 }} />
+        <p style={{ fontFamily: F.d, fontStyle: "italic", fontSize: 26, color: C.arenGlow, margin: "0 0 14px" }}>Mari bertetangga baik.</p>
+        <div style={{ width: 40, height: 1, background: `${C.arenGlow}60`, margin: "0 auto 18px" }} />
+        <p style={{ fontFamily: F.u, fontSize: 11, color: C.cream, opacity: 0.6, lineHeight: 1.9, margin: 0, letterSpacing: 1.5 }}>
+          STRATEGIC ADVISORY · DIGITAL TRANSFORMATION<br />
+          F&amp;B &amp; COFFEE INDUSTRY PRACTICE · MMXXVI
         </p>
       </footer>
     </main>
