@@ -864,8 +864,7 @@ function NarrativeCTA({ onOpen }: { onOpen: () => void }) {
   useEffect(() => { const i = setInterval(() => setPulse(p => !p), 1800); return () => clearInterval(i); }, []);
   return (
     <section style={{ position: "relative", padding: "160px 24px", background: `radial-gradient(ellipse at 50% 0%, ${C.coffeeMid} 0%, ${C.coffee} 55%, #1a0e07 100%)`, color: C.cream, textAlign: "center", overflow: "hidden" }}>
-      <GrainOverlay opacity={0.09} />
-      <CornerTicks color={`${C.cream}25`} />
+      <FrameOverlay tone="dark" intensity="feature" watermark="cup" watermarkPos="tl" />
       <Fade>
         <TukuLogo variant="light" size={88} minSize={56} maxSize={88} style={{ marginBottom: 22, filter: `drop-shadow(0 6px 24px ${C.aren}40)` }} />
       </Fade>
