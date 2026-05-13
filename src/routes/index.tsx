@@ -1608,7 +1608,7 @@ function TukuRukunTetangga() {
       <AppTraktir key="t" />,
       <AppCerita key="c" batchId={selectedBatchId} />,
       <AppPaspor key="p" />,
-      <AppObrolan key="m" goTo={setTab} />,
+      <AppObrolan key="m" goTo={setTab} openBatch={openBatch} />,
     ];
     return (
       <div style={{ minHeight: "100vh", background: C.cream, display: "flex", justifyContent: "center", alignItems: "stretch" }}>
