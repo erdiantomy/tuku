@@ -811,12 +811,38 @@ function AppCerita({ batchId }: { batchId: number | null }) {
   const headerSub = item?.batchLabel ?? "Es Kopi Susu Tetangga";
   const origin = item?.origin ?? FARMER.region;
   const harvest = item?.harvest ?? FARMER.harvest;
-  const steps: [string, string, string][] = [
-    ["🌱", "Ditanam", "Kebun Pak Ahmad, 1.400 mdpl"],
-    ["🫘", "Dipanen", "Januari 2026"],
-    ["🏭", "Diproses", "Full washed"],
-    ["🔥", "Di-roast", "Medium, Adena Coffee"],
-    ["☕", "Diseduh", "Barista Rizky, hari ini"],
+  type Step = { ic: string; l: string; d: string; title: string; desc: string; info: [string, string][] };
+  const steps: Step[] = [
+    {
+      ic: "🌱", l: "Ditanam", d: "Kebun Pak Ahmad, 1.400 mdpl",
+      title: "Ditanam di lereng tinggi",
+      desc: "Pohon arabika tumbuh pelan di tanah vulkanik dengan naungan pohon lamtoro. Suhu dingin malam hari memekatkan rasa di dalam ceri kopi.",
+      info: [["Petani", FARMER.name], ["Kebun", `${origin}, 1.400 mdpl`], ["Varietas", "Sigararutang & Ateng"], ["Naungan", "Lamtoro & dadap"]],
+    },
+    {
+      ic: "🫘", l: "Dipanen", d: harvest,
+      title: "Dipetik selektif (red cherry only)",
+      desc: "Hanya ceri yang sudah merah penuh yang dipetik tangan — kunci rasa manis alami dan menghindari rasa hijau atau astringen.",
+      info: [["Metode", "Hand-picked, selektif"], ["Periode", harvest], ["Hasil", "± 1,8 ton ceri"], ["Sortir", "Floating tank di kebun"]],
+    },
+    {
+      ic: "🏭", l: "Diproses", d: "Full washed",
+      title: "Full washed di rumah proses desa",
+      desc: "Ceri dikupas, biji difermentasi 24–36 jam, lalu dicuci bersih dan dijemur di para-para. Menghasilkan profil rasa bersih dengan keasaman cerah.",
+      info: [["Metode", "Full washed"], ["Fermentasi", "24–36 jam"], ["Pengeringan", "12–14 hari di para-para"], ["Kadar air", "10,5–11%"]],
+    },
+    {
+      ic: "🔥", l: "Di-roast", d: "Medium, Adena Coffee",
+      title: "Di-roast medium di Jakarta",
+      desc: "Roaster Adena Coffee memanggang biji hijau ini dengan profil medium — cukup untuk membuka manis karamel tanpa menutup karakter asli kebunnya.",
+      info: [["Roaster", "Adena Coffee, Jakarta"], ["Profil", "Medium (Agtron 58)"], ["Drum", "Probat 12 kg"], ["Rest time", "5–7 hari sebelum disajikan"]],
+    },
+    {
+      ic: "☕", l: "Diseduh", d: "Barista Rizky, hari ini",
+      title: "Diseduh segar oleh barista rumahmu",
+      desc: "Espresso double shot, ditemani gula aren cair Mang Ade dan susu segar. Disajikan dingin di gelas yang sudah kamu kenal di TUKU rumahmu.",
+      info: [["Barista", "Rizky · TUKU Cipete"], ["Resep", "Double shot 18→36 g"], ["Pasangan", "Gula aren Mang Ade · susu segar"], ["Waktu", "Hari ini"]],
+    },
   ];
   return (
     <div style={{ padding: 18 }}>
