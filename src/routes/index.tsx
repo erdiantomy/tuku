@@ -138,7 +138,7 @@ function Masthead() {
       backdropFilter: solid ? "blur(8px)" : "none",
       WebkitBackdropFilter: solid ? "blur(8px)" : "none",
       borderBottom: solid ? `1px solid ${C.softBrown}30` : "1px solid transparent",
-      transition: "background 0.3s ease, border-color 0.3s ease",
+      transition: `background ${M.base}ms ${M.out}, border-color ${M.base}ms ${M.out}, backdrop-filter ${M.base}ms ${M.out}`,
       willChange: "background, backdrop-filter",
     }}>
       <div style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0, flex: "1 1 auto" }}>
