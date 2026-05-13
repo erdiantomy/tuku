@@ -84,11 +84,12 @@ const STORES_VISITED = [
   { city: "Surabaya", stores: ["Darmo"], flag: "🇮🇩" },
   { city: "Amsterdam", stores: ["Centrum"], flag: "🇳🇱" },
 ];
-const MENU = [
-  { id: 1, name: "Es Kopi Susu Tetangga", price: 22000, cat: "coffee", desc: "Signature. Espresso + susu + gula aren", pop: true },
-  { id: 2, name: "Kopi Hitam Tetangga", price: 18000, cat: "coffee", desc: "Iced black. Robusta murni." },
-  { id: 3, name: "Cappuccino", price: 28000, cat: "coffee", desc: "Classic, creamy, warm" },
-  { id: 4, name: "Cold Drip Santai", price: 32000, cat: "coffee", desc: "12-hour slow drip" },
+type MenuItem = { id: number; name: string; price: number; cat: string; desc: string; pop?: boolean; batchStep?: number; batchLabel?: string };
+const MENU: MenuItem[] = [
+  { id: 1, name: "Es Kopi Susu Tetangga", price: 22000, cat: "coffee", desc: "Signature. Espresso + susu + gula aren", pop: true, batchStep: 4, batchLabel: "Es Kopi Susu Tetangga · Gayo" },
+  { id: 2, name: "Kopi Hitam Tetangga", price: 18000, cat: "coffee", desc: "Iced black. Robusta murni.", batchStep: 3, batchLabel: "Robusta Lampung · House blend" },
+  { id: 3, name: "Cappuccino", price: 28000, cat: "coffee", desc: "Classic, creamy, warm", batchStep: 3, batchLabel: "Arabika Gayo · Medium roast" },
+  { id: 4, name: "Cold Drip Santai", price: 32000, cat: "coffee", desc: "12-hour slow drip", batchStep: 2, batchLabel: "Flores Ende · Cold drip batch baru" },
   { id: 5, name: "Es Teh Susu Tetangga", price: 18000, cat: "non", desc: "Teh tarik khas TUKU" },
   { id: 6, name: "Teh Asam Jawa", price: 16000, cat: "non", desc: "Segar, asam manis" },
   { id: 7, name: "Donat Kampung", price: 12000, cat: "food", desc: "Donat klasik, empuk" },
@@ -530,7 +531,7 @@ function AppHome({ goTo }: { goTo: (n: number) => void }) {
   );
 }
 
-function AppOrder({ goTo }: { goTo: (n: number) => void }) {
+function AppOrder({ goTo, openBatch }: { goTo: (n: number) => void; openBatch: (id: number) => void }) {
   const [cart, setCart] = useState<Record<number, number>>({});
   const [cat, setCat] = useState("coffee");
   const [done, setDone] = useState(false);
@@ -580,7 +581,7 @@ function AppOrder({ goTo }: { goTo: (n: number) => void }) {
                 <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
                   <p style={{ fontFamily: F.u, fontSize: 13, color: C.aren, fontWeight: 700, margin: 0 }}>{fmt(item.price)}</p>
                   {item.cat === "coffee" && (
-                    <button onClick={() => goTo(3)} style={{ all: "unset", cursor: "pointer", fontFamily: F.u, fontSize: 11, fontWeight: 600, color: C.leaf, borderBottom: `1px dashed ${C.leaf}80` }}>
+                    <button onClick={() => openBatch(item.id)} style={{ all: "unset", cursor: "pointer", fontFamily: F.u, fontSize: 11, fontWeight: 600, color: C.leaf, borderBottom: `1px dashed ${C.leaf}80` }}>
                       🌱 lihat batch ini →
                     </button>
                   )}
@@ -797,13 +798,24 @@ function AppTraktir() {
   );
 }
 
-function AppCerita() {
+function AppCerita({ batchId }: { batchId: number | null }) {
+  const item = batchId != null ? MENU.find(m => m.id === batchId) : undefined;
+  const activeStep = item?.batchStep ?? 4;
+  const headerSub = item?.batchLabel ?? "Es Kopi Susu Tetangga";
+  const steps: [string, string, string][] = [
+    ["🌱", "Ditanam", "Kebun Pak Ahmad, 1.400 mdpl"],
+    ["🫘", "Dipanen", "Januari 2026"],
+    ["🏭", "Diproses", "Full washed"],
+    ["🔥", "Di-roast", "Medium, Adena Coffee"],
+    ["☕", "Diseduh", "Barista Rizky, hari ini"],
+  ];
   return (
     <div style={{ padding: 18 }}>
+      <style>{`@keyframes batchPulse { 0%,100% { box-shadow: 0 0 0 4px ${C.aren}25 } 50% { box-shadow: 0 0 0 7px ${C.aren}10 } } @keyframes batchFade { from { opacity: 0; transform: translateY(4px) } to { opacity: 1; transform: none } }`}</style>
       <div style={{ marginBottom: 18 }}>
         <p style={{ fontFamily: F.u, fontSize: 11, color: C.aren, fontWeight: 600, letterSpacing: 1.5, textTransform: "uppercase", margin: 0 }}>Di balik gelasmu</p>
         <h2 style={{ fontFamily: F.d, fontSize: 26, color: C.coffee, margin: "4px 0 4px", fontWeight: 700 }}>Cerita Kopi</h2>
-        <p style={{ fontFamily: F.b, fontSize: 13, color: C.warmGray, margin: 0 }}>Batch aktif · Es Kopi Susu Tetangga</p>
+        <p style={{ fontFamily: F.b, fontSize: 13, color: C.warmGray, margin: 0 }}>Batch aktif · {headerSub}</p>
       </div>
 
       {/* PETANI KOPI PROFILE */}
@@ -852,20 +864,47 @@ function AppCerita() {
         Mang Ade menyadap nira aren setiap subuh, lalu memasaknya pelan di tungku kayu sampai jadi gula aren cair — karakter karamel alami yang bikin Es Kopi Susu Tetangga punya rasa yang tidak bisa ditiru.
       </p>
 
-      <h3 style={{ fontFamily: F.d, fontSize: 18, color: C.coffee, margin: "0 0 14px", fontWeight: 700 }}>Perjalanan kopimu</h3>
-      <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
-        {[["🌱", "Ditanam", "Kebun Pak Ahmad, 1.400 mdpl"], ["🫘", "Dipanen", "Januari 2026"], ["🏭", "Diproses", "Full washed"], ["🔥", "Di-roast", "Medium, Adena Coffee"], ["☕", "Diseduh", "Barista Rizky, hari ini"]].map(([ic, l, d], i, arr) => (
-          <div key={i} style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-              <div style={{ width: 36, height: 36, borderRadius: "50%", background: C.warmWhite, border: `1.5px solid ${C.aren}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 17 }}>{ic}</div>
-              {i < arr.length - 1 && <div style={{ width: 1.5, flex: 1, minHeight: 18, background: C.softBrown, opacity: 0.4 }} />}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", margin: "0 0 14px" }}>
+        <h3 style={{ fontFamily: F.d, fontSize: 18, color: C.coffee, margin: 0, fontWeight: 700 }}>Perjalanan kopimu</h3>
+        <span style={{ fontFamily: F.u, fontSize: 10, fontWeight: 700, color: C.aren, letterSpacing: 1, textTransform: "uppercase" }}>Langkah {activeStep + 1}/{steps.length}</span>
+      </div>
+      <div key={batchId ?? "default"} style={{ display: "flex", flexDirection: "column", gap: 0, animation: "batchFade 0.4s ease" }}>
+        {steps.map(([ic, l, d], i) => {
+          const status: "done" | "active" | "next" = i < activeStep ? "done" : i === activeStep ? "active" : "next";
+          const ringSize = status === "active" ? 44 : 36;
+          const ringBg = status === "done" ? C.leaf : status === "active" ? C.aren : C.warmWhite;
+          const ringBorder = status === "next" ? `1.5px dashed ${C.softBrown}` : `1.5px solid ${status === "done" ? C.leaf : C.aren}`;
+          const ringColor = status === "next" ? C.softBrown : C.white;
+          const lineColor = i < activeStep ? C.leaf : C.softBrown;
+          const lineStyle = i < activeStep ? "solid" : "dashed";
+          const labelColor = status === "active" ? C.aren : status === "done" ? C.coffee : C.warmGray;
+          const subColor = status === "next" ? C.warmGray : C.coffeeMid;
+          return (
+            <div key={i} style={{ display: "flex", gap: 12, alignItems: "flex-start", opacity: status === "next" ? 0.55 : 1 }}>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", width: 44 }}>
+                <div style={{
+                  width: ringSize, height: ringSize, borderRadius: "50%",
+                  background: status === "next" ? C.warmWhite : ringBg,
+                  border: ringBorder, color: ringColor,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: status === "active" ? 20 : 17,
+                  boxShadow: status === "active" ? `0 0 0 4px ${C.aren}25` : "none",
+                  animation: status === "active" ? "batchPulse 2.2s ease-in-out infinite" : "none",
+                  transition: "all 0.3s ease",
+                }}>{status === "done" ? "✓" : ic}</div>
+                {i < steps.length - 1 && <div style={{ width: 0, flex: 1, minHeight: status === "active" ? 22 : 18, borderLeft: `1.5px ${lineStyle} ${lineColor}`, opacity: i < activeStep ? 0.7 : 0.4 }} />}
+              </div>
+              <div style={{ paddingTop: status === "active" ? 10 : 6, paddingBottom: i < steps.length - 1 ? 14 : 0, flex: 1 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ fontFamily: F.u, fontSize: status === "active" ? 14 : 13, fontWeight: 700, color: labelColor }}>{l}</span>
+                  {status === "active" && <span style={{ fontFamily: F.u, fontSize: 9, fontWeight: 700, color: C.white, background: C.aren, padding: "2px 7px", borderRadius: 999, letterSpacing: 1, textTransform: "uppercase" }}>Sekarang</span>}
+                  {status === "done" && <span style={{ fontFamily: F.u, fontSize: 9, fontWeight: 700, color: C.leaf, letterSpacing: 1, textTransform: "uppercase" }}>Selesai</span>}
+                </div>
+                <div style={{ fontFamily: F.b, fontSize: 12.5, color: subColor }}>{d}</div>
+              </div>
             </div>
-            <div style={{ paddingTop: 6, paddingBottom: i < arr.length - 1 ? 14 : 0 }}>
-              <div style={{ fontFamily: F.u, fontSize: 13, fontWeight: 700, color: C.coffee }}>{l}</div>
-              <div style={{ fontFamily: F.b, fontSize: 12.5, color: C.coffeeMid }}>{d}</div>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
@@ -1170,6 +1209,8 @@ function AppObrolan({ goTo }: { goTo: (n: number) => void }) {
 function TukuRukunTetangga() {
   const [mode, setMode] = useState<"narrative" | "transition" | "app">("narrative");
   const [tab, setTab] = useState(0);
+  const [selectedBatchId, setSelectedBatchId] = useState<number | null>(null);
+  const openBatch = useCallback((id: number) => { setSelectedBatchId(id); setTab(3); }, []);
   const appRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -1211,9 +1252,9 @@ function TukuRukunTetangga() {
   if (mode === "app") {
     const screens = [
       <AppHome key="h" goTo={setTab} />,
-      <AppOrder key="o" goTo={setTab} />,
+      <AppOrder key="o" goTo={setTab} openBatch={openBatch} />,
       <AppTraktir key="t" />,
-      <AppCerita key="c" />,
+      <AppCerita key="c" batchId={selectedBatchId} />,
       <AppPaspor key="p" />,
       <AppObrolan key="m" goTo={setTab} />,
     ];
