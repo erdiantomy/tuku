@@ -835,8 +835,9 @@ function NarrativeTraktir() {
 
 function NarrativeGlobal() {
   return (
-    <section style={{ padding: "120px 24px", background: C.warmWhite }}>
-      <div style={{ maxWidth: 720, margin: "0 auto" }}>
+    <section style={{ position: "relative", overflow: "hidden", padding: "120px 24px", background: C.warmWhite }}>
+      <FrameOverlay tone="light" intensity="subtle" watermark="cup" watermarkPos="tl" />
+      <div style={{ position: "relative", zIndex: 1, maxWidth: 720, margin: "0 auto" }}>
         <Fade><Label>Dari Cipete ke Dunia</Label></Fade>
         <Fade delay={150}>
           <h2 style={{ fontFamily: F.d, fontSize: "clamp(36px, 6vw, 60px)", fontWeight: 700, color: C.coffee, lineHeight: 1.1, margin: "12px 0 32px", letterSpacing: -1 }}>
