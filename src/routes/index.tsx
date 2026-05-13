@@ -455,7 +455,7 @@ function AppHome({ goTo }: { goTo: (n: number) => void }) {
   );
 }
 
-function AppOrder() {
+function AppOrder({ goTo }: { goTo: (n: number) => void }) {
   const [cart, setCart] = useState<Record<number, number>>({});
   const [cat, setCat] = useState("coffee");
   const [done, setDone] = useState(false);
@@ -502,7 +502,14 @@ function AppOrder() {
                   {item.pop && <Badge>★</Badge>}
                 </div>
                 <p style={{ fontFamily: F.b, fontSize: 12, color: C.warmGray, margin: "0 0 4px", lineHeight: 1.4 }}>{item.desc}</p>
-                <p style={{ fontFamily: F.u, fontSize: 13, color: C.aren, fontWeight: 700, margin: 0 }}>{fmt(item.price)}</p>
+                <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                  <p style={{ fontFamily: F.u, fontSize: 13, color: C.aren, fontWeight: 700, margin: 0 }}>{fmt(item.price)}</p>
+                  {item.cat === "coffee" && (
+                    <button onClick={() => goTo(3)} style={{ all: "unset", cursor: "pointer", fontFamily: F.u, fontSize: 11, fontWeight: 600, color: C.leaf, borderBottom: `1px dashed ${C.leaf}80` }}>
+                      🌱 lihat batch ini →
+                    </button>
+                  )}
+                </div>
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                 {cart[item.id] > 0 && (
@@ -757,7 +764,7 @@ function TukuRukunTetangga() {
   if (mode === "app") {
     const screens = [
       <AppHome key="h" goTo={setTab} />,
-      <AppOrder key="o" />,
+      <AppOrder key="o" goTo={setTab} />,
       <AppTraktir key="t" />,
       <AppCerita key="c" />,
       <AppPaspor key="p" />,
