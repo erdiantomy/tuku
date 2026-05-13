@@ -1114,10 +1114,36 @@ function ExpeditionMap({ cities, query = "", onClear }: { cities: City[]; query?
   );
 }
 
+type Badge = {
+  id: string; icon: string; name: string; sub?: string;
+  desc: string; req: string;
+  current: number; target: number; unit: string;
+  earned: boolean; earnedAt?: string;
+};
+const BADGES: Badge[] = [
+  { id: "seruput", icon: "☕", name: "Seruput Pertama", desc: "Awal dari segalanya — kopi pertama yang membuka ribuan cerita berikutnya.", req: "Pesan kopi pertamamu di TUKU.", current: 1, target: 1, unit: "pesanan", earned: true, earnedAt: "2023-03-12" },
+  { id: "cipete", icon: "🏠", name: "Warga Cipete", desc: "Gelas-gelasmu di TUKU rumah sudah cukup untuk menamai kursi favoritmu.", req: "Kunjungi TUKU Cipete sebanyak 20 kali.", current: 147, target: 20, unit: "kunjungan", earned: true, earnedAt: "2023-07-04" },
+  { id: "tetangga", icon: "🤝", name: "Tetangga Baik", sub: "10+ traktir", desc: "Tetangga sejati: yang ingat memesan dua, bukan satu.", req: "Traktir kopi 10 tetangga berbeda.", current: 12, target: 10, unit: "traktir", earned: true, earnedAt: "2024-09-19" },
+  { id: "penjelajah", icon: "🗺️", name: "Penjelajah", sub: "3+ kota", desc: "Tiap kota meninggalkan aroma yang berbeda di gelasmu.", req: "Kunjungi TUKU di 3 kota berbeda.", current: 4, target: 3, unit: "kota", earned: true, earnedAt: "2025-02-05" },
+  { id: "pelancong", icon: "✈️", name: "Pelancong Global", sub: "Amsterdam", desc: "Cerita TUKU melintasi benua — dan kamu ikut membawanya pulang.", req: "Kunjungi 1 toko TUKU di luar negeri.", current: 1, target: 1, unit: "toko", earned: true, earnedAt: "2025-04-21" },
+  { id: "setia100", icon: "💯", name: "Setia 100", sub: "100 kunjungan", desc: "Setia bukan sekadar angka — tapi gelas demi gelas yang sama.", req: "Kumpulkan 200 kunjungan total.", current: 147, target: 200, unit: "kunjungan", earned: false },
+  { id: "petani", icon: "🌱", name: "Sahabat Petani", sub: "Kunjungi 5 batch", desc: "Kopi yang baik dimulai dari tanah — kamu menyusurinya.", req: "Pesan dari 5 batch petani berbeda.", current: 2, target: 5, unit: "batch", earned: false },
+  { id: "sesepuh", icon: "👑", name: "Sesepuh", sub: "Semua kota", desc: "Hanya untuk yang sudah singgah di setiap toko TUKU di dunia.", req: "Kunjungi seluruh 71 kota TUKU.", current: 6, target: 71, unit: "kota", earned: false },
+];
+
 function AppPaspor() {
   const [sub, setSub] = useState("p");
   const [region, setRegion] = useState<"all" | "nusantara" | "global">("all");
   const [query, setQuery] = useState("");
+  const [selectedBadge, setSelectedBadge] = useState<string | null>(null);
+  const earnedCount = BADGES.filter(b => b.earned).length;
+  const activeBadge = BADGES.find(b => b.id === selectedBadge) || null;
+  useEffect(() => {
+    if (!selectedBadge) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setSelectedBadge(null); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [selectedBadge]);
   const filteredCities = useMemo(() => {
     const q = query.trim().toLowerCase();
     return STORES_VISITED
