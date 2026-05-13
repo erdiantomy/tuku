@@ -84,11 +84,22 @@ function Badge({ children, color = C.aren }: { children: ReactNode; color?: stri
   return <span style={{ display: "inline-block", padding: "3px 9px", borderRadius: 999, background: color + "20", color, fontFamily: F.u, fontSize: 10, fontWeight: 700, letterSpacing: 0.5 }}>{children}</span>;
 }
 
+const LOGO_BLEND: Record<"light" | "dark" | "none", string> = {
+  // Logo sits on light/parchment backgrounds (dark-inked logo).
+  dark: "drop-shadow(0 1px 0 rgba(255,255,255,0.65)) drop-shadow(0 6px 18px rgba(42,26,15,0.18)) drop-shadow(0 0 1px rgba(42,26,15,0.28))",
+  // Logo sits on dark cinematic backgrounds (light-inked logo).
+  light: "drop-shadow(0 0 14px rgba(242,217,168,0.28)) drop-shadow(0 2px 10px rgba(0,0,0,0.35)) drop-shadow(0 0 1px rgba(255,255,255,0.22))",
+  none: "",
+};
+
 function TukuLogo({
   variant = "dark", size = 48, withWordmark = true, minSize, maxSize, style,
+  blend = "auto", halo = true,
 }: {
   variant?: "dark" | "light"; size?: number; withWordmark?: boolean;
   minSize?: number; maxSize?: number; style?: CSSProperties;
+  blend?: "auto" | "light" | "dark" | "none";
+  halo?: boolean;
 }) {
   const src = variant === "dark" ? logoDark : logoLight;
   // Native aspect ratios of the trimmed source files.
@@ -101,7 +112,18 @@ function TukuLogo({
   // Fluid scaling between min and max, baseline ~12vw of viewport so it grows with width.
   const widthCss = min === max ? `${max}px` : `clamp(${min}px, ${Math.round((max / 1280) * 100)}vw, ${max}px)`;
 
-  return (
+  // Tone resolution: auto follows variant (dark logo → "dark" filter on light bg, etc.)
+  const tone: "light" | "dark" | "none" = blend === "auto" ? variant : blend;
+  const internalFilter = LOGO_BLEND[tone];
+  const callerFilter = (style?.filter as string | undefined) ?? "";
+  const mergedFilter = [internalFilter, callerFilter].filter(Boolean).join(" ").trim() || undefined;
+
+  // Strip filter from passthrough style — we re-apply the merged value.
+  const { filter: _omit, ...restStyle } = style ?? {};
+
+  const showHalo = halo && tone !== "none" && max >= 40;
+
+  const img = (
     <img
       src={src}
       alt="TUKU"
@@ -114,9 +136,41 @@ function TukuLogo({
         objectPosition: withWordmark ? "center" : "center top",
         display: "block", userSelect: "none", pointerEvents: "none",
         flexShrink: 0,
-        ...style,
+        position: "relative",
+        zIndex: 1,
+        filter: mergedFilter,
+        ...restStyle,
       }}
     />
+  );
+
+  if (!showHalo) return img;
+
+  const haloBg = tone === "light"
+    ? "radial-gradient(closest-side, rgba(242,217,168,0.22), transparent 70%)"
+    : "radial-gradient(closest-side, rgba(0,0,0,0.16), transparent 70%)";
+  const haloBlend = tone === "light" ? "screen" : "multiply";
+  const haloBlur = tone === "light" ? 14 : 10;
+  const haloScale = tone === "light" ? 1.2 : 1.15;
+
+  return (
+    <span style={{ position: "relative", display: "inline-block", lineHeight: 0, flexShrink: 0 }}>
+      <span
+        aria-hidden
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: haloBg,
+          filter: `blur(${haloBlur}px)`,
+          transform: `scale(${haloScale})`,
+          transformOrigin: "center",
+          mixBlendMode: haloBlend,
+          pointerEvents: "none",
+          zIndex: 0,
+        }}
+      />
+      {img}
+    </span>
   );
 }
 
@@ -142,7 +196,7 @@ function Masthead() {
       willChange: "background, backdrop-filter",
     }}>
       <div style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0, flex: "1 1 auto" }}>
-        <TukuLogo variant="dark" size={34} minSize={28} maxSize={34} />
+        <TukuLogo variant="dark" size={34} minSize={28} maxSize={34} halo={false} />
         <div style={{ borderLeft: `1px solid ${C.softBrown}80`, paddingLeft: 12, display: "none", minWidth: 0 }} className="masthead-tag">
           <div style={{ fontFamily: F.u, fontSize: 9, fontWeight: 700, letterSpacing: 2, color: C.warmGray }}>EDISI 01</div>
           <div style={{ fontFamily: F.u, fontSize: 10, fontWeight: 700, letterSpacing: 1.4, color: C.coffee, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>RUKUN TETANGGA DIGITAL</div>
@@ -304,6 +358,8 @@ function Watermark({
       size={size}
       minSize={Math.round(size * 0.45)}
       maxSize={size}
+      blend="none"
+      halo={false}
       style={{ position: "absolute", opacity, transform: "rotate(-6deg)", pointerEvents: "none", ...corner }}
     />
   );
@@ -534,7 +590,7 @@ function AppTopBar({ tab, onBack }: { tab: number; onBack: () => void }) {
     }}>
       <button onClick={onBack} aria-label="Kembali ke proposal" style={{ all: "unset", cursor: "pointer", fontFamily: F.u, fontSize: 11, fontWeight: 700, color: C.warmGray, letterSpacing: 1, padding: "4px 8px", borderRadius: 999, border: `1px solid ${C.softBrown}40` }}>← Proposal</button>
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", lineHeight: 1 }}>
-        <TukuLogo variant="dark" size={26} withWordmark={false} />
+        <TukuLogo variant="dark" size={26} withWordmark={false} halo={false} />
         <div key={tab} style={{ display: "flex", alignItems: "baseline", gap: 6, marginTop: 4, animation: `topbarSwap ${M.base}ms ${M.out} both` }}>
           <span style={{ fontFamily: F.u, fontSize: 8.5, fontWeight: 700, letterSpacing: 2, color: C.warmGray, textTransform: "uppercase" }}>{TAB_EYEBROWS[tab]}</span>
           <span style={{ fontFamily: F.d, fontStyle: "italic", fontSize: 13, color: C.coffee }}>{TAB_NAMES[tab]}</span>
@@ -605,7 +661,7 @@ function NarrativeHero() {
       <FrameOverlay tone="light" intensity="subtle" watermark="none" />
       <div aria-hidden style={{ position: "absolute", top: "8%", left: "50%", transform: "translateX(-50%)", fontFamily: F.d, fontStyle: "italic", fontSize: "clamp(180px, 28vw, 380px)", color: `${C.aren}10`, lineHeight: 0.8, letterSpacing: -8, fontWeight: 700, userSelect: "none", pointerEvents: "none" }}>tetangga</div>
       <Fade>
-        <TukuLogo variant="dark" size={120} minSize={72} maxSize={120} style={{ marginBottom: 18, filter: `drop-shadow(0 6px 20px ${C.coffee}25)` }} />
+        <TukuLogo variant="dark" size={120} minSize={72} maxSize={120} style={{ marginBottom: 18 }} />
       </Fade>
       <Fade delay={120}>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
@@ -720,7 +776,7 @@ function NarrativeReframe() {
   return (
     <section style={{ position: "relative", padding: "160px 24px", background: `radial-gradient(ellipse at 30% 20%, ${C.coffeeMid} 0%, ${C.coffee} 60%, #1f130b 100%)`, color: C.cream, overflow: "hidden" }}>
       <FrameOverlay tone="dark" intensity="feature" watermark="none" />
-      <TukuLogo variant="light" size={520} minSize={280} maxSize={520} style={{ position: "absolute", right: "-8vw", bottom: "-6vw", opacity: 0.045, transform: "rotate(-8deg)" }} />
+      <TukuLogo variant="light" size={520} minSize={280} maxSize={520} blend="none" halo={false} style={{ position: "absolute", right: "-8vw", bottom: "-6vw", opacity: 0.045, transform: "rotate(-8deg)" }} />
       <div style={{ position: "relative", maxWidth: 820, margin: "0 auto", textAlign: "center" }}>
         <Fade>
           <ChapterEyebrow
@@ -866,7 +922,7 @@ function NarrativeCTA({ onOpen }: { onOpen: () => void }) {
     <section style={{ position: "relative", padding: "160px 24px", background: `radial-gradient(ellipse at 50% 0%, ${C.coffeeMid} 0%, ${C.coffee} 55%, #1a0e07 100%)`, color: C.cream, textAlign: "center", overflow: "hidden" }}>
       <FrameOverlay tone="dark" intensity="feature" watermark="cup" watermarkPos="tl" />
       <Fade>
-        <TukuLogo variant="light" size={88} minSize={56} maxSize={88} style={{ marginBottom: 22, filter: `drop-shadow(0 6px 24px ${C.aren}40)` }} />
+        <TukuLogo variant="light" size={88} minSize={56} maxSize={88} style={{ marginBottom: 22 }} />
       </Fade>
       <Fade delay={150}>
         <div style={{ marginBottom: 18 }}>
@@ -2213,7 +2269,7 @@ function TukuRukunTetangga() {
           @keyframes staggerIn { from { opacity: 0; transform: translateY(8px) } to { opacity: 1; transform: none } }
         `}</style>
         <FrameOverlay tone="dark" intensity="feature" watermark="none" />
-        <TukuLogo variant="light" size={140} minSize={88} maxSize={140} style={{ animation: `staggerIn ${M.med}ms ${M.out} both, pulseGlow 1.6s ${M.inOut} ${M.base}ms infinite`, filter: `drop-shadow(0 8px 30px ${C.aren}50)` }} />
+        <TukuLogo variant="light" size={140} minSize={88} maxSize={140} style={{ animation: `staggerIn ${M.med}ms ${M.out} both, pulseGlow 1.6s ${M.inOut} ${M.base}ms infinite`, willChange: "filter, transform, opacity" }} />
         <p style={{ fontFamily: F.d, fontStyle: "italic", fontSize: 24, color: C.arenGlow, marginTop: 22, letterSpacing: 0.5, animation: `staggerIn ${M.med}ms ${M.out} 80ms both` }}>Membuka pintu tetangga…</p>
         <div style={{ width: 180, height: 1, background: `${C.cream}20`, marginTop: 28, overflow: "hidden", position: "relative", animation: `staggerIn ${M.med}ms ${M.out} 160ms both` }}>
           <div style={{ position: "absolute", inset: 0, background: `linear-gradient(90deg, transparent, ${C.arenGlow}, transparent)`, animation: `loaderSlide 1.6s ${M.inOut} infinite` }} />
@@ -2309,7 +2365,7 @@ function TukuRukunTetangga() {
       <Colophon />
       <footer style={{ position: "relative", padding: "80px 24px", background: `radial-gradient(ellipse at center, ${C.coffeeMid} 0%, ${C.coffee} 60%, #15090480 100%)`, color: C.cream, textAlign: "center", overflow: "hidden" }}>
         <FrameOverlay tone="dark" intensity="soft" watermark="none" />
-        <TukuLogo variant="light" size={64} minSize={48} maxSize={64} style={{ marginBottom: 18, opacity: 0.95 }} />
+        <TukuLogo variant="light" size={64} minSize={48} maxSize={64} halo={false} style={{ marginBottom: 18, opacity: 0.95 }} />
         <p style={{ fontFamily: F.d, fontStyle: "italic", fontSize: 26, color: C.arenGlow, margin: "0 0 14px" }}>Mari bertetangga baik.</p>
         <div style={{ width: 40, height: 1, background: `${C.arenGlow}60`, margin: "0 auto 18px" }} />
         <p style={{ fontFamily: F.u, fontSize: 11, color: C.cream, opacity: 0.6, lineHeight: 1.9, margin: 0, letterSpacing: 1.5 }}>
