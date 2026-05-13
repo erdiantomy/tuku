@@ -2199,6 +2199,7 @@ function TukuRukunTetangga() {
   // Narrative mode
   return (
     <main style={{ background: C.cream, color: C.coffee }}>
+      <style>{`@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; } }`}</style>
       <Masthead />
       <NarrativeHero />
       <NarrativeLetter />
