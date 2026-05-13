@@ -281,24 +281,43 @@ const MERCH = [
 
 function NarrativeHero() {
   return (
-    <section style={{ minHeight: "100vh", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", padding: "80px 24px", background: `linear-gradient(180deg, ${C.cream} 0%, ${C.warmWhite} 100%)`, textAlign: "center" }}>
+    <section style={{ position: "relative", minHeight: "calc(100vh - 60px)", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", padding: "60px 24px 80px", background: `radial-gradient(ellipse at top, ${C.warmWhite} 0%, ${C.cream} 60%, ${C.parchment} 100%)`, textAlign: "center", overflow: "hidden" }}>
+      <GrainOverlay opacity={0.05} />
+      <div aria-hidden style={{ position: "absolute", top: "8%", left: "50%", transform: "translateX(-50%)", fontFamily: F.d, fontStyle: "italic", fontSize: "clamp(180px, 28vw, 380px)", color: `${C.aren}10`, lineHeight: 0.8, letterSpacing: -8, fontWeight: 700, userSelect: "none", pointerEvents: "none" }}>tetangga</div>
       <Fade>
+        <TukuLogo variant="dark" size={120} style={{ marginBottom: 18, filter: `drop-shadow(0 6px 20px ${C.coffee}25)` }} />
+      </Fade>
+      <Fade delay={120}>
         <Label>sebuah undangan untuk bertetangga</Label>
       </Fade>
-      <Fade delay={200}>
-        <h1 style={{ fontFamily: F.d, fontSize: "clamp(48px, 9vw, 104px)", fontWeight: 700, color: C.coffee, lineHeight: 1.05, margin: "12px 0 28px", letterSpacing: -1.5 }}>
+      <Fade delay={250}>
+        <h1 style={{ fontFamily: F.d, fontSize: "clamp(56px, 11vw, 140px)", fontWeight: 700, color: C.coffee, lineHeight: 1, margin: "10px 0 24px", letterSpacing: -2.5, position: "relative" }}>
           Rukun Tetangga<br />
           <span style={{ fontStyle: "italic", color: C.aren }}>Digital</span>
         </h1>
       </Fade>
-      <Fade delay={400}>
-        <p style={{ fontFamily: F.b, fontSize: 19, color: C.coffeeMid, maxWidth: 580, lineHeight: 1.6, margin: 0 }}>
+      <Fade delay={420}>
+        <p style={{ fontFamily: F.b, fontSize: 20, color: C.coffeeMid, maxWidth: 600, lineHeight: 1.6, margin: 0, fontStyle: "italic" }}>
           Membawa jiwa tetangga ke dunia digital — dari Cipete hingga Amsterdam.
         </p>
       </Fade>
-      <Fade delay={800}>
-        <div style={{ marginTop: 80, fontFamily: F.h, fontSize: 18, color: C.warmGray }}>gulir ke bawah ↓</div>
+      <Fade delay={620}>
+        <div style={{ marginTop: 56, display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap", justifyContent: "center" }}>
+          {[["VOL", "01"], ["TAHUN", "2026"], ["RUTE", "JAKARTA → AMSTERDAM"], ["EDISI", "PROPOSAL"]].map(([k, v]) => (
+            <div key={k} style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "6px 14px", borderLeft: `1px solid ${C.softBrown}80`, borderRight: `1px solid ${C.softBrown}80` }}>
+              <span style={{ fontFamily: F.u, fontSize: 8.5, fontWeight: 700, letterSpacing: 2, color: C.warmGray }}>{k}</span>
+              <span style={{ fontFamily: F.d, fontStyle: "italic", fontSize: 14, color: C.coffee, marginTop: 2 }}>{v}</span>
+            </div>
+          ))}
+        </div>
       </Fade>
+      <Fade delay={900}>
+        <div style={{ marginTop: 70, display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
+          <div style={{ fontFamily: F.h, fontSize: 18, color: C.warmGray }}>gulir ke bawah</div>
+          <div style={{ width: 1, height: 48, background: `linear-gradient(180deg, ${C.aren}, transparent)`, animation: "scrollCue 2s ease-in-out infinite" }} />
+        </div>
+      </Fade>
+      <style>{`@keyframes scrollCue { 0%,100% { transform: scaleY(0.6); transform-origin: top; opacity: 0.4 } 50% { transform: scaleY(1); opacity: 1 } }`}</style>
     </section>
   );
 }
