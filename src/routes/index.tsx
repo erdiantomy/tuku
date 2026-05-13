@@ -959,6 +959,136 @@ function AppCerita({ batchId }: { batchId: number | null }) {
   );
 }
 
+function ExpeditionMap({ cities }: { cities: City[] }) {
+  const [selected, setSelected] = useState<string | null>(null);
+  const home = cities.find(c => c.home) ?? cities[0];
+  const totalStores = cities.reduce((n, c) => n + c.stores.length, 0);
+  const current = selected ? cities.find(c => c.city === selected) ?? null : null;
+
+  const styles = `
+    @keyframes mapFade { from { opacity: 0; transform: scale(0.985) } to { opacity: 1; transform: none } }
+    @keyframes haloPulse { 0% { opacity: 0.55; r: 7 } 100% { opacity: 0; r: 18 } }
+    @keyframes dashFlow { to { stroke-dashoffset: -14 } }
+    .em-pin { cursor: pointer; transition: transform 0.2s ease; transform-origin: center; transform-box: fill-box; }
+    .em-pin:hover { transform: scale(1.18); }
+    .em-route { stroke-dasharray: 3 4; animation: dashFlow 1.4s linear infinite; }
+    .em-halo { animation: haloPulse 2s ease-out infinite; transform-origin: center; transform-box: fill-box; }
+    .em-canvas { animation: mapFade 0.4s ease; }
+  `;
+
+  return (
+    <div style={{ background: C.warmWhite, border: `1px solid ${C.softBrown}25`, borderRadius: 16, padding: 14, marginBottom: 18 }}>
+      <style>{styles}</style>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+        <div>
+          <p style={{ fontFamily: F.u, fontSize: 10, color: C.aren, fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase", margin: 0 }}>Peta Ekspedisi</p>
+          <h3 style={{ fontFamily: F.d, fontSize: 16, color: C.coffee, margin: "2px 0 0", fontWeight: 700 }}>
+            {current ? `${current.flag} ${current.city}` : "Rute tetangga sedunia"}
+          </h3>
+        </div>
+        {current ? (
+          <button onClick={() => setSelected(null)} style={{ all: "unset", cursor: "pointer", fontFamily: F.u, fontSize: 11, fontWeight: 600, color: C.aren, background: C.parchment, padding: "6px 10px", borderRadius: 999 }}>← Semua kota</button>
+        ) : (
+          <span style={{ fontFamily: F.u, fontSize: 10, fontWeight: 700, color: C.coffeeMid, background: C.parchment, padding: "4px 9px", borderRadius: 999, letterSpacing: 0.5 }}>{cities.length} kota · {totalStores} toko</span>
+        )}
+      </div>
+
+      {!current ? (
+        <>
+          <svg key="world" className="em-canvas" viewBox="0 0 360 200" style={{ width: "100%", height: 200, background: C.parchment, borderRadius: 12, display: "block" }}>
+            <defs>
+              <pattern id="dotgrid" width="14" height="14" patternUnits="userSpaceOnUse">
+                <circle cx="1" cy="1" r="0.7" fill={`${C.softBrown}55`} />
+              </pattern>
+            </defs>
+            <rect x="0" y="0" width="360" height="200" fill="url(#dotgrid)" />
+            {/* Stylized continents */}
+            <path d="M40,40 Q70,20 110,30 Q160,38 180,55 Q200,75 175,90 Q150,98 120,90 Q80,82 55,72 Q35,60 40,40 Z" fill={`${C.softBrown}35`} />
+            <path d="M195,95 Q230,80 265,90 Q305,98 320,120 Q325,145 305,160 Q280,170 250,165 Q220,160 200,150 Q180,130 195,95 Z" fill={`${C.softBrown}35`} />
+            <path d="M295,170 Q315,168 325,180 Q322,192 305,190 Q290,188 295,170 Z" fill={`${C.softBrown}35`} />
+
+            {/* Routes home -> visited */}
+            {cities.filter(c => !c.home).map((c, i) => {
+              const mx = (home.coord.x + c.coord.x) / 2;
+              const my = Math.min(home.coord.y, c.coord.y) - 30;
+              return (
+                <path key={i} d={`M${home.coord.x},${home.coord.y} Q${mx},${my} ${c.coord.x},${c.coord.y}`} fill="none" stroke={C.aren} strokeWidth="1.3" className="em-route" opacity="0.75" />
+              );
+            })}
+
+            {/* Pins */}
+            {cities.map((c, i) => {
+              const isHome = !!c.home;
+              const color = isHome ? C.leaf : C.aren;
+              const labelAbove = c.city !== "Bandung";
+              return (
+                <g key={i} role="button" tabIndex={0} aria-label={`Buka ${c.city}`} onClick={() => setSelected(c.city)} onKeyDown={(e) => { if (e.key === "Enter") setSelected(c.city); }} className="em-pin">
+                  <circle cx={c.coord.x} cy={c.coord.y} r="7" fill={color} className="em-halo" opacity="0.4" />
+                  <circle cx={c.coord.x} cy={c.coord.y} r="5.5" fill={color} stroke={C.white} strokeWidth="1.5" />
+                  {isHome && <text x={c.coord.x} y={c.coord.y + 2.2} fontSize="6" textAnchor="middle" fill={C.white}>🏠</text>}
+                  <text
+                    x={c.coord.x}
+                    y={labelAbove ? c.coord.y - 10 : c.coord.y + 16}
+                    fontFamily={F.u} fontSize="8.5" fontWeight={700} textAnchor="middle"
+                    fill={C.coffee} style={{ letterSpacing: 0.6, textTransform: "uppercase" }}
+                  >
+                    {c.city}
+                  </text>
+                </g>
+              );
+            })}
+          </svg>
+          <div style={{ display: "flex", gap: 14, marginTop: 8, fontFamily: F.u, fontSize: 10, color: C.warmGray, fontWeight: 600, flexWrap: "wrap" }}>
+            <span><span style={{ color: C.leaf }}>●</span> Rumah</span>
+            <span><span style={{ color: C.aren }}>●</span> Dikunjungi</span>
+            <span><span style={{ color: C.aren }}>╌</span> Rute</span>
+            <span style={{ marginLeft: "auto", color: C.aren, fontWeight: 700 }}>Ketuk pin →</span>
+          </div>
+        </>
+      ) : (
+        <>
+          <svg key={current.city} className="em-canvas" viewBox="0 0 320 220" style={{ width: "100%", height: 220, background: C.parchment, borderRadius: 12, display: "block" }}>
+            <defs>
+              <pattern id="citygrid" width="16" height="16" patternUnits="userSpaceOnUse">
+                <circle cx="1" cy="1" r="0.6" fill={`${C.softBrown}40`} />
+              </pattern>
+            </defs>
+            <rect x="0" y="0" width="320" height="220" fill="url(#citygrid)" />
+            {/* Stylized streets */}
+            <path d="M0,70 Q120,55 220,80 T320,90" fill="none" stroke={`${C.softBrown}55`} strokeWidth="1.2" />
+            <path d="M0,150 Q90,140 180,160 T320,150" fill="none" stroke={`${C.softBrown}55`} strokeWidth="1.2" />
+            <path d="M80,0 Q92,90 75,160 T90,220" fill="none" stroke={`${C.softBrown}55`} strokeWidth="1.2" />
+            <path d="M220,0 Q210,80 230,160 T220,220" fill="none" stroke={`${C.softBrown}55`} strokeWidth="1.2" />
+            {/* Park / river blob */}
+            <ellipse cx="60" cy="50" rx="38" ry="22" fill={`${C.leaf}25`} />
+            <path d="M250,180 Q280,170 300,185 Q310,200 290,210 Q265,212 250,200 Z" fill={`${C.leaf}25`} />
+
+            {/* Store pins */}
+            {current.stores.map((s, i) => {
+              const color = s.home ? C.leaf : C.aren;
+              return (
+                <g key={i}>
+                  <circle cx={s.x} cy={s.y} r="8" fill={color} className="em-halo" opacity="0.35" />
+                  <path d={`M${s.x},${s.y - 12} C${s.x - 7},${s.y - 12} ${s.x - 7},${s.y - 2} ${s.x},${s.y + 5} C${s.x + 7},${s.y - 2} ${s.x + 7},${s.y - 12} ${s.x},${s.y - 12} Z`} fill={color} stroke={C.white} strokeWidth="1.3" />
+                  <circle cx={s.x} cy={s.y - 7} r="2.5" fill={C.white} />
+                  <text x={s.x} y={s.y + 18} fontFamily={F.u} fontSize="9.5" fontWeight={700} textAnchor="middle" fill={C.coffee}>
+                    {s.home ? "🏠 " : ""}TUKU {s.name}
+                  </text>
+                </g>
+              );
+            })}
+          </svg>
+          <p style={{ fontFamily: F.b, fontSize: 12, color: C.warmGray, margin: "8px 2px 0" }}>
+            {current.home
+              ? `🏠 Rumahmu. ${USER.visits} kunjungan tercatat di ${current.stores.length} toko.`
+              : `Pertama dijelajahi · ${current.stores.length} toko terkunjungi.`}
+          </p>
+        </>
+      )}
+    </div>
+  );
+}
+
 function AppPaspor() {
   const [sub, setSub] = useState("p");
   return (
