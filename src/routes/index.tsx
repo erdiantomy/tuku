@@ -767,8 +767,9 @@ function NarrativePillars() {
     { n: "03", icon: "🤝", t: "Gotong Royong", sub: "The neighborhood helps each other.", desc: "Pilar paling berani. Mekanisme sosial, bukan transaksional. Tetangga mentraktir tetangga. Komunitas satu toko unlock pengalaman bersama. Kebaikan jadi currency. Ini bukan loyalty — ini gotong royong digital." },
   ];
   return (
-    <section style={{ padding: "120px 24px", background: C.warmWhite }}>
-      <div style={{ maxWidth: 1080, margin: "0 auto" }}>
+    <section style={{ position: "relative", overflow: "hidden", padding: "120px 24px", background: C.warmWhite }}>
+      <FrameOverlay tone="light" intensity="subtle" watermark="cup" watermarkPos="tr" />
+      <div style={{ position: "relative", zIndex: 1, maxWidth: 1080, margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: 80 }}>
           <Fade><Label>Tiga Pilar</Label></Fade>
           <Fade delay={150}>
