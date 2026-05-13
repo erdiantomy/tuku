@@ -1029,11 +1029,12 @@ function ExpeditionMap({ cities, query = "", onClear }: { cities: City[]; query?
             <path d="M295,170 Q315,168 325,180 Q322,192 305,190 Q290,188 295,170 Z" fill={`${C.softBrown}35`} />
 
             {/* Routes home -> visited */}
-            {cities.filter(c => !c.home).map((c, i) => {
-              const mx = (home.coord.x + c.coord.x) / 2;
-              const my = Math.min(home.coord.y, c.coord.y) - 30;
+            {home && cities.filter(c => !c.home).map((c, i) => {
+              const h = home;
+              const mx = (h.coord.x + c.coord.x) / 2;
+              const my = Math.min(h.coord.y, c.coord.y) - 30;
               return (
-                <path key={i} d={`M${home.coord.x},${home.coord.y} Q${mx},${my} ${c.coord.x},${c.coord.y}`} fill="none" stroke={C.aren} strokeWidth="1.3" className="em-route" opacity="0.75" />
+                <path key={i} d={`M${h.coord.x},${h.coord.y} Q${mx},${my} ${c.coord.x},${c.coord.y}`} fill="none" stroke={C.aren} strokeWidth="1.3" className="em-route" opacity="0.75" />
               );
             })}
 
