@@ -368,7 +368,7 @@ function ChapterEyebrow({
             position: "relative", display: "block",
             marginTop: 10,
             marginInline: align === "center" ? "auto" : 0,
-            width: coarse ? "min(94vw, 380px)" : "min(92vw, 360px)",
+            width: "100%", maxWidth: coarse ? 360 : 360,
             textAlign: "left", zIndex: 20,
             background: panelBg, border: `1px solid ${panelBorder}`, borderRadius: 4,
             padding: coarse ? "18px 20px 16px" : "16px 18px 14px",
@@ -387,7 +387,7 @@ function ChapterEyebrow({
           </div>
         </div>
       )}
-      <style>{`@keyframes ebReveal { from { opacity: 0; transform: translateY(-4px) ${align === "center" ? "translateX(-50%)" : ""}; } to { opacity: 1; transform: translateY(0) ${align === "center" ? "translateX(-50%)" : ""}; } } @media (prefers-reduced-motion: reduce) { [id^="eb-"] { animation: none !important; } }`}</style>
+      <style>{`@keyframes ebReveal { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } } @media (prefers-reduced-motion: reduce) { [id^="eb-"] { animation: none !important; } }`}</style>
     </div>
   );
 }
