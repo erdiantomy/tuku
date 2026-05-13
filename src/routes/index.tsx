@@ -2003,15 +2003,20 @@ function AppPaspor() {
                 key={b.id}
                 onClick={() => setSelectedBadge(b.id)}
                 aria-label={`Lihat detail lencana ${b.name}`}
+                className="badge-tap"
+                onPointerDown={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = "scale(0.96)"; }}
+                onPointerUp={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = "none"; }}
+                onPointerCancel={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = "none"; }}
                 style={{
                   all: "unset", cursor: "pointer", display: "block",
                   background: b.earned ? C.warmWhite : C.parchment,
                   border: `1px solid ${b.earned ? C.aren + "40" : C.softBrown + "20"}`,
-                  borderRadius: 12, padding: "12px 6px", textAlign: "center",
-                  opacity: b.earned ? 1 : 0.55, transition: "transform 0.15s ease",
+                  borderRadius: 12, padding: "14px 6px", textAlign: "center",
+                  minHeight: 64, boxSizing: "border-box",
+                  opacity: b.earned ? 1 : 0.55, transition: "transform 0.15s cubic-bezier(0.22,1,0.36,1)",
+                  touchAction: "manipulation",
+                  WebkitTapHighlightColor: "transparent",
                 }}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-2px)"; }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = "none"; }}
               >
                 <div style={{ fontSize: 26, marginBottom: 4, filter: b.earned ? "none" : "grayscale(1)" }}>{b.icon}</div>
                 <div style={{ fontFamily: F.u, fontSize: 9.5, fontWeight: 700, color: C.coffee, lineHeight: 1.2 }}>{b.name}</div>
