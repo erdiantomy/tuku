@@ -831,7 +831,7 @@ function NarrativeCTA({ onOpen }: { onOpen: () => void }) {
           letterSpacing: 3, textTransform: "uppercase",
           border: `1px solid ${C.arenGlow}`,
           transform: pulse ? "translateY(-2px)" : "translateY(0)",
-          transition: "transform 0.6s ease, background 0.3s ease, color 0.3s ease",
+          transition: `transform ${M.med}ms ${M.inOut}, background ${M.base}ms ${M.out}, color ${M.base}ms ${M.out}`,
         }}
           onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = C.arenGlow; (e.currentTarget as HTMLButtonElement).style.color = C.coffee; }}
           onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "transparent"; (e.currentTarget as HTMLButtonElement).style.color = C.arenGlow; }}
