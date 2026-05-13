@@ -1140,6 +1140,7 @@ function TukuRukunTetangga() {
       <AppTraktir key="t" />,
       <AppCerita key="c" />,
       <AppPaspor key="p" />,
+      <AppObrolan key="m" goTo={setTab} />,
     ];
     return (
       <div style={{ minHeight: "100vh", background: C.cream, display: "flex", justifyContent: "center", alignItems: "stretch" }}>
@@ -1154,6 +1155,7 @@ function TukuRukunTetangga() {
           <nav style={{ position: "sticky", bottom: 0, left: 0, right: 0, background: C.white, borderTop: `1px solid ${C.softBrown}25`, display: "flex", padding: "8px 4px", boxShadow: `0 -2px 12px ${C.coffee}08` }}>
             <TabIcon icon="🏡" label="Rumah" active={tab === 0} onClick={() => setTab(0)} />
             <TabIcon icon="☕" label="Pesan" active={tab === 1} onClick={() => setTab(1)} />
+            <TabIcon icon="💬" label="Obrolan" active={tab === 5} onClick={() => setTab(5)} />
             <TabIcon icon="🤝" label="Traktir" active={tab === 2} onClick={() => setTab(2)} center />
             <TabIcon icon="🌱" label="Cerita" active={tab === 3} onClick={() => setTab(3)} />
             <TabIcon icon="🪪" label="Paspor" active={tab === 4} onClick={() => setTab(4)} />
