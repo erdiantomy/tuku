@@ -309,33 +309,30 @@ function Watermark({
   );
 }
 
-function EditorialFrame({
-  tone = "light", intensity = "subtle", watermark = "cup", watermarkPos = "br",
-  inset = 14, children, style,
+function FrameOverlay({
+  tone = "light", intensity = "subtle", watermark = "cup", watermarkPos = "br", inset = 14,
 }: {
   tone?: FrameTone; intensity?: FrameIntensity;
-  watermark?: WatermarkKind; watermarkPos?: WatermarkPos;
-  inset?: number; children: ReactNode; style?: CSSProperties;
+  watermark?: WatermarkKind; watermarkPos?: WatermarkPos; inset?: number;
 }) {
   const v = INTENSITY[intensity];
   const tickColor = tone === "dark" ? `rgba(245,240,232,${v.ticks})` : `rgba(60,36,21,${v.ticks})`;
+  const corners: CSSProperties[] = [
+    { top: inset, left: inset, borderTopWidth: 1, borderLeftWidth: 1 },
+    { top: inset, right: inset, borderTopWidth: 1, borderRightWidth: 1 },
+    { bottom: inset, left: inset, borderBottomWidth: 1, borderLeftWidth: 1 },
+    { bottom: inset, right: inset, borderBottomWidth: 1, borderRightWidth: 1 },
+  ];
   return (
-    <div style={{ position: "relative", overflow: "hidden", ...style }}>
+    <>
       <div aria-hidden style={{ position: "absolute", inset: 0, backgroundImage: GRAIN_BG, opacity: v.grain, pointerEvents: "none", mixBlendMode: "overlay", zIndex: 0 }} />
-      {/* corner ticks */}
-      {([
-        { top: inset, left: inset, borderTopWidth: 1, borderLeftWidth: 1 },
-        { top: inset, right: inset, borderTopWidth: 1, borderRightWidth: 1 },
-        { bottom: inset, left: inset, borderBottomWidth: 1, borderLeftWidth: 1 },
-        { bottom: inset, right: inset, borderBottomWidth: 1, borderRightWidth: 1 },
-      ] as CSSProperties[]).map((p, i) => (
+      {corners.map((p, i) => (
         <div key={i} aria-hidden style={{ position: "absolute", width: 18, height: 18, borderStyle: "solid", borderColor: tickColor, borderWidth: 0, pointerEvents: "none", zIndex: 0, ...p }} />
       ))}
       {watermark !== "none" && (
         <Watermark tone={tone} pos={watermarkPos} opacity={v.mark} kind={watermark} size={watermark === "wordmark" ? 480 : 360} />
       )}
-      <div style={{ position: "relative", zIndex: 1 }}>{children}</div>
-    </div>
+    </>
   );
 }
 
