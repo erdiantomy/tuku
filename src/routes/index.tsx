@@ -1130,7 +1130,7 @@ function AppPaspor() {
       })
       .filter(c => c.stores.length > 0);
   }, [region, query]);
-  const totalFilteredStores = filteredCities.reduce((n, c) => n + c.stores.length, 0);
+  const totalFilteredStores = filteredCities.reduce((n: number, c: City) => n + c.stores.length, 0);
   const clearFilter = () => { setRegion("all"); setQuery(""); };
   const highlight = (text: string) => {
     const q = query.trim();
