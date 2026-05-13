@@ -56,8 +56,9 @@ function Fade({ children, className, delay = 0, style }: { children: ReactNode; 
   return (
     <div ref={ref} className={className} style={{
       opacity: v ? 1 : 0,
-      transform: v ? "translateY(0)" : "translateY(24px)",
-      transition: `opacity 0.9s ease ${delay}ms, transform 0.9s ease ${delay}ms`,
+      transform: v ? "translateY(0)" : "translateY(14px)",
+      transition: `opacity ${M.med}ms ${M.out} ${delay}ms, transform ${M.med}ms ${M.out} ${delay}ms`,
+      willChange: "opacity, transform",
       ...style,
     }}>
       {children}
