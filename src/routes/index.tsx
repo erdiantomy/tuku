@@ -137,6 +137,93 @@ function ChapterMarker({ n, label }: { n: string; label: string }) {
   );
 }
 
+function ChapterEyebrow({
+  n, label, title, note, page, total = "IX", tone = "light", align = "left",
+}: {
+  n: string; label: string; title: string; note: string; page: string;
+  total?: string; tone?: "light" | "dark"; align?: "left" | "center";
+}) {
+  const [open, setOpen] = useState(false);
+  const [hover, setHover] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const id = `eb-${n}-${label}`.replace(/\s+/g, "-").toLowerCase();
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
+    const onDoc = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false); };
+    document.addEventListener("keydown", onKey);
+    document.addEventListener("mousedown", onDoc);
+    return () => { document.removeEventListener("keydown", onKey); document.removeEventListener("mousedown", onDoc); };
+  }, [open]);
+
+  const dark = tone === "dark";
+  const ink = dark ? C.arenGlow : C.aren;
+  const subInk = dark ? `${C.cream}` : C.coffee;
+  const noteInk = dark ? `${C.cream}cc` : C.coffeeMid;
+  const panelBg = dark ? `${C.coffee}f2` : C.warmWhite;
+  const panelBorder = dark ? `${C.arenGlow}40` : `${C.aren}35`;
+
+  return (
+    <div ref={ref} style={{ position: "relative", display: "inline-block", textAlign: align }}>
+      <button
+        type="button"
+        onClick={() => setOpen(o => !o)}
+        onMouseEnter={() => setHover(true)}
+        onMouseLeave={() => setHover(false)}
+        aria-expanded={open}
+        aria-controls={id}
+        style={{
+          all: "unset", cursor: "help", display: "inline-flex", alignItems: "center", gap: 8,
+          padding: dark ? "5px 14px" : "4px 10px",
+          border: dark ? `1px solid ${C.arenGlow}40` : `1px solid transparent`,
+          borderRadius: 999,
+          fontFamily: F.u, fontSize: dark ? 9 : 10, fontWeight: 700, letterSpacing: dark ? 3 : 4,
+          color: ink, textTransform: "uppercase", position: "relative",
+        }}
+      >
+        <span>CH · {n} — {label}</span>
+        <span aria-hidden style={{
+          display: "inline-block", width: 12, textAlign: "center",
+          opacity: hover || open ? 1 : 0, transform: open ? "rotate(45deg)" : "rotate(0)",
+          transition: "opacity 200ms ease, transform 220ms ease", color: ink, fontSize: 11,
+        }}>＋</span>
+        <span aria-hidden style={{
+          position: "absolute", left: 10, right: 10, bottom: 2, height: 1, background: ink,
+          transform: hover || open ? "scaleX(1)" : "scaleX(0)", transformOrigin: "left",
+          transition: "transform 260ms ease", opacity: 0.7,
+        }} />
+      </button>
+      {open && (
+        <div
+          id={id}
+          role="region"
+          style={{
+            position: "absolute", top: "calc(100% + 10px)",
+            ...(align === "center" ? { left: "50%", transform: "translateX(-50%)" } : { left: 0 }),
+            width: "min(92vw, 360px)", textAlign: "left", zIndex: 20,
+            background: panelBg, border: `1px solid ${panelBorder}`, borderRadius: 4,
+            padding: "16px 18px 14px",
+            boxShadow: dark ? `0 24px 60px ${C.coffee}80` : `0 18px 40px ${C.coffee}25`,
+            backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)",
+            animation: "ebReveal 240ms ease-out both",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12 }}>
+            <span style={{ fontFamily: F.u, fontSize: 9, fontWeight: 700, letterSpacing: 2.5, color: dark ? C.arenGlow : C.warmGray }}>BAB {n}</span>
+            <button type="button" onClick={() => setOpen(false)} aria-label="Tutup" style={{ all: "unset", cursor: "pointer", fontFamily: F.u, fontSize: 11, color: dark ? `${C.cream}80` : C.warmGray, padding: "0 4px" }}>✕</button>
+          </div>
+          <p style={{ fontFamily: F.d, fontStyle: "italic", fontSize: 22, color: subInk, lineHeight: 1.2, margin: "6px 0 10px", fontWeight: 400 }}>{title}</p>
+          <p style={{ fontFamily: F.b, fontSize: 13.5, color: noteInk, lineHeight: 1.55, margin: 0 }}>{note}</p>
+          <div style={{ marginTop: 14, paddingTop: 10, borderTop: `1px solid ${dark ? `${C.cream}20` : `${C.softBrown}40`}`, display: "flex", justifyContent: "space-between", fontFamily: F.u, fontSize: 9, fontWeight: 700, letterSpacing: 2, color: dark ? `${C.cream}90` : C.warmGray }}>
+            <span>HALAMAN {page}</span><span>DARI {total}</span>
+          </div>
+        </div>
+      )}
+      <style>{`@keyframes ebReveal { from { opacity: 0; transform: translateY(-4px) ${align === "center" ? "translateX(-50%)" : ""}; } to { opacity: 1; transform: translateY(0) ${align === "center" ? "translateX(-50%)" : ""}; } } @media (prefers-reduced-motion: reduce) { [id^="eb-"] { animation: none !important; } }`}</style>
+    </div>
+  );
+}
+
 const GRAIN_BG = `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.55 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/></svg>")`;
 
 function GrainOverlay({ opacity = 0.06 }: { opacity?: number }) {
@@ -170,35 +257,176 @@ function PullQuote({ children, color = C.aren }: { children: ReactNode; color?: 
   );
 }
 
+type TileId = "logo" | "huruf" | "palet" | "edisi";
+
+function ColophonTile({
+  id, label, openId, setOpenId, summary, detail,
+}: {
+  id: TileId; label: string; openId: TileId | null; setOpenId: (v: TileId | null) => void;
+  summary: ReactNode; detail: ReactNode;
+}) {
+  const open = openId === id;
+  const [hover, setHover] = useState(false);
+  return (
+    <div
+      style={{
+        gridColumn: open ? "1 / -1" : "auto",
+        transition: "grid-column 0s",
+      }}
+    >
+      <button
+        type="button"
+        onClick={() => setOpenId(open ? null : id)}
+        onMouseEnter={() => setHover(true)}
+        onMouseLeave={() => setHover(false)}
+        aria-expanded={open}
+        aria-controls={`tile-${id}`}
+        style={{
+          all: "unset", cursor: "pointer", display: "block", width: "100%", boxSizing: "border-box",
+          padding: 16, borderRadius: 4, position: "relative",
+          background: hover || open ? C.warmWhite : "transparent",
+          border: `1px solid ${hover || open ? `${C.aren}55` : `${C.softBrown}30`}`,
+          transition: "background 220ms ease, border-color 220ms ease, box-shadow 220ms ease",
+          boxShadow: hover || open ? `0 10px 28px ${C.coffee}12` : "none",
+        }}
+      >
+        <div style={{ fontFamily: F.u, fontSize: 9, fontWeight: 700, letterSpacing: 2, color: hover || open ? C.aren : C.warmGray, marginBottom: 8, transition: "color 200ms ease" }}>
+          {label}
+        </div>
+        {summary}
+        <span aria-hidden style={{
+          position: "absolute", right: 12, bottom: 8,
+          fontFamily: F.u, fontSize: 8.5, fontWeight: 700, letterSpacing: 1.5, color: C.aren,
+          opacity: hover && !open ? 0.85 : 0, transition: "opacity 200ms ease",
+        }}>klik untuk detail →</span>
+        <span aria-hidden style={{
+          position: "absolute", right: 12, top: 12, fontFamily: F.u, fontSize: 11, color: C.aren,
+          transform: open ? "rotate(45deg)" : "rotate(0)", transition: "transform 220ms ease",
+        }}>＋</span>
+      </button>
+      {open && (
+        <div
+          id={`tile-${id}`}
+          role="region"
+          style={{
+            marginTop: 10, padding: "18px 20px 18px", background: C.warmWhite,
+            border: `1px solid ${C.aren}40`, borderRadius: 4,
+            boxShadow: `0 18px 40px ${C.coffee}18`,
+            animation: "tileReveal 240ms ease-out both", position: "relative",
+          }}
+        >
+          <button type="button" onClick={() => setOpenId(null)} aria-label="Tutup detail" style={{ all: "unset", cursor: "pointer", position: "absolute", top: 10, right: 12, fontFamily: F.u, fontSize: 12, color: C.warmGray, padding: 4 }}>✕</button>
+          {detail}
+        </div>
+      )}
+    </div>
+  );
+}
+
+const PALETTE_INFO: { c: string; name: string; hex: string; role: string }[] = [
+  { c: C.coffee, name: "Coffee", hex: C.coffee, role: "Tinta utama — judul, teks pekat" },
+  { c: C.aren, name: "Aren", hex: C.aren, role: "Aksen hangat — link, sorotan" },
+  { c: C.leaf, name: "Daun", hex: C.leaf, role: "Sinyal alami — petani, kebun" },
+  { c: C.parchment, name: "Parchment", hex: C.parchment, role: "Kertas — latar editorial" },
+  { c: C.cream, name: "Cream", hex: C.cream, role: "Latar terang — bagian dalam" },
+];
+
+function PaletteDetail() {
+  const [pick, setPick] = useState(0);
+  const sw = PALETTE_INFO[pick];
+  return (
+    <div>
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        {PALETTE_INFO.map((p, i) => (
+          <button key={p.hex} type="button" onClick={() => setPick(i)} aria-label={p.name} style={{
+            all: "unset", cursor: "pointer", width: 36, height: 48, background: p.c,
+            border: `2px solid ${i === pick ? C.aren : `${C.softBrown}40`}`,
+            transition: "border-color 180ms ease, transform 180ms ease",
+            transform: i === pick ? "translateY(-2px)" : "none",
+          }} />
+        ))}
+      </div>
+      <div style={{ marginTop: 14, paddingTop: 12, borderTop: `1px solid ${C.softBrown}40` }}>
+        <p style={{ fontFamily: F.d, fontStyle: "italic", fontSize: 20, color: C.coffee, margin: "0 0 4px" }}>{sw.name}</p>
+        <p style={{ fontFamily: F.u, fontSize: 11, fontWeight: 700, letterSpacing: 1.5, color: C.aren, margin: "0 0 8px" }}>{sw.hex.toUpperCase()}</p>
+        <p style={{ fontFamily: F.b, fontSize: 13.5, color: C.coffeeMid, margin: 0, lineHeight: 1.5 }}>{sw.role}</p>
+      </div>
+    </div>
+  );
+}
+
+const FONT_INFO: { fam: string; name: string; role: string; sample: string }[] = [
+  { fam: F.d, name: "Playfair Display", role: "Display — judul & kutipan", sample: "Rukun Tetangga Digital" },
+  { fam: F.b, name: "Source Serif 4", role: "Body — paragraf editorial", sample: "Sepuluh tahun di Cipete." },
+  { fam: F.h, name: "Caveat", role: "Hand — sentuhan personal", sample: "salam dari Mas Tyo" },
+  { fam: F.u, name: "DM Sans", role: "Utility — label & meta", sample: "CH · 04 — PERGESERAN" },
+];
+
 function Colophon() {
+  const [openId, setOpenId] = useState<TileId | null>(null);
   return (
     <section style={{ padding: "56px 24px", background: C.parchment, borderTop: `1px solid ${C.softBrown}40`, borderBottom: `1px solid ${C.softBrown}40` }}>
-      <div style={{ maxWidth: 980, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 28, alignItems: "start" }}>
-        <div>
-          <TukuLogo variant="dark" size={52} />
-          <p style={{ fontFamily: F.u, fontSize: 9, fontWeight: 700, letterSpacing: 2, color: C.warmGray, marginTop: 10 }}>KOPI TUKU · 2026</p>
-        </div>
-        <div>
-          <div style={{ fontFamily: F.u, fontSize: 9, fontWeight: 700, letterSpacing: 2, color: C.warmGray, marginBottom: 8 }}>HURUF</div>
-          <p style={{ fontFamily: F.d, fontSize: 16, color: C.coffee, margin: "0 0 2px" }}>Playfair Display</p>
-          <p style={{ fontFamily: F.b, fontSize: 14, color: C.coffeeMid, margin: "0 0 2px" }}>Source Serif 4</p>
-          <p style={{ fontFamily: F.h, fontSize: 16, color: C.aren, margin: "0 0 2px" }}>Caveat</p>
-          <p style={{ fontFamily: F.u, fontSize: 12, color: C.coffeeMid, letterSpacing: 1 }}>DM Sans</p>
-        </div>
-        <div>
-          <div style={{ fontFamily: F.u, fontSize: 9, fontWeight: 700, letterSpacing: 2, color: C.warmGray, marginBottom: 8 }}>PALET</div>
-          <div style={{ display: "flex", gap: 6 }}>
-            {[C.coffee, C.aren, C.leaf, C.parchment, C.cream].map((c) => (
-              <div key={c} title={c} style={{ width: 22, height: 32, background: c, border: `1px solid ${C.softBrown}40` }} />
+      <div style={{ maxWidth: 980, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 16, alignItems: "start" }}>
+        <ColophonTile
+          id="logo" label="LAMBANG" openId={openId} setOpenId={setOpenId}
+          summary={<><TukuLogo variant="dark" size={52} /><p style={{ fontFamily: F.u, fontSize: 9, fontWeight: 700, letterSpacing: 2, color: C.warmGray, marginTop: 10 }}>KOPI TUKU · 2026</p></>}
+          detail={<>
+            <p style={{ fontFamily: F.d, fontStyle: "italic", fontSize: 22, color: C.coffee, margin: "0 0 8px" }}>Gelas & biji — sederhana, hangat.</p>
+            <p style={{ fontFamily: F.b, fontSize: 14, color: C.coffeeMid, lineHeight: 1.6, margin: "0 0 10px" }}>
+              Lambang TUKU adalah satu gelas takeaway dengan biji kopi di atasnya — ditarik tangan, bukan grid. Diturunkan dari kios pertama di Cipete (2015) menjadi tanda <em>Rukun Tetangga Digital</em>.
+            </p>
+            <p style={{ fontFamily: F.u, fontSize: 10, fontWeight: 700, letterSpacing: 2, color: C.warmGray }}>EST. 2015 · CIPETE → AMSTERDAM</p>
+          </>}
+        />
+        <ColophonTile
+          id="huruf" label="HURUF" openId={openId} setOpenId={setOpenId}
+          summary={<>
+            <p style={{ fontFamily: F.d, fontSize: 16, color: C.coffee, margin: "0 0 2px" }}>Playfair Display</p>
+            <p style={{ fontFamily: F.b, fontSize: 14, color: C.coffeeMid, margin: "0 0 2px" }}>Source Serif 4</p>
+            <p style={{ fontFamily: F.h, fontSize: 16, color: C.aren, margin: "0 0 2px" }}>Caveat</p>
+            <p style={{ fontFamily: F.u, fontSize: 12, color: C.coffeeMid, letterSpacing: 1 }}>DM Sans</p>
+          </>}
+          detail={<div style={{ display: "grid", gap: 14 }}>
+            {FONT_INFO.map(f => (
+              <div key={f.name} style={{ borderLeft: `2px solid ${C.aren}60`, paddingLeft: 12 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 6 }}>
+                  <span style={{ fontFamily: F.u, fontSize: 10, fontWeight: 700, letterSpacing: 2, color: C.aren }}>{f.name}</span>
+                  <span style={{ fontFamily: F.u, fontSize: 9.5, color: C.warmGray, letterSpacing: 1.5 }}>{f.role}</span>
+                </div>
+                <p style={{ fontFamily: f.fam, fontSize: f.fam === F.h ? 22 : 18, color: C.coffee, margin: "4px 0 0", fontStyle: f.fam === F.d ? "italic" : "normal" }}>{f.sample}</p>
+              </div>
             ))}
-          </div>
-        </div>
-        <div>
-          <div style={{ fontFamily: F.u, fontSize: 9, fontWeight: 700, letterSpacing: 2, color: C.warmGray, marginBottom: 8 }}>EDISI</div>
-          <p style={{ fontFamily: F.d, fontStyle: "italic", fontSize: 22, color: C.coffee, margin: 0, lineHeight: 1.1 }}>Vol. 01</p>
-          <p style={{ fontFamily: F.u, fontSize: 11, color: C.coffeeMid, letterSpacing: 1, marginTop: 4 }}>Jakarta · Amsterdam</p>
-        </div>
+          </div>}
+        />
+        <ColophonTile
+          id="palet" label="PALET" openId={openId} setOpenId={setOpenId}
+          summary={<div style={{ display: "flex", gap: 6 }}>
+            {PALETTE_INFO.map(p => (
+              <div key={p.hex} title={p.name} style={{ width: 22, height: 32, background: p.c, border: `1px solid ${C.softBrown}40` }} />
+            ))}
+          </div>}
+          detail={<PaletteDetail />}
+        />
+        <ColophonTile
+          id="edisi" label="EDISI" openId={openId} setOpenId={setOpenId}
+          summary={<>
+            <p style={{ fontFamily: F.d, fontStyle: "italic", fontSize: 22, color: C.coffee, margin: 0, lineHeight: 1.1 }}>Vol. 01</p>
+            <p style={{ fontFamily: F.u, fontSize: 11, color: C.coffeeMid, letterSpacing: 1, marginTop: 4 }}>Jakarta · Amsterdam</p>
+          </>}
+          detail={<>
+            <p style={{ fontFamily: F.d, fontStyle: "italic", fontSize: 22, color: C.coffee, margin: "0 0 10px" }}>Edisi Pembuka — &ldquo;Rukun Tetangga Digital&rdquo;</p>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 14, marginTop: 6 }}>
+              {[["TEMA", "Tetangga lintas benua"], ["BAB", "IX bagian"], ["RUTE", "Cipete → Amsterdam"], ["TERBIT", "Mei 2026"]].map(([k, v]) => (
+                <div key={k}>
+                  <div style={{ fontFamily: F.u, fontSize: 9, fontWeight: 700, letterSpacing: 2, color: C.warmGray }}>{k}</div>
+                  <div style={{ fontFamily: F.b, fontSize: 14, color: C.coffee, marginTop: 2 }}>{v}</div>
+                </div>
+              ))}
+            </div>
+          </>}
+        />
       </div>
+      <style>{`@keyframes tileReveal { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } } @media (prefers-reduced-motion: reduce) { [id^="tile-"] { animation: none !important; } }`}</style>
     </section>
   );
 }
@@ -288,7 +516,14 @@ function NarrativeHero() {
         <TukuLogo variant="dark" size={120} style={{ marginBottom: 18, filter: `drop-shadow(0 6px 20px ${C.coffee}25)` }} />
       </Fade>
       <Fade delay={120}>
-        <Label>sebuah undangan untuk bertetangga</Label>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
+          <ChapterEyebrow
+            n="01" label="PEMBUKA" page="I" align="center"
+            title="Sebuah undangan untuk bertetangga."
+            note="Halaman pembuka — niat di balik proposal ini, dan janji kecil: setiap bab adalah pintu, bukan deck."
+          />
+          <Label>sebuah undangan untuk bertetangga</Label>
+        </div>
       </Fade>
       <Fade delay={250}>
         <h1 style={{ fontFamily: F.d, fontSize: "clamp(56px, 11vw, 140px)", fontWeight: 700, color: C.coffee, lineHeight: 1, margin: "10px 0 24px", letterSpacing: -2.5, position: "relative" }}>
@@ -395,9 +630,11 @@ function NarrativeReframe() {
       <TukuLogo variant="light" size={520} style={{ position: "absolute", right: -80, bottom: -60, opacity: 0.045, transform: "rotate(-8deg)" }} />
       <div style={{ position: "relative", maxWidth: 820, margin: "0 auto", textAlign: "center" }}>
         <Fade>
-          <div style={{ display: "inline-flex", alignItems: "center", gap: 10, padding: "5px 14px", border: `1px solid ${C.arenGlow}40`, borderRadius: 999 }}>
-            <span style={{ fontFamily: F.u, fontSize: 9, fontWeight: 700, letterSpacing: 3, color: C.arenGlow }}>CH · 04 — PERGESERAN</span>
-          </div>
+          <ChapterEyebrow
+            n="04" label="PERGESERAN" page="IV" tone="dark" align="center"
+            title="Dari loyalty program ke rukun tetangga."
+            note="Setiap brand kopi membangun program poin. TUKU bisa membangun sesuatu yang lebih jarang: rasa saling kenal antar tetangga — yang tidak bisa di-copy oleh kompetitor."
+          />
         </Fade>
         <Fade delay={150}>
           <p style={{ fontFamily: F.d, fontSize: "clamp(28px, 4vw, 44px)", color: C.cream, lineHeight: 1.3, margin: "26px 0 56px", opacity: 0.62 }}>
@@ -537,7 +774,13 @@ function NarrativeCTA({ onOpen }: { onOpen: () => void }) {
         <TukuLogo variant="light" size={88} style={{ marginBottom: 22, filter: `drop-shadow(0 6px 24px ${C.aren}40)` }} />
       </Fade>
       <Fade delay={150}>
-        <p style={{ fontFamily: F.u, fontSize: 10, fontWeight: 700, letterSpacing: 4, color: C.arenGlow, opacity: 0.8, marginBottom: 18 }}>CH · 09 — UNDANGAN</p>
+        <div style={{ marginBottom: 18 }}>
+          <ChapterEyebrow
+            n="09" label="UNDANGAN" page="IX" tone="dark" align="center"
+            title="Bukan mockup. Sebuah pintu yang bisa dibuka."
+            note="Bab penutup. Yang ada di balik tombol bukan slide deck — tapi prototipe interaktif yang bisa kamu jelajahi sebagai tetangga TUKU."
+          />
+        </div>
       </Fade>
       <Fade delay={250}>
         <h2 style={{ fontFamily: F.d, fontSize: "clamp(36px, 6vw, 60px)", color: C.cream, lineHeight: 1.15, margin: "0 0 20px", letterSpacing: -1.2, fontWeight: 400 }}>
