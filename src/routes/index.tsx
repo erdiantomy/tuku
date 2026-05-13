@@ -1268,28 +1268,27 @@ function AppPaspor() {
 
           {/* BADGE PENCAPAIAN */}
           <h3 style={{ fontFamily: F.d, fontSize: 18, color: C.coffee, margin: "0 0 4px", fontWeight: 700 }}>Lencana Pencapaian</h3>
-          <p style={{ fontFamily: F.b, fontSize: 12, color: C.warmGray, margin: "0 0 12px" }}>5 dari 8 terkumpul</p>
+          <p style={{ fontFamily: F.b, fontSize: 12, color: C.warmGray, margin: "0 0 12px" }}>{earnedCount} dari {BADGES.length} terkumpul</p>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
-            {[
-              { icon: "☕", name: "Seruput Pertama", earned: true },
-              { icon: "🏠", name: "Warga Cipete", earned: true },
-              { icon: "🤝", name: "Tetangga Baik", earned: true, sub: "10+ traktir" },
-              { icon: "🗺️", name: "Penjelajah", earned: true, sub: "3+ kota" },
-              { icon: "✈️", name: "Pelancong Global", earned: true, sub: "Amsterdam" },
-              { icon: "💯", name: "Setia 100", earned: false, sub: "100 kunjungan" },
-              { icon: "🌱", name: "Sahabat Petani", earned: false, sub: "Kunjungi 5 batch" },
-              { icon: "👑", name: "Sesepuh", earned: false, sub: "Semua kota" },
-            ].map((b, i) => (
-              <div key={i} style={{
-                background: b.earned ? C.warmWhite : C.parchment,
-                border: `1px solid ${b.earned ? C.aren + "40" : C.softBrown + "20"}`,
-                borderRadius: 12, padding: "12px 6px", textAlign: "center",
-                opacity: b.earned ? 1 : 0.5,
-              }}>
+            {BADGES.map((b) => (
+              <button
+                key={b.id}
+                onClick={() => setSelectedBadge(b.id)}
+                aria-label={`Lihat detail lencana ${b.name}`}
+                style={{
+                  all: "unset", cursor: "pointer", display: "block",
+                  background: b.earned ? C.warmWhite : C.parchment,
+                  border: `1px solid ${b.earned ? C.aren + "40" : C.softBrown + "20"}`,
+                  borderRadius: 12, padding: "12px 6px", textAlign: "center",
+                  opacity: b.earned ? 1 : 0.55, transition: "transform 0.15s ease",
+                }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-2px)"; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = "none"; }}
+              >
                 <div style={{ fontSize: 26, marginBottom: 4, filter: b.earned ? "none" : "grayscale(1)" }}>{b.icon}</div>
                 <div style={{ fontFamily: F.u, fontSize: 9.5, fontWeight: 700, color: C.coffee, lineHeight: 1.2 }}>{b.name}</div>
                 {b.sub && <div style={{ fontFamily: F.u, fontSize: 8, color: C.warmGray, marginTop: 2 }}>{b.sub}</div>}
-              </div>
+              </button>
             ))}
           </div>
 
