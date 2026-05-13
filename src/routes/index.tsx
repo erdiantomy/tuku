@@ -799,8 +799,9 @@ function NarrativePillars() {
 
 function NarrativeTraktir() {
   return (
-    <section style={{ padding: "120px 24px", background: `linear-gradient(180deg, ${C.cream} 0%, ${C.parchment} 100%)` }}>
-      <div style={{ maxWidth: 720, margin: "0 auto" }}>
+    <section style={{ position: "relative", overflow: "hidden", padding: "120px 24px", background: `linear-gradient(180deg, ${C.cream} 0%, ${C.parchment} 100%)` }}>
+      <FrameOverlay tone="light" intensity="subtle" watermark="cup" watermarkPos="bl" />
+      <div style={{ position: "relative", zIndex: 1, maxWidth: 720, margin: "0 auto" }}>
         <Fade><Label>Yang Akan Dibicarakan Dunia</Label></Fade>
         <Fade delay={150}>
           <h2 style={{ fontFamily: F.d, fontSize: "clamp(36px, 6vw, 64px)", fontWeight: 700, color: C.coffee, lineHeight: 1.1, margin: "12px 0 32px", letterSpacing: -1 }}>
