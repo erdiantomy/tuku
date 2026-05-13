@@ -257,35 +257,176 @@ function PullQuote({ children, color = C.aren }: { children: ReactNode; color?: 
   );
 }
 
+type TileId = "logo" | "huruf" | "palet" | "edisi";
+
+function ColophonTile({
+  id, label, openId, setOpenId, summary, detail,
+}: {
+  id: TileId; label: string; openId: TileId | null; setOpenId: (v: TileId | null) => void;
+  summary: ReactNode; detail: ReactNode;
+}) {
+  const open = openId === id;
+  const [hover, setHover] = useState(false);
+  return (
+    <div
+      style={{
+        gridColumn: open ? "1 / -1" : "auto",
+        transition: "grid-column 0s",
+      }}
+    >
+      <button
+        type="button"
+        onClick={() => setOpenId(open ? null : id)}
+        onMouseEnter={() => setHover(true)}
+        onMouseLeave={() => setHover(false)}
+        aria-expanded={open}
+        aria-controls={`tile-${id}`}
+        style={{
+          all: "unset", cursor: "pointer", display: "block", width: "100%", boxSizing: "border-box",
+          padding: 16, borderRadius: 4, position: "relative",
+          background: hover || open ? C.warmWhite : "transparent",
+          border: `1px solid ${hover || open ? `${C.aren}55` : `${C.softBrown}30`}`,
+          transition: "background 220ms ease, border-color 220ms ease, box-shadow 220ms ease",
+          boxShadow: hover || open ? `0 10px 28px ${C.coffee}12` : "none",
+        }}
+      >
+        <div style={{ fontFamily: F.u, fontSize: 9, fontWeight: 700, letterSpacing: 2, color: hover || open ? C.aren : C.warmGray, marginBottom: 8, transition: "color 200ms ease" }}>
+          {label}
+        </div>
+        {summary}
+        <span aria-hidden style={{
+          position: "absolute", right: 12, bottom: 8,
+          fontFamily: F.u, fontSize: 8.5, fontWeight: 700, letterSpacing: 1.5, color: C.aren,
+          opacity: hover && !open ? 0.85 : 0, transition: "opacity 200ms ease",
+        }}>klik untuk detail →</span>
+        <span aria-hidden style={{
+          position: "absolute", right: 12, top: 12, fontFamily: F.u, fontSize: 11, color: C.aren,
+          transform: open ? "rotate(45deg)" : "rotate(0)", transition: "transform 220ms ease",
+        }}>＋</span>
+      </button>
+      {open && (
+        <div
+          id={`tile-${id}`}
+          role="region"
+          style={{
+            marginTop: 10, padding: "18px 20px 18px", background: C.warmWhite,
+            border: `1px solid ${C.aren}40`, borderRadius: 4,
+            boxShadow: `0 18px 40px ${C.coffee}18`,
+            animation: "tileReveal 240ms ease-out both", position: "relative",
+          }}
+        >
+          <button type="button" onClick={() => setOpenId(null)} aria-label="Tutup detail" style={{ all: "unset", cursor: "pointer", position: "absolute", top: 10, right: 12, fontFamily: F.u, fontSize: 12, color: C.warmGray, padding: 4 }}>✕</button>
+          {detail}
+        </div>
+      )}
+    </div>
+  );
+}
+
+const PALETTE_INFO: { c: string; name: string; hex: string; role: string }[] = [
+  { c: C.coffee, name: "Coffee", hex: C.coffee, role: "Tinta utama — judul, teks pekat" },
+  { c: C.aren, name: "Aren", hex: C.aren, role: "Aksen hangat — link, sorotan" },
+  { c: C.leaf, name: "Daun", hex: C.leaf, role: "Sinyal alami — petani, kebun" },
+  { c: C.parchment, name: "Parchment", hex: C.parchment, role: "Kertas — latar editorial" },
+  { c: C.cream, name: "Cream", hex: C.cream, role: "Latar terang — bagian dalam" },
+];
+
+function PaletteDetail() {
+  const [pick, setPick] = useState(0);
+  const sw = PALETTE_INFO[pick];
+  return (
+    <div>
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        {PALETTE_INFO.map((p, i) => (
+          <button key={p.hex} type="button" onClick={() => setPick(i)} aria-label={p.name} style={{
+            all: "unset", cursor: "pointer", width: 36, height: 48, background: p.c,
+            border: `2px solid ${i === pick ? C.aren : `${C.softBrown}40`}`,
+            transition: "border-color 180ms ease, transform 180ms ease",
+            transform: i === pick ? "translateY(-2px)" : "none",
+          }} />
+        ))}
+      </div>
+      <div style={{ marginTop: 14, paddingTop: 12, borderTop: `1px solid ${C.softBrown}40` }}>
+        <p style={{ fontFamily: F.d, fontStyle: "italic", fontSize: 20, color: C.coffee, margin: "0 0 4px" }}>{sw.name}</p>
+        <p style={{ fontFamily: F.u, fontSize: 11, fontWeight: 700, letterSpacing: 1.5, color: C.aren, margin: "0 0 8px" }}>{sw.hex.toUpperCase()}</p>
+        <p style={{ fontFamily: F.b, fontSize: 13.5, color: C.coffeeMid, margin: 0, lineHeight: 1.5 }}>{sw.role}</p>
+      </div>
+    </div>
+  );
+}
+
+const FONT_INFO: { fam: string; name: string; role: string; sample: string }[] = [
+  { fam: F.d, name: "Playfair Display", role: "Display — judul & kutipan", sample: "Rukun Tetangga Digital" },
+  { fam: F.b, name: "Source Serif 4", role: "Body — paragraf editorial", sample: "Sepuluh tahun di Cipete." },
+  { fam: F.h, name: "Caveat", role: "Hand — sentuhan personal", sample: "salam dari Mas Tyo" },
+  { fam: F.u, name: "DM Sans", role: "Utility — label & meta", sample: "CH · 04 — PERGESERAN" },
+];
+
 function Colophon() {
+  const [openId, setOpenId] = useState<TileId | null>(null);
   return (
     <section style={{ padding: "56px 24px", background: C.parchment, borderTop: `1px solid ${C.softBrown}40`, borderBottom: `1px solid ${C.softBrown}40` }}>
-      <div style={{ maxWidth: 980, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 28, alignItems: "start" }}>
-        <div>
-          <TukuLogo variant="dark" size={52} />
-          <p style={{ fontFamily: F.u, fontSize: 9, fontWeight: 700, letterSpacing: 2, color: C.warmGray, marginTop: 10 }}>KOPI TUKU · 2026</p>
-        </div>
-        <div>
-          <div style={{ fontFamily: F.u, fontSize: 9, fontWeight: 700, letterSpacing: 2, color: C.warmGray, marginBottom: 8 }}>HURUF</div>
-          <p style={{ fontFamily: F.d, fontSize: 16, color: C.coffee, margin: "0 0 2px" }}>Playfair Display</p>
-          <p style={{ fontFamily: F.b, fontSize: 14, color: C.coffeeMid, margin: "0 0 2px" }}>Source Serif 4</p>
-          <p style={{ fontFamily: F.h, fontSize: 16, color: C.aren, margin: "0 0 2px" }}>Caveat</p>
-          <p style={{ fontFamily: F.u, fontSize: 12, color: C.coffeeMid, letterSpacing: 1 }}>DM Sans</p>
-        </div>
-        <div>
-          <div style={{ fontFamily: F.u, fontSize: 9, fontWeight: 700, letterSpacing: 2, color: C.warmGray, marginBottom: 8 }}>PALET</div>
-          <div style={{ display: "flex", gap: 6 }}>
-            {[C.coffee, C.aren, C.leaf, C.parchment, C.cream].map((c) => (
-              <div key={c} title={c} style={{ width: 22, height: 32, background: c, border: `1px solid ${C.softBrown}40` }} />
+      <div style={{ maxWidth: 980, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 16, alignItems: "start" }}>
+        <ColophonTile
+          id="logo" label="LAMBANG" openId={openId} setOpenId={setOpenId}
+          summary={<><TukuLogo variant="dark" size={52} /><p style={{ fontFamily: F.u, fontSize: 9, fontWeight: 700, letterSpacing: 2, color: C.warmGray, marginTop: 10 }}>KOPI TUKU · 2026</p></>}
+          detail={<>
+            <p style={{ fontFamily: F.d, fontStyle: "italic", fontSize: 22, color: C.coffee, margin: "0 0 8px" }}>Gelas & biji — sederhana, hangat.</p>
+            <p style={{ fontFamily: F.b, fontSize: 14, color: C.coffeeMid, lineHeight: 1.6, margin: "0 0 10px" }}>
+              Lambang TUKU adalah satu gelas takeaway dengan biji kopi di atasnya — ditarik tangan, bukan grid. Diturunkan dari kios pertama di Cipete (2015) menjadi tanda <em>Rukun Tetangga Digital</em>.
+            </p>
+            <p style={{ fontFamily: F.u, fontSize: 10, fontWeight: 700, letterSpacing: 2, color: C.warmGray }}>EST. 2015 · CIPETE → AMSTERDAM</p>
+          </>}
+        />
+        <ColophonTile
+          id="huruf" label="HURUF" openId={openId} setOpenId={setOpenId}
+          summary={<>
+            <p style={{ fontFamily: F.d, fontSize: 16, color: C.coffee, margin: "0 0 2px" }}>Playfair Display</p>
+            <p style={{ fontFamily: F.b, fontSize: 14, color: C.coffeeMid, margin: "0 0 2px" }}>Source Serif 4</p>
+            <p style={{ fontFamily: F.h, fontSize: 16, color: C.aren, margin: "0 0 2px" }}>Caveat</p>
+            <p style={{ fontFamily: F.u, fontSize: 12, color: C.coffeeMid, letterSpacing: 1 }}>DM Sans</p>
+          </>}
+          detail={<div style={{ display: "grid", gap: 14 }}>
+            {FONT_INFO.map(f => (
+              <div key={f.name} style={{ borderLeft: `2px solid ${C.aren}60`, paddingLeft: 12 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 6 }}>
+                  <span style={{ fontFamily: F.u, fontSize: 10, fontWeight: 700, letterSpacing: 2, color: C.aren }}>{f.name}</span>
+                  <span style={{ fontFamily: F.u, fontSize: 9.5, color: C.warmGray, letterSpacing: 1.5 }}>{f.role}</span>
+                </div>
+                <p style={{ fontFamily: f.fam, fontSize: f.fam === F.h ? 22 : 18, color: C.coffee, margin: "4px 0 0", fontStyle: f.fam === F.d ? "italic" : "normal" }}>{f.sample}</p>
+              </div>
             ))}
-          </div>
-        </div>
-        <div>
-          <div style={{ fontFamily: F.u, fontSize: 9, fontWeight: 700, letterSpacing: 2, color: C.warmGray, marginBottom: 8 }}>EDISI</div>
-          <p style={{ fontFamily: F.d, fontStyle: "italic", fontSize: 22, color: C.coffee, margin: 0, lineHeight: 1.1 }}>Vol. 01</p>
-          <p style={{ fontFamily: F.u, fontSize: 11, color: C.coffeeMid, letterSpacing: 1, marginTop: 4 }}>Jakarta · Amsterdam</p>
-        </div>
+          </div>}
+        />
+        <ColophonTile
+          id="palet" label="PALET" openId={openId} setOpenId={setOpenId}
+          summary={<div style={{ display: "flex", gap: 6 }}>
+            {PALETTE_INFO.map(p => (
+              <div key={p.hex} title={p.name} style={{ width: 22, height: 32, background: p.c, border: `1px solid ${C.softBrown}40` }} />
+            ))}
+          </div>}
+          detail={<PaletteDetail />}
+        />
+        <ColophonTile
+          id="edisi" label="EDISI" openId={openId} setOpenId={setOpenId}
+          summary={<>
+            <p style={{ fontFamily: F.d, fontStyle: "italic", fontSize: 22, color: C.coffee, margin: 0, lineHeight: 1.1 }}>Vol. 01</p>
+            <p style={{ fontFamily: F.u, fontSize: 11, color: C.coffeeMid, letterSpacing: 1, marginTop: 4 }}>Jakarta · Amsterdam</p>
+          </>}
+          detail={<>
+            <p style={{ fontFamily: F.d, fontStyle: "italic", fontSize: 22, color: C.coffee, margin: "0 0 10px" }}>Edisi Pembuka — &ldquo;Rukun Tetangga Digital&rdquo;</p>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 14, marginTop: 6 }}>
+              {[["TEMA", "Tetangga lintas benua"], ["BAB", "IX bagian"], ["RUTE", "Cipete → Amsterdam"], ["TERBIT", "Mei 2026"]].map(([k, v]) => (
+                <div key={k}>
+                  <div style={{ fontFamily: F.u, fontSize: 9, fontWeight: 700, letterSpacing: 2, color: C.warmGray }}>{k}</div>
+                  <div style={{ fontFamily: F.b, fontSize: 14, color: C.coffee, marginTop: 2 }}>{v}</div>
+                </div>
+              ))}
+            </div>
+          </>}
+        />
       </div>
+      <style>{`@keyframes tileReveal { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } } @media (prefers-reduced-motion: reduce) { [id^="tile-"] { animation: none !important; } }`}</style>
     </section>
   );
 }
