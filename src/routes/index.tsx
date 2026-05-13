@@ -76,17 +76,36 @@ function Badge({ children, color = C.aren }: { children: ReactNode; color?: stri
   return <span style={{ display: "inline-block", padding: "3px 9px", borderRadius: 999, background: color + "20", color, fontFamily: F.u, fontSize: 10, fontWeight: 700, letterSpacing: 0.5 }}>{children}</span>;
 }
 
-function TukuLogo({ variant = "dark", size = 48, withWordmark = true, style }: { variant?: "dark" | "light"; size?: number; withWordmark?: boolean; style?: CSSProperties }) {
+function TukuLogo({
+  variant = "dark", size = 48, withWordmark = true, minSize, maxSize, style,
+}: {
+  variant?: "dark" | "light"; size?: number; withWordmark?: boolean;
+  minSize?: number; maxSize?: number; style?: CSSProperties;
+}) {
   const src = variant === "dark" ? logoDark : logoLight;
-  // Source images contain the bucket + wordmark stacked. We crop via object-position when wordmark hidden.
+  // Native aspect ratios of the trimmed source files.
+  const fullRatio = variant === "dark" ? 1424 / 748 : 1246 / 848;
+  // When wordmark hidden we crop to the top portion (cup glyph only) — roughly square.
+  const ratio = withWordmark ? fullRatio : 1;
+
+  const max = maxSize ?? size;
+  const min = minSize ?? size;
+  // Fluid scaling between min and max, baseline ~12vw of viewport so it grows with width.
+  const widthCss = min === max ? `${max}px` : `clamp(${min}px, ${Math.round((max / 1280) * 100)}vw, ${max}px)`;
+
   return (
     <img
       src={src}
       alt="TUKU"
+      draggable={false}
       style={{
-        width: size, height: withWordmark ? size : size * 0.6, objectFit: "contain",
+        width: widthCss,
+        height: "auto",
+        aspectRatio: String(ratio),
+        objectFit: "contain",
         objectPosition: withWordmark ? "center" : "center top",
-        display: "inline-block", userSelect: "none", pointerEvents: "none",
+        display: "block", userSelect: "none", pointerEvents: "none",
+        flexShrink: 0,
         ...style,
       }}
     />
