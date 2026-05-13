@@ -368,7 +368,7 @@ function ChapterEyebrow({
             position: "relative", display: "block",
             marginTop: 10,
             marginInline: align === "center" ? "auto" : 0,
-            width: coarse ? "min(94vw, 380px)" : "min(92vw, 360px)",
+            width: "100%", maxWidth: coarse ? 360 : 360,
             textAlign: "left", zIndex: 20,
             background: panelBg, border: `1px solid ${panelBorder}`, borderRadius: 4,
             padding: coarse ? "18px 20px 16px" : "16px 18px 14px",
