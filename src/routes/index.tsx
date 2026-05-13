@@ -245,6 +245,21 @@ function ChapterMarker({ n, label }: { n: string; label: string }) {
   );
 }
 
+// True when the primary input has no hover (touch / pen). Drives tap-friendly UX:
+// always-on affordances, larger tap targets, press feedback instead of hover swap.
+function useCoarsePointer() {
+  const [coarse, setCoarse] = useState(false);
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return;
+    const mq = window.matchMedia("(hover: none), (pointer: coarse)");
+    const sync = () => setCoarse(mq.matches);
+    sync();
+    mq.addEventListener?.("change", sync);
+    return () => mq.removeEventListener?.("change", sync);
+  }, []);
+  return coarse;
+}
+
 function ChapterEyebrow({
   n, label, title, note, page, total = "IX", tone = "light", align = "left",
 }: {
