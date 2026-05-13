@@ -36,6 +36,13 @@ const F = {
   u: "'DM Sans', sans-serif",
 };
 
+// ── Motion tokens — one editorial language for every transition ──
+const M = {
+  fast: 160, base: 240, med: 420, slow: 680,
+  out: "cubic-bezier(0.22, 1, 0.36, 1)",
+  inOut: "cubic-bezier(0.65, 0, 0.35, 1)",
+};
+
 // ── Shared Components ──
 
 function Fade({ children, className, delay = 0, style }: { children: ReactNode; className?: string; delay?: number; style?: CSSProperties }) {
@@ -49,8 +56,9 @@ function Fade({ children, className, delay = 0, style }: { children: ReactNode; 
   return (
     <div ref={ref} className={className} style={{
       opacity: v ? 1 : 0,
-      transform: v ? "translateY(0)" : "translateY(24px)",
-      transition: `opacity 0.9s ease ${delay}ms, transform 0.9s ease ${delay}ms`,
+      transform: v ? "translateY(0)" : "translateY(14px)",
+      transition: `opacity ${M.med}ms ${M.out} ${delay}ms, transform ${M.med}ms ${M.out} ${delay}ms`,
+      willChange: "opacity, transform",
       ...style,
     }}>
       {children}
@@ -130,7 +138,7 @@ function Masthead() {
       backdropFilter: solid ? "blur(8px)" : "none",
       WebkitBackdropFilter: solid ? "blur(8px)" : "none",
       borderBottom: solid ? `1px solid ${C.softBrown}30` : "1px solid transparent",
-      transition: "background 0.3s ease, border-color 0.3s ease",
+      transition: `background ${M.base}ms ${M.out}, border-color ${M.base}ms ${M.out}, backdrop-filter ${M.base}ms ${M.out}`,
       willChange: "background, backdrop-filter",
     }}>
       <div style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0, flex: "1 1 auto" }}>
@@ -466,12 +474,13 @@ function AppTopBar({ tab, onBack }: { tab: number; onBack: () => void }) {
       <button onClick={onBack} aria-label="Kembali ke proposal" style={{ all: "unset", cursor: "pointer", fontFamily: F.u, fontSize: 11, fontWeight: 700, color: C.warmGray, letterSpacing: 1, padding: "4px 8px", borderRadius: 999, border: `1px solid ${C.softBrown}40` }}>← Proposal</button>
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", lineHeight: 1 }}>
         <TukuLogo variant="dark" size={26} withWordmark={false} />
-        <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginTop: 4 }}>
+        <div key={tab} style={{ display: "flex", alignItems: "baseline", gap: 6, marginTop: 4, animation: `topbarSwap ${M.base}ms ${M.out} both` }}>
           <span style={{ fontFamily: F.u, fontSize: 8.5, fontWeight: 700, letterSpacing: 2, color: C.warmGray, textTransform: "uppercase" }}>{TAB_EYEBROWS[tab]}</span>
           <span style={{ fontFamily: F.d, fontStyle: "italic", fontSize: 13, color: C.coffee }}>{TAB_NAMES[tab]}</span>
         </div>
       </div>
       <div style={{ width: 70, fontFamily: F.u, fontSize: 9, fontWeight: 700, letterSpacing: 1.5, color: C.warmGray, textAlign: "right" }}>EDISI · 01</div>
+      <style>{`@keyframes topbarSwap { from { opacity: 0; transform: translateY(6px) } to { opacity: 1; transform: none } }`}</style>
     </div>
   );
 }
@@ -822,7 +831,7 @@ function NarrativeCTA({ onOpen }: { onOpen: () => void }) {
           letterSpacing: 3, textTransform: "uppercase",
           border: `1px solid ${C.arenGlow}`,
           transform: pulse ? "translateY(-2px)" : "translateY(0)",
-          transition: "transform 0.6s ease, background 0.3s ease, color 0.3s ease",
+          transition: `transform ${M.med}ms ${M.inOut}, background ${M.base}ms ${M.out}, color ${M.base}ms ${M.out}`,
         }}
           onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = C.arenGlow; (e.currentTarget as HTMLButtonElement).style.color = C.coffee; }}
           onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "transparent"; (e.currentTarget as HTMLButtonElement).style.color = C.arenGlow; }}
@@ -849,15 +858,15 @@ function TabIcon({ icon, label, active, onClick, center }: { icon: string; label
   return (
     <button onClick={onClick} style={{ all: "unset", cursor: "pointer", flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4, padding: "8px 0" }}>
       {center ? (
-        <div style={{ width: 48, height: 48, borderRadius: "50%", background: active ? C.aren : C.coffee, display: "flex", alignItems: "center", justifyContent: "center", marginTop: -16, boxShadow: `0 6px 18px ${C.coffee}40`, transition: "background 0.2s" }}>
+        <div style={{ width: 48, height: 48, borderRadius: "50%", background: active ? C.aren : C.coffee, display: "flex", alignItems: "center", justifyContent: "center", marginTop: -16, boxShadow: `0 6px 18px ${C.coffee}40`, transition: `background ${M.base}ms ${M.out}, transform ${M.base}ms ${M.out}` }}>
           <span style={{ fontSize: 22 }}>{icon}</span>
         </div>
       ) : (
-        <div style={{ fontSize: 22, opacity: active ? 1 : 0.4, transition: "opacity 0.2s" }}>
+        <div style={{ fontSize: 22, opacity: active ? 1 : 0.4, transform: active ? "translateY(-1px)" : "none", transition: `opacity ${M.base}ms ${M.out}, transform ${M.base}ms ${M.out}` }}>
           {icon}
         </div>
       )}
-      <span style={{ fontFamily: F.u, fontSize: 10, fontWeight: 600, color: active ? C.coffee : C.warmGray }}>{label}</span>
+      <span style={{ fontFamily: F.u, fontSize: 10, fontWeight: 600, color: active ? C.coffee : C.warmGray, transition: `color ${M.base}ms ${M.out}` }}>{label}</span>
     </button>
   );
 }
@@ -2116,12 +2125,12 @@ function TukuRukunTetangga() {
 
   const openApp = useCallback(() => {
     setMode("transition");
-    setTimeout(() => setMode("app"), 600);
+    setTimeout(() => setMode("app"), M.slow);
   }, []);
 
   const backToNarrative = useCallback(() => {
     setMode("transition");
-    setTimeout(() => setMode("narrative"), 400);
+    setTimeout(() => setMode("narrative"), M.med);
   }, []);
 
   if (mode === "transition") {
@@ -2131,17 +2140,19 @@ function TukuRukunTetangga() {
         background: `radial-gradient(ellipse at center, ${C.coffeeMid} 0%, ${C.coffee} 50%, #150a05 100%)`,
         display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center",
         zIndex: 999, overflow: "hidden",
+        animation: `shellFade ${M.med}ms ${M.out} both`,
       }}>
         <style>{`
-          @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
-          @keyframes pulseGlow { 0%,100% { transform: scale(1); opacity: 0.85 } 50% { transform: scale(1.08); opacity: 1 } }
+          @keyframes shellFade { from { opacity: 0 } to { opacity: 1 } }
+          @keyframes pulseGlow { 0%,100% { transform: scale(1); opacity: 0.88 } 50% { transform: scale(1.04); opacity: 1 } }
           @keyframes loaderSlide { 0% { transform: translateX(-100%) } 100% { transform: translateX(100%) } }
+          @keyframes staggerIn { from { opacity: 0; transform: translateY(8px) } to { opacity: 1; transform: none } }
         `}</style>
         <GrainOverlay opacity={0.08} />
-        <TukuLogo variant="light" size={140} minSize={88} maxSize={140} style={{ animation: "pulseGlow 1.4s ease-in-out infinite", filter: `drop-shadow(0 8px 30px ${C.aren}50)` }} />
-        <p style={{ fontFamily: F.d, fontStyle: "italic", fontSize: 24, color: C.arenGlow, marginTop: 22, letterSpacing: 0.5 }}>Membuka pintu tetangga…</p>
-        <div style={{ width: 180, height: 1, background: `${C.cream}20`, marginTop: 28, overflow: "hidden", position: "relative" }}>
-          <div style={{ position: "absolute", inset: 0, background: `linear-gradient(90deg, transparent, ${C.arenGlow}, transparent)`, animation: "loaderSlide 1.4s ease-in-out infinite" }} />
+        <TukuLogo variant="light" size={140} minSize={88} maxSize={140} style={{ animation: `staggerIn ${M.med}ms ${M.out} both, pulseGlow 1.6s ${M.inOut} ${M.base}ms infinite`, filter: `drop-shadow(0 8px 30px ${C.aren}50)` }} />
+        <p style={{ fontFamily: F.d, fontStyle: "italic", fontSize: 24, color: C.arenGlow, marginTop: 22, letterSpacing: 0.5, animation: `staggerIn ${M.med}ms ${M.out} 80ms both` }}>Membuka pintu tetangga…</p>
+        <div style={{ width: 180, height: 1, background: `${C.cream}20`, marginTop: 28, overflow: "hidden", position: "relative", animation: `staggerIn ${M.med}ms ${M.out} 160ms both` }}>
+          <div style={{ position: "absolute", inset: 0, background: `linear-gradient(90deg, transparent, ${C.arenGlow}, transparent)`, animation: `loaderSlide 1.6s ${M.inOut} infinite` }} />
         </div>
       </div>
     );
@@ -2158,11 +2169,17 @@ function TukuRukunTetangga() {
     ];
     return (
       <div style={{ minHeight: "100vh", background: `radial-gradient(ellipse at center, ${C.cream} 0%, ${C.parchment} 100%)`, display: "flex", justifyContent: "center", alignItems: "stretch" }}>
-        <style>{`@keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }`}</style>
-        <div style={{ width: "100%", maxWidth: 420, background: C.snow, position: "relative", display: "flex", flexDirection: "column", boxShadow: `0 0 60px ${C.coffee}30, 0 0 0 1px ${C.softBrown}40` }}>
+        <style>{`
+          @keyframes screenSwap { from { opacity: 0; transform: translateY(8px) } to { opacity: 1; transform: none } }
+          @keyframes shellFade { from { opacity: 0 } to { opacity: 1 } }
+          @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+          }
+        `}</style>
+        <div style={{ width: "100%", maxWidth: 420, background: C.snow, position: "relative", display: "flex", flexDirection: "column", boxShadow: `0 0 60px ${C.coffee}30, 0 0 0 1px ${C.softBrown}40`, animation: `shellFade ${M.med}ms ${M.out} both` }}>
           <AppTopBar tab={tab} onBack={backToNarrative} />
 
-          <div ref={appRef} style={{ flex: 1, overflowY: "auto", paddingBottom: 70, animation: "fadeIn 0.4s ease" }}>
+          <div ref={appRef} key={tab} style={{ flex: 1, overflowY: "auto", paddingBottom: 70, animation: `screenSwap ${M.med}ms ${M.out} both` }}>
             {screens[tab]}
           </div>
 
@@ -2182,6 +2199,7 @@ function TukuRukunTetangga() {
   // Narrative mode
   return (
     <main style={{ background: C.cream, color: C.coffee }}>
+      <style>{`@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; } }`}</style>
       <Masthead />
       <NarrativeHero />
       <NarrativeLetter />
