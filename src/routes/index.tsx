@@ -1505,14 +1505,32 @@ function ChatDetail({ chatId, onBack, onTraktir, onOpenBatch }: { chatId: string
         </div>
       </div>
 
-      <div style={{ padding: "12px 16px", background: C.arenSoft, borderBottom: `1px solid ${C.aren}25`, display: "flex", alignItems: "center", gap: 12 }}>
-        <div style={{ fontSize: 22 }}>🤝</div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontFamily: F.u, fontSize: 12, fontWeight: 700, color: C.coffee }}>Traktir {chat.name.split(" ")[0]} hari ini</div>
-          <div style={{ fontFamily: F.b, fontSize: 11, color: C.coffeeMid }}>Kirim Es Kopi Susu Tetangga ke {chat.rumah !== "—" ? `TUKU ${chat.rumah}` : "tokonya"}</div>
+      <button
+        onClick={() => onOpenBatch(activeBatch.id)}
+        aria-label={`Lihat cerita batch ${activeBatch.batchLabel}`}
+        style={{ all: "unset", cursor: "pointer", display: "block", padding: "12px 16px", background: C.arenSoft, borderBottom: `1px solid ${C.aren}25` }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div style={{ fontSize: 22 }}>🤝</div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontFamily: F.u, fontSize: 12, fontWeight: 700, color: C.coffee }}>Traktir {chat.name.split(" ")[0]} hari ini</div>
+            <div style={{ fontFamily: F.b, fontSize: 11, color: C.coffeeMid }}>Kirim {activeBatch.name} ke {chat.rumah !== "—" ? `TUKU ${chat.rumah}` : "tokonya"}</div>
+          </div>
+          <span
+            role="button"
+            tabIndex={0}
+            onClick={(e) => { e.stopPropagation(); onTraktir(); }}
+            onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.stopPropagation(); onTraktir(); } }}
+            style={{ cursor: "pointer", background: C.aren, color: C.white, fontFamily: F.u, fontSize: 11, fontWeight: 700, padding: "8px 14px", borderRadius: 999, flexShrink: 0 }}
+          >Traktir →</span>
         </div>
-        <button onClick={onTraktir} style={{ all: "unset", cursor: "pointer", background: C.aren, color: C.white, fontFamily: F.u, fontSize: 11, fontWeight: 700, padding: "8px 14px", borderRadius: 999, flexShrink: 0 }}>Traktir →</button>
-      </div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 10, paddingLeft: 34 }}>
+          <span style={{ fontFamily: F.u, fontSize: 10, fontWeight: 700, color: C.coffee, background: `${C.aren}25`, padding: "3px 8px", borderRadius: 999, letterSpacing: 0.4 }}>📍 {activeBatch.origin}</span>
+          <span style={{ fontFamily: F.u, fontSize: 10, fontWeight: 700, color: C.coffee, background: `${C.aren}25`, padding: "3px 8px", borderRadius: 999, letterSpacing: 0.4 }}>📅 {activeBatch.harvest}</span>
+          <span style={{ fontFamily: F.u, fontSize: 10, fontWeight: 700, color: C.coffee, background: `${C.leaf}25`, padding: "3px 8px", borderRadius: 999, letterSpacing: 0.4 }}>🌿 {FARMER.name}</span>
+          <span style={{ fontFamily: F.u, fontSize: 10, fontWeight: 600, color: C.aren, padding: "3px 4px", letterSpacing: 0.4 }}>Lihat cerita →</span>
+        </div>
+      </button>
 
       <div style={{ flex: 1, padding: 16, display: "flex", flexDirection: "column", gap: 8, background: C.cream }}>
         {msgs.map((m, i) => (
