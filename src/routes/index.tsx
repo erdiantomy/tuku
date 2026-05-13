@@ -409,16 +409,16 @@ type WatermarkKind = "cup" | "wordmark" | "none";
 type WatermarkPos = "br" | "bl" | "tr" | "tl";
 
 const INTENSITY: Record<FrameIntensity, { grain: number; ticks: number; mark: number }> = {
-  subtle:  { grain: 0.03, ticks: 0.10, mark: 0.025 },
-  soft:    { grain: 0.05, ticks: 0.18, mark: 0.04 },
-  feature: { grain: 0.09, ticks: 0.30, mark: 0.05 },
+  subtle:  { grain: 0.03, ticks: 0.10, mark: 0.012 },
+  soft:    { grain: 0.05, ticks: 0.18, mark: 0.022 },
+  feature: { grain: 0.09, ticks: 0.30, mark: 0.032 },
 };
 
 function Watermark({
   tone, pos = "br", opacity, kind = "cup", size = 360,
 }: { tone: FrameTone; pos?: WatermarkPos; opacity: number; kind?: "cup" | "wordmark"; size?: number }) {
   const variant = tone === "light" ? "dark" : "light";
-  const offset = "-8vw";
+  const offset = "clamp(12px, 4vw, 42px)";
   const corner: CSSProperties =
     pos === "br" ? { right: offset, bottom: offset } :
     pos === "bl" ? { left: offset, bottom: offset } :
@@ -433,7 +433,7 @@ function Watermark({
       maxSize={size}
       blend="none"
       halo={false}
-      style={{ position: "absolute", opacity: kind === "wordmark" ? opacity * 1.15 : opacity, transform: "rotate(-6deg)", pointerEvents: "none", mixBlendMode: tone === "light" ? "multiply" : "screen", ...corner }}
+      style={{ position: "absolute", opacity: kind === "wordmark" ? opacity * 0.9 : opacity, transform: "rotate(-5deg)", pointerEvents: "none", mixBlendMode: tone === "light" ? "multiply" : "screen", ...corner }}
     />
   );
 }
@@ -459,7 +459,7 @@ function FrameOverlay({
         <div key={i} aria-hidden style={{ position: "absolute", width: 18, height: 18, borderStyle: "solid", borderColor: tickColor, borderWidth: 0, pointerEvents: "none", zIndex: 0, ...p }} />
       ))}
       {watermark !== "none" && (
-        <Watermark tone={tone} pos={watermarkPos} opacity={v.mark} kind={watermark} size={watermark === "wordmark" ? 500 : 420} />
+        <Watermark tone={tone} pos={watermarkPos} opacity={v.mark} kind={watermark} size={watermark === "wordmark" ? 360 : 320} />
       )}
     </>
   );
