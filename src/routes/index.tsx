@@ -2169,11 +2169,17 @@ function TukuRukunTetangga() {
     ];
     return (
       <div style={{ minHeight: "100vh", background: `radial-gradient(ellipse at center, ${C.cream} 0%, ${C.parchment} 100%)`, display: "flex", justifyContent: "center", alignItems: "stretch" }}>
-        <style>{`@keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }`}</style>
-        <div style={{ width: "100%", maxWidth: 420, background: C.snow, position: "relative", display: "flex", flexDirection: "column", boxShadow: `0 0 60px ${C.coffee}30, 0 0 0 1px ${C.softBrown}40` }}>
+        <style>{`
+          @keyframes screenSwap { from { opacity: 0; transform: translateY(8px) } to { opacity: 1; transform: none } }
+          @keyframes shellFade { from { opacity: 0 } to { opacity: 1 } }
+          @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+          }
+        `}</style>
+        <div style={{ width: "100%", maxWidth: 420, background: C.snow, position: "relative", display: "flex", flexDirection: "column", boxShadow: `0 0 60px ${C.coffee}30, 0 0 0 1px ${C.softBrown}40`, animation: `shellFade ${M.med}ms ${M.out} both` }}>
           <AppTopBar tab={tab} onBack={backToNarrative} />
 
-          <div ref={appRef} style={{ flex: 1, overflowY: "auto", paddingBottom: 70, animation: "fadeIn 0.4s ease" }}>
+          <div ref={appRef} key={tab} style={{ flex: 1, overflowY: "auto", paddingBottom: 70, animation: `screenSwap ${M.med}ms ${M.out} both` }}>
             {screens[tab]}
           </div>
 
