@@ -1019,7 +1019,7 @@ function NarrativeCTA({ onOpen }: { onOpen: () => void }) {
     <section style={{ position: "relative", padding: "160px 24px", background: `radial-gradient(ellipse at 50% 0%, ${C.coffeeMid} 0%, ${C.coffee} 55%, #1a0e07 100%)`, color: C.cream, textAlign: "center", overflow: "hidden" }}>
       <FrameOverlay tone="dark" intensity="feature" watermark="cup" watermarkPos="tl" />
       <Fade>
-        <TukuLogo variant="light" size={88} minSize={56} maxSize={88} style={{ margin: "0 auto 22px" }} />
+        <TukuLogo variant="light" size={56} minSize={40} maxSize={56} halo={false} style={{ margin: "0 auto 22px", opacity: 0.5 }} />
       </Fade>
       <Fade delay={150}>
         <div style={{ marginBottom: 18 }}>
@@ -1048,11 +1048,10 @@ function NarrativeCTA({ onOpen }: { onOpen: () => void }) {
           onPointerUp={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = pulse ? "translateY(-2px)" : "translateY(0)"; }}
           onPointerCancel={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = pulse ? "translateY(-2px)" : "translateY(0)"; }}
           style={{
-            all: "unset", cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 14,
-            background: "transparent", color: C.arenGlow, padding: "18px 38px",
-            minHeight: 52, minWidth: 240, boxSizing: "border-box",
-            borderRadius: 0, fontFamily: F.u, fontSize: 14, fontWeight: 700,
-            letterSpacing: 3, textTransform: "uppercase",
+            all: "unset", cursor: "pointer", display: "inline-flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4,
+            background: "transparent", color: C.arenGlow, padding: "16px 32px",
+            minHeight: 64, minWidth: 220, maxWidth: "92vw", boxSizing: "border-box",
+            borderRadius: 0,
             border: `1px solid ${C.arenGlow}`,
             transform: pulse ? "translateY(-2px)" : "translateY(0)",
             transition: `transform ${M.med}ms ${M.inOut}, background ${M.base}ms ${M.out}, color ${M.base}ms ${M.out}`,
@@ -1060,9 +1059,11 @@ function NarrativeCTA({ onOpen }: { onOpen: () => void }) {
             WebkitTapHighlightColor: "transparent",
           }}
         >
-          <span>Open the Door</span>
-          <span style={{ fontFamily: F.d, fontStyle: "italic", fontSize: 16, letterSpacing: 0, textTransform: "none" }}>buka pintunya</span>
-          <span>→</span>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 10, fontFamily: F.u, fontSize: 13, fontWeight: 700, letterSpacing: 3, textTransform: "uppercase" }}>
+            <span>Open the Door</span>
+            <span aria-hidden>→</span>
+          </span>
+          <span style={{ fontFamily: F.d, fontStyle: "italic", fontSize: 14, letterSpacing: 0, textTransform: "none", opacity: 0.75 }}>buka pintunya</span>
         </button>
         <style>{`
           @media (hover: hover) and (pointer: fine) {
