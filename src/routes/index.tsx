@@ -137,6 +137,93 @@ function ChapterMarker({ n, label }: { n: string; label: string }) {
   );
 }
 
+function ChapterEyebrow({
+  n, label, title, note, page, total = "IX", tone = "light", align = "left",
+}: {
+  n: string; label: string; title: string; note: string; page: string;
+  total?: string; tone?: "light" | "dark"; align?: "left" | "center";
+}) {
+  const [open, setOpen] = useState(false);
+  const [hover, setHover] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const id = `eb-${n}-${label}`.replace(/\s+/g, "-").toLowerCase();
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
+    const onDoc = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false); };
+    document.addEventListener("keydown", onKey);
+    document.addEventListener("mousedown", onDoc);
+    return () => { document.removeEventListener("keydown", onKey); document.removeEventListener("mousedown", onDoc); };
+  }, [open]);
+
+  const dark = tone === "dark";
+  const ink = dark ? C.arenGlow : C.aren;
+  const subInk = dark ? `${C.cream}` : C.coffee;
+  const noteInk = dark ? `${C.cream}cc` : C.coffeeMid;
+  const panelBg = dark ? `${C.coffee}f2` : C.warmWhite;
+  const panelBorder = dark ? `${C.arenGlow}40` : `${C.aren}35`;
+
+  return (
+    <div ref={ref} style={{ position: "relative", display: "inline-block", textAlign: align }}>
+      <button
+        type="button"
+        onClick={() => setOpen(o => !o)}
+        onMouseEnter={() => setHover(true)}
+        onMouseLeave={() => setHover(false)}
+        aria-expanded={open}
+        aria-controls={id}
+        style={{
+          all: "unset", cursor: "help", display: "inline-flex", alignItems: "center", gap: 8,
+          padding: dark ? "5px 14px" : "4px 10px",
+          border: dark ? `1px solid ${C.arenGlow}40` : `1px solid transparent`,
+          borderRadius: 999,
+          fontFamily: F.u, fontSize: dark ? 9 : 10, fontWeight: 700, letterSpacing: dark ? 3 : 4,
+          color: ink, textTransform: "uppercase", position: "relative",
+        }}
+      >
+        <span>CH · {n} — {label}</span>
+        <span aria-hidden style={{
+          display: "inline-block", width: 12, textAlign: "center",
+          opacity: hover || open ? 1 : 0, transform: open ? "rotate(45deg)" : "rotate(0)",
+          transition: "opacity 200ms ease, transform 220ms ease", color: ink, fontSize: 11,
+        }}>＋</span>
+        <span aria-hidden style={{
+          position: "absolute", left: 10, right: 10, bottom: 2, height: 1, background: ink,
+          transform: hover || open ? "scaleX(1)" : "scaleX(0)", transformOrigin: "left",
+          transition: "transform 260ms ease", opacity: 0.7,
+        }} />
+      </button>
+      {open && (
+        <div
+          id={id}
+          role="region"
+          style={{
+            position: "absolute", top: "calc(100% + 10px)",
+            ...(align === "center" ? { left: "50%", transform: "translateX(-50%)" } : { left: 0 }),
+            width: "min(92vw, 360px)", textAlign: "left", zIndex: 20,
+            background: panelBg, border: `1px solid ${panelBorder}`, borderRadius: 4,
+            padding: "16px 18px 14px",
+            boxShadow: dark ? `0 24px 60px ${C.coffee}80` : `0 18px 40px ${C.coffee}25`,
+            backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)",
+            animation: "ebReveal 240ms ease-out both",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12 }}>
+            <span style={{ fontFamily: F.u, fontSize: 9, fontWeight: 700, letterSpacing: 2.5, color: dark ? C.arenGlow : C.warmGray }}>BAB {n}</span>
+            <button type="button" onClick={() => setOpen(false)} aria-label="Tutup" style={{ all: "unset", cursor: "pointer", fontFamily: F.u, fontSize: 11, color: dark ? `${C.cream}80` : C.warmGray, padding: "0 4px" }}>✕</button>
+          </div>
+          <p style={{ fontFamily: F.d, fontStyle: "italic", fontSize: 22, color: subInk, lineHeight: 1.2, margin: "6px 0 10px", fontWeight: 400 }}>{title}</p>
+          <p style={{ fontFamily: F.b, fontSize: 13.5, color: noteInk, lineHeight: 1.55, margin: 0 }}>{note}</p>
+          <div style={{ marginTop: 14, paddingTop: 10, borderTop: `1px solid ${dark ? `${C.cream}20` : `${C.softBrown}40`}`, display: "flex", justifyContent: "space-between", fontFamily: F.u, fontSize: 9, fontWeight: 700, letterSpacing: 2, color: dark ? `${C.cream}90` : C.warmGray }}>
+            <span>HALAMAN {page}</span><span>DARI {total}</span>
+          </div>
+        </div>
+      )}
+      <style>{`@keyframes ebReveal { from { opacity: 0; transform: translateY(-4px) ${align === "center" ? "translateX(-50%)" : ""}; } to { opacity: 1; transform: translateY(0) ${align === "center" ? "translateX(-50%)" : ""}; } } @media (prefers-reduced-motion: reduce) { [id^="eb-"] { animation: none !important; } }`}</style>
+    </div>
+  );
+}
+
 const GRAIN_BG = `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.55 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/></svg>")`;
 
 function GrainOverlay({ opacity = 0.06 }: { opacity?: number }) {
