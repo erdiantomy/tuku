@@ -1020,8 +1020,8 @@ function AppPaspor() {
                 </div>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                   {c.stores.map((s, j) => (
-                    <span key={j} style={{ fontFamily: F.u, fontSize: 11, color: c.city === USER.rumah.replace("TUKU ", "") ? C.aren : C.coffeeMid, background: C.parchment, padding: "4px 10px", borderRadius: 999, fontWeight: 600 }}>
-                      {s === "Cipete" ? "🏠 " : ""}TUKU {s}
+                    <span key={j} style={{ fontFamily: F.u, fontSize: 11, color: s.home ? C.aren : C.coffeeMid, background: C.parchment, padding: "4px 10px", borderRadius: 999, fontWeight: 600 }}>
+                      {s.home ? "🏠 " : ""}TUKU {s.name}
                     </span>
                   ))}
                 </div>
