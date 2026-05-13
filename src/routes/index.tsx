@@ -623,9 +623,11 @@ function NarrativeReframe() {
       <TukuLogo variant="light" size={520} style={{ position: "absolute", right: -80, bottom: -60, opacity: 0.045, transform: "rotate(-8deg)" }} />
       <div style={{ position: "relative", maxWidth: 820, margin: "0 auto", textAlign: "center" }}>
         <Fade>
-          <div style={{ display: "inline-flex", alignItems: "center", gap: 10, padding: "5px 14px", border: `1px solid ${C.arenGlow}40`, borderRadius: 999 }}>
-            <span style={{ fontFamily: F.u, fontSize: 9, fontWeight: 700, letterSpacing: 3, color: C.arenGlow }}>CH · 04 — PERGESERAN</span>
-          </div>
+          <ChapterEyebrow
+            n="04" label="PERGESERAN" page="IV" tone="dark" align="center"
+            title="Dari loyalty program ke rukun tetangga."
+            note="Setiap brand kopi membangun program poin. TUKU bisa membangun sesuatu yang lebih jarang: rasa saling kenal antar tetangga — yang tidak bisa di-copy oleh kompetitor."
+          />
         </Fade>
         <Fade delay={150}>
           <p style={{ fontFamily: F.d, fontSize: "clamp(28px, 4vw, 44px)", color: C.cream, lineHeight: 1.3, margin: "26px 0 56px", opacity: 0.62 }}>
