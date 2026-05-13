@@ -389,30 +389,40 @@ function NarrativeGap() {
 
 function NarrativeReframe() {
   return (
-    <section style={{ padding: "120px 24px", background: C.coffee, color: C.cream }}>
-      <div style={{ maxWidth: 760, margin: "0 auto", textAlign: "center" }}>
+    <section style={{ position: "relative", padding: "160px 24px", background: `radial-gradient(ellipse at 30% 20%, ${C.coffeeMid} 0%, ${C.coffee} 60%, #1f130b 100%)`, color: C.cream, overflow: "hidden" }}>
+      <GrainOverlay opacity={0.10} />
+      <CornerTicks color={`${C.cream}30`} />
+      <TukuLogo variant="light" size={520} style={{ position: "absolute", right: -80, bottom: -60, opacity: 0.045, transform: "rotate(-8deg)" }} />
+      <div style={{ position: "relative", maxWidth: 820, margin: "0 auto", textAlign: "center" }}>
         <Fade>
-          <Label>Pergeseran</Label>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 10, padding: "5px 14px", border: `1px solid ${C.arenGlow}40`, borderRadius: 999 }}>
+            <span style={{ fontFamily: F.u, fontSize: 9, fontWeight: 700, letterSpacing: 3, color: C.arenGlow }}>CH · 04 — PERGESERAN</span>
+          </div>
         </Fade>
         <Fade delay={150}>
-          <p style={{ fontFamily: F.d, fontSize: "clamp(28px, 4vw, 40px)", color: C.cream, lineHeight: 1.3, margin: "12px 0 40px", opacity: 0.7 }}>
+          <p style={{ fontFamily: F.d, fontSize: "clamp(28px, 4vw, 44px)", color: C.cream, lineHeight: 1.3, margin: "26px 0 56px", opacity: 0.62 }}>
             Setiap brand kopi di dunia membangun<br />
             <span style={{ fontStyle: "italic" }}>loyalty program.</span>
           </p>
         </Fade>
         <Fade delay={400}>
-          <h2 style={{ fontFamily: F.d, fontSize: "clamp(36px, 6vw, 64px)", color: C.arenGlow, lineHeight: 1.15, margin: "0 0 48px", letterSpacing: -1, fontWeight: 700 }}>
-            TUKU bisa membangun yang belum pernah ada:<br />
+          <h2 style={{ fontFamily: F.d, fontSize: "clamp(40px, 7vw, 78px)", color: C.arenGlow, lineHeight: 1.1, margin: "0 0 56px", letterSpacing: -1.5, fontWeight: 700 }}>
+            TUKU bisa membangun<br />yang belum pernah ada:<br />
             <span style={{ fontStyle: "italic" }}>sebuah rukun tetangga.</span>
           </h2>
         </Fade>
         <Fade delay={650}>
-          <p style={{ fontFamily: F.h, fontSize: 26, color: C.cream, opacity: 0.8, marginBottom: 12 }}>
-            Starbucks memberi reward karena kamu belanja.
-          </p>
-          <p style={{ fontFamily: F.h, fontSize: 30, color: C.arenGlow, fontWeight: 600 }}>
-            TUKU memberi reward karena kamu tetangga yang baik.
-          </p>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", gap: 24, alignItems: "center", maxWidth: 720, margin: "0 auto", padding: "28px 18px", border: `1px solid ${C.cream}18`, borderRadius: 4 }}>
+            <div style={{ textAlign: "right" }}>
+              <div style={{ fontFamily: F.u, fontSize: 9, fontWeight: 700, letterSpacing: 2, color: C.cream, opacity: 0.5, marginBottom: 6 }}>MEREKA</div>
+              <p style={{ fontFamily: F.h, fontSize: 22, color: C.cream, opacity: 0.85, margin: 0, lineHeight: 1.3 }}>Reward karena kamu <em>belanja</em>.</p>
+            </div>
+            <div style={{ width: 1, height: 56, background: `${C.arenGlow}40` }} />
+            <div style={{ textAlign: "left" }}>
+              <div style={{ fontFamily: F.u, fontSize: 9, fontWeight: 700, letterSpacing: 2, color: C.arenGlow, marginBottom: 6 }}>TUKU</div>
+              <p style={{ fontFamily: F.h, fontSize: 26, color: C.arenGlow, fontWeight: 600, margin: 0, lineHeight: 1.3 }}>Reward karena kamu <em>tetangga yang baik</em>.</p>
+            </div>
+          </div>
         </Fade>
       </div>
     </section>
