@@ -123,21 +123,24 @@ function Masthead() {
     <div style={{
       position: "sticky", top: 0, zIndex: 50,
       display: "flex", alignItems: "center", justifyContent: "space-between",
-      padding: "10px 22px",
+      gap: 12,
+      padding: "10px clamp(14px, 3vw, 22px)",
+      minHeight: 56, boxSizing: "border-box",
       background: solid ? `${C.cream}EE` : "transparent",
       backdropFilter: solid ? "blur(8px)" : "none",
       WebkitBackdropFilter: solid ? "blur(8px)" : "none",
       borderBottom: solid ? `1px solid ${C.softBrown}30` : "1px solid transparent",
       transition: "background 0.3s ease, border-color 0.3s ease",
+      willChange: "background, backdrop-filter",
     }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0, flex: "1 1 auto" }}>
         <TukuLogo variant="dark" size={34} minSize={28} maxSize={34} />
-        <div style={{ borderLeft: `1px solid ${C.softBrown}80`, paddingLeft: 12, display: "none" }} className="masthead-tag">
+        <div style={{ borderLeft: `1px solid ${C.softBrown}80`, paddingLeft: 12, display: "none", minWidth: 0 }} className="masthead-tag">
           <div style={{ fontFamily: F.u, fontSize: 9, fontWeight: 700, letterSpacing: 2, color: C.warmGray }}>EDISI 01</div>
-          <div style={{ fontFamily: F.u, fontSize: 10, fontWeight: 700, letterSpacing: 1.4, color: C.coffee }}>RUKUN TETANGGA DIGITAL</div>
+          <div style={{ fontFamily: F.u, fontSize: 10, fontWeight: 700, letterSpacing: 1.4, color: C.coffee, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>RUKUN TETANGGA DIGITAL</div>
         </div>
       </div>
-      <div style={{ textAlign: "right" }}>
+      <div style={{ textAlign: "right", flexShrink: 0 }}>
         <div style={{ fontFamily: F.u, fontSize: 9, fontWeight: 700, letterSpacing: 2, color: C.warmGray }}>PROPOSAL</div>
         <div style={{ fontFamily: F.d, fontStyle: "italic", fontSize: 13, color: C.coffee, lineHeight: 1 }}>MMXXVI</div>
       </div>
