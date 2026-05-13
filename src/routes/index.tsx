@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState, useEffect, useRef, useCallback, type ReactNode, type CSSProperties } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo, type ReactNode, type CSSProperties } from "react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
