@@ -1116,6 +1116,29 @@ function ExpeditionMap({ cities, query = "", onClear }: { cities: City[]; query?
 
 function AppPaspor() {
   const [sub, setSub] = useState("p");
+  const [region, setRegion] = useState<"all" | "nusantara" | "global">("all");
+  const [query, setQuery] = useState("");
+  const filteredCities = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return STORES_VISITED
+      .filter(c => region === "all" || (region === "nusantara" ? c.flag === "🇮🇩" : c.flag !== "🇮🇩"))
+      .map(c => {
+        if (!q) return c;
+        const cityHit = c.city.toLowerCase().includes(q);
+        const stores = cityHit ? c.stores : c.stores.filter(s => s.name.toLowerCase().includes(q));
+        return { ...c, stores };
+      })
+      .filter(c => c.stores.length > 0);
+  }, [region, query]);
+  const totalFilteredStores = filteredCities.reduce((n, c) => n + c.stores.length, 0);
+  const clearFilter = () => { setRegion("all"); setQuery(""); };
+  const highlight = (text: string) => {
+    const q = query.trim();
+    if (!q) return text;
+    const idx = text.toLowerCase().indexOf(q.toLowerCase());
+    if (idx < 0) return text;
+    return (<>{text.slice(0, idx)}<mark style={{ background: `${C.aren}30`, color: C.coffee, padding: "0 2px", borderRadius: 3 }}>{text.slice(idx, idx + q.length)}</mark>{text.slice(idx + q.length)}</>);
+  };
   return (
     <div style={{ padding: 18 }}>
       <div style={{ background: `linear-gradient(135deg, ${C.coffee} 0%, ${C.coffeeMid} 100%)`, borderRadius: 18, padding: 22, color: C.cream, textAlign: "center", marginBottom: 18 }}>
