@@ -468,6 +468,11 @@ function ColophonTile({
 }) {
   const open = openId === id;
   const [hover, setHover] = useState(false);
+  const [pressed, setPressed] = useState(false);
+  const coarse = useCoarsePointer();
+  // On touch, the tile already shows its tappable affordance — keep visual rest state
+  // calm but always reveal the "+ tap" cues so users know it's interactive.
+  const active = hover || open;
   return (
     <div
       style={{
@@ -480,29 +485,37 @@ function ColophonTile({
         onClick={() => setOpenId(open ? null : id)}
         onMouseEnter={() => setHover(true)}
         onMouseLeave={() => setHover(false)}
+        onPointerDown={() => setPressed(true)}
+        onPointerUp={() => setPressed(false)}
+        onPointerCancel={() => setPressed(false)}
         aria-expanded={open}
         aria-controls={`tile-${id}`}
         style={{
           all: "unset", cursor: "pointer", display: "block", width: "100%", boxSizing: "border-box",
-          padding: 16, borderRadius: 4, position: "relative",
-          background: hover || open ? C.warmWhite : "transparent",
-          border: `1px solid ${hover || open ? `${C.aren}55` : `${C.softBrown}30`}`,
-          transition: "background 220ms ease, border-color 220ms ease, box-shadow 220ms ease",
-          boxShadow: hover || open ? `0 10px 28px ${C.coffee}12` : "none",
+          padding: coarse ? 18 : 16, borderRadius: 4, position: "relative",
+          minHeight: coarse ? 96 : undefined,
+          background: active ? C.warmWhite : (coarse ? `${C.warmWhite}80` : "transparent"),
+          border: `1px solid ${active ? `${C.aren}55` : (coarse ? `${C.softBrown}55` : `${C.softBrown}30`)}`,
+          transition: "background 220ms ease, border-color 220ms ease, box-shadow 220ms ease, transform 140ms cubic-bezier(0.22,1,0.36,1)",
+          boxShadow: active ? `0 10px 28px ${C.coffee}12` : "none",
+          transform: pressed ? "scale(0.985)" : "scale(1)",
+          touchAction: "manipulation",
+          WebkitTapHighlightColor: "transparent",
         }}
       >
-        <div style={{ fontFamily: F.u, fontSize: 9, fontWeight: 700, letterSpacing: 2, color: hover || open ? C.aren : C.warmGray, marginBottom: 8, transition: "color 200ms ease" }}>
+        <div style={{ fontFamily: F.u, fontSize: 9, fontWeight: 700, letterSpacing: 2, color: active ? C.aren : (coarse ? C.coffeeMid : C.warmGray), marginBottom: 8, transition: "color 200ms ease" }}>
           {label}
         </div>
         {summary}
         <span aria-hidden style={{
           position: "absolute", right: 12, bottom: 8,
           fontFamily: F.u, fontSize: 8.5, fontWeight: 700, letterSpacing: 1.5, color: C.aren,
-          opacity: hover && !open ? 0.85 : 0, transition: "opacity 200ms ease",
-        }}>klik untuk detail →</span>
+          opacity: open ? 0 : (coarse ? 0.7 : (hover ? 0.85 : 0)), transition: "opacity 200ms ease",
+        }}>{coarse ? "tap untuk detail →" : "klik untuk detail →"}</span>
         <span aria-hidden style={{
-          position: "absolute", right: 12, top: 12, fontFamily: F.u, fontSize: 11, color: C.aren,
-          transform: open ? "rotate(45deg)" : "rotate(0)", transition: "transform 220ms ease",
+          position: "absolute", right: 12, top: 12, fontFamily: F.u, fontSize: 13, color: C.aren,
+          opacity: coarse || active ? 1 : 0,
+          transform: open ? "rotate(45deg)" : "rotate(0)", transition: "transform 220ms ease, opacity 200ms ease",
         }}>＋</span>
       </button>
       {open && (
