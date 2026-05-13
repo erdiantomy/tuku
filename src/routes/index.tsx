@@ -602,7 +602,7 @@ const MERCH = [
 function NarrativeHero() {
   return (
     <section style={{ position: "relative", minHeight: "calc(100vh - 60px)", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", padding: "60px 24px 80px", background: `radial-gradient(ellipse at top, ${C.warmWhite} 0%, ${C.cream} 60%, ${C.parchment} 100%)`, textAlign: "center", overflow: "hidden" }}>
-      <GrainOverlay opacity={0.05} />
+      <FrameOverlay tone="light" intensity="subtle" watermark="none" />
       <div aria-hidden style={{ position: "absolute", top: "8%", left: "50%", transform: "translateX(-50%)", fontFamily: F.d, fontStyle: "italic", fontSize: "clamp(180px, 28vw, 380px)", color: `${C.aren}10`, lineHeight: 0.8, letterSpacing: -8, fontWeight: 700, userSelect: "none", pointerEvents: "none" }}>tetangga</div>
       <Fade>
         <TukuLogo variant="dark" size={120} minSize={72} maxSize={120} style={{ marginBottom: 18, filter: `drop-shadow(0 6px 20px ${C.coffee}25)` }} />
