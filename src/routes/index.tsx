@@ -387,7 +387,7 @@ function ChapterEyebrow({
           </div>
         </div>
       )}
-      <style>{`@keyframes ebReveal { from { opacity: 0; transform: translateY(-4px) ${align === "center" ? "translateX(-50%)" : ""}; } to { opacity: 1; transform: translateY(0) ${align === "center" ? "translateX(-50%)" : ""}; } } @media (prefers-reduced-motion: reduce) { [id^="eb-"] { animation: none !important; } }`}</style>
+      <style>{`@keyframes ebReveal { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } } @media (prefers-reduced-motion: reduce) { [id^="eb-"] { animation: none !important; } }`}</style>
     </div>
   );
 }
