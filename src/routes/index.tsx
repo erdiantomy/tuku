@@ -762,7 +762,7 @@ const MERCH = [
 function NarrativeHero() {
   return (
     <section style={{ position: "relative", minHeight: "calc(100vh - 60px)", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", padding: "60px 24px 80px", background: `radial-gradient(ellipse at top, ${C.warmWhite} 0%, ${C.cream} 60%, ${C.parchment} 100%)`, textAlign: "center", overflow: "hidden" }}>
-      <FrameOverlay tone="light" intensity="subtle" watermark="none" />
+      <FrameOverlay tone="light" intensity="subtle" watermark="wordmark" watermarkPos="tr" />
       <div aria-hidden style={{ position: "absolute", top: "8%", left: "50%", transform: "translateX(-50%)", fontFamily: F.d, fontStyle: "italic", fontSize: "clamp(180px, 28vw, 380px)", color: `${C.aren}10`, lineHeight: 0.8, letterSpacing: -8, fontWeight: 700, userSelect: "none", pointerEvents: "none" }}>tetangga</div>
       <Fade>
         <TukuLogo variant="dark" size={72} minSize={48} maxSize={72} halo={false} style={{ margin: "0 auto 18px", opacity: 0.55 }} />
@@ -880,7 +880,7 @@ function NarrativeReframe() {
   return (
     <section style={{ position: "relative", padding: "160px 24px", background: `radial-gradient(ellipse at 30% 20%, ${C.coffeeMid} 0%, ${C.coffee} 60%, #1f130b 100%)`, color: C.cream, overflow: "hidden" }}>
       <FrameOverlay tone="dark" intensity="feature" watermark="none" />
-      <TukuLogo variant="light" size={520} minSize={280} maxSize={520} blend="none" halo={false} style={{ position: "absolute", right: "-8vw", bottom: "-6vw", opacity: 0.045, transform: "rotate(-8deg)" }} />
+        <TukuLogo variant="light" size={500} minSize={280} maxSize={500} blend="none" halo={false} style={{ position: "absolute", right: "-9vw", bottom: "-8vw", opacity: 0.04, transform: "rotate(-8deg)", mixBlendMode: "screen" }} />
       <div style={{ position: "relative", maxWidth: 820, margin: "0 auto", textAlign: "center" }}>
         <Fade>
           <ChapterEyebrow
@@ -2420,7 +2420,7 @@ function TukuRukunTetangga() {
           }
         `}</style>
         <div style={{ width: "100%", maxWidth: 420, background: C.snow, position: "relative", overflow: "hidden", display: "flex", flexDirection: "column", boxShadow: `0 0 60px ${C.coffee}30, 0 0 0 1px ${C.softBrown}40`, animation: `shellFade ${M.med}ms ${M.out} both` }}>
-          <FrameOverlay tone="light" intensity="subtle" watermark="none" inset={10} />
+          <FrameOverlay tone="light" intensity="subtle" watermark="wordmark" watermarkPos="br" inset={10} />
           <AppTopBar tab={tab} onBack={backToNarrative} />
 
           <div ref={appRef} key={tab} style={{ flex: 1, overflowY: "auto", paddingBottom: 70, animation: `screenSwap ${M.med}ms ${M.out} both` }}>
