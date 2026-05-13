@@ -1312,6 +1312,73 @@ function AppPaspor() {
           </div>
         </div>
       )}
+      {activeBadge && (() => {
+        const b = activeBadge;
+        const pct = Math.min(100, Math.round((b.current / b.target) * 100));
+        const remaining = Math.max(0, b.target - b.current);
+        const dateStr = b.earnedAt ? new Date(b.earnedAt).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }) : null;
+        const fillColor = b.earned ? C.leaf : C.aren;
+        return (
+          <div role="dialog" aria-modal="true" aria-label={`Detail lencana ${b.name}`} style={{ position: "absolute", inset: 0, zIndex: 50 }}>
+            <style>{`
+              @keyframes lvBackdropIn { from { opacity: 0 } to { opacity: 1 } }
+              @keyframes lvSheetIn { from { transform: translateY(28px); opacity: 0 } to { transform: none; opacity: 1 } }
+              @keyframes lvHalo { 0%,100% { box-shadow: 0 0 0 6px ${C.aren}25 } 50% { box-shadow: 0 0 0 10px ${C.aren}10 } }
+            `}</style>
+            <div onClick={() => setSelectedBadge(null)} style={{ position: "absolute", inset: 0, background: `${C.coffee}66`, backdropFilter: "blur(2px)", animation: "lvBackdropIn 0.2s ease both" }} />
+            <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, background: C.snow, borderRadius: "20px 20px 0 0", padding: 22, maxHeight: "85%", overflowY: "auto", boxShadow: `0 -10px 40px ${C.coffee}30`, animation: "lvSheetIn 0.3s ease both" }}>
+              <button onClick={() => setSelectedBadge(null)} aria-label="Tutup" style={{ all: "unset", cursor: "pointer", position: "absolute", top: 12, right: 14, width: 28, height: 28, borderRadius: "50%", background: C.parchment, color: C.coffee, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700 }}>✕</button>
+
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", marginBottom: 18 }}>
+                <div style={{
+                  width: 88, height: 88, borderRadius: "50%",
+                  background: b.earned ? `${C.aren}22` : `${C.softBrown}20`,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: 48, marginBottom: 12, filter: b.earned ? "none" : "grayscale(0.6)",
+                  animation: b.earned ? "lvHalo 2.4s ease-in-out infinite" : "none",
+                }}>{b.icon}</div>
+                <h3 style={{ fontFamily: F.d, fontSize: 22, fontWeight: 700, color: C.coffee, margin: "0 0 8px" }}>{b.name}</h3>
+                <span style={{
+                  fontFamily: F.u, fontSize: 11, fontWeight: 700, letterSpacing: 0.6,
+                  padding: "4px 10px", borderRadius: 999,
+                  background: b.earned ? `${C.leaf}22` : `${C.softBrown}25`,
+                  color: b.earned ? C.leaf : C.warmGray,
+                }}>{b.earned ? "✓ SUDAH DIRAIH" : "🔒 BELUM DIRAIH"}</span>
+                <p style={{ fontFamily: F.h, fontSize: 14, color: C.coffeeMid, margin: "12px 4px 0", lineHeight: 1.5 }}>{b.desc}</p>
+              </div>
+
+              <div style={{ marginBottom: 16 }}>
+                <p style={{ fontFamily: F.u, fontSize: 10, fontWeight: 700, letterSpacing: 1, color: C.warmGray, margin: "0 0 6px" }}>SYARAT</p>
+                <p style={{ fontFamily: F.b, fontSize: 13.5, color: C.coffee, margin: 0, lineHeight: 1.5 }}>{b.req}</p>
+              </div>
+
+              <div style={{ marginBottom: 16 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 6 }}>
+                  <p style={{ fontFamily: F.u, fontSize: 10, fontWeight: 700, letterSpacing: 1, color: C.warmGray, margin: 0 }}>PROGRES</p>
+                  <span style={{ fontFamily: F.u, fontSize: 12, fontWeight: 700, color: C.coffee }}>{b.current}/{b.target} {b.unit} <span style={{ color: C.warmGray, fontWeight: 600 }}>· {pct}%</span></span>
+                </div>
+                <div style={{ height: 9, background: C.parchment, borderRadius: 999, overflow: "hidden" }}>
+                  <div style={{ height: "100%", width: `${pct}%`, background: fillColor, borderRadius: 999, transition: "width 0.6s ease" }} />
+                </div>
+              </div>
+
+              <div style={{ marginBottom: 18, padding: "12px 14px", background: C.parchment, borderRadius: 12 }}>
+                <p style={{ fontFamily: F.u, fontSize: 10, fontWeight: 700, letterSpacing: 1, color: C.warmGray, margin: "0 0 4px" }}>TANGGAL</p>
+                {b.earned && dateStr ? (
+                  <p style={{ fontFamily: F.b, fontSize: 13.5, color: C.coffee, margin: 0 }}>📅 Diraih pada <strong>{dateStr}</strong></p>
+                ) : (
+                  <p style={{ fontFamily: F.b, fontSize: 13.5, color: C.coffee, margin: 0 }}>⏳ Butuh <strong>{remaining} {b.unit}</strong> lagi untuk meraihnya</p>
+                )}
+              </div>
+
+              <button
+                onClick={() => setSelectedBadge(null)}
+                style={{ all: "unset", cursor: "pointer", display: "block", width: "100%", boxSizing: "border-box", textAlign: "center", padding: "12px 0", borderRadius: 12, background: b.earned ? C.coffee : C.aren, color: b.earned ? C.cream : C.coffee, fontFamily: F.u, fontSize: 13, fontWeight: 700, letterSpacing: 0.5 }}
+              >{b.earned ? "Tutup" : "Lanjutkan ekspedisi"}</button>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }
