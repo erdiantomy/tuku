@@ -1209,6 +1209,8 @@ function AppObrolan({ goTo }: { goTo: (n: number) => void }) {
 function TukuRukunTetangga() {
   const [mode, setMode] = useState<"narrative" | "transition" | "app">("narrative");
   const [tab, setTab] = useState(0);
+  const [selectedBatchId, setSelectedBatchId] = useState<number | null>(null);
+  const openBatch = useCallback((id: number) => { setSelectedBatchId(id); setTab(3); }, []);
   const appRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
