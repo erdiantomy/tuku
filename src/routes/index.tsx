@@ -358,6 +358,8 @@ function Watermark({
       size={size}
       minSize={Math.round(size * 0.45)}
       maxSize={size}
+      blend="none"
+      halo={false}
       style={{ position: "absolute", opacity, transform: "rotate(-6deg)", pointerEvents: "none", ...corner }}
     />
   );
