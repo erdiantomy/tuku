@@ -529,7 +529,7 @@ function ColophonTile({
             animation: "tileReveal 240ms ease-out both", position: "relative",
           }}
         >
-          <button type="button" onClick={() => setOpenId(null)} aria-label="Tutup detail" style={{ all: "unset", cursor: "pointer", position: "absolute", top: 10, right: 12, fontFamily: F.u, fontSize: 12, color: C.warmGray, padding: 4 }}>✕</button>
+          <button type="button" onClick={() => setOpenId(null)} aria-label="Tutup detail" style={{ all: "unset", cursor: "pointer", position: "absolute", top: 8, right: 8, fontFamily: F.u, fontSize: 14, color: C.warmGray, padding: 8, minWidth: 32, minHeight: 32, textAlign: "center", touchAction: "manipulation", WebkitTapHighlightColor: "transparent" }}>✕</button>
           {detail}
         </div>
       )}
