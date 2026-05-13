@@ -84,11 +84,22 @@ function Badge({ children, color = C.aren }: { children: ReactNode; color?: stri
   return <span style={{ display: "inline-block", padding: "3px 9px", borderRadius: 999, background: color + "20", color, fontFamily: F.u, fontSize: 10, fontWeight: 700, letterSpacing: 0.5 }}>{children}</span>;
 }
 
+const LOGO_BLEND: Record<"light" | "dark" | "none", string> = {
+  // Logo sits on light/parchment backgrounds (dark-inked logo).
+  dark: "drop-shadow(0 1px 0 rgba(255,255,255,0.65)) drop-shadow(0 6px 18px rgba(42,26,15,0.18)) drop-shadow(0 0 1px rgba(42,26,15,0.28))",
+  // Logo sits on dark cinematic backgrounds (light-inked logo).
+  light: "drop-shadow(0 0 14px rgba(242,217,168,0.28)) drop-shadow(0 2px 10px rgba(0,0,0,0.35)) drop-shadow(0 0 1px rgba(255,255,255,0.22))",
+  none: "",
+};
+
 function TukuLogo({
   variant = "dark", size = 48, withWordmark = true, minSize, maxSize, style,
+  blend = "auto", halo = true,
 }: {
   variant?: "dark" | "light"; size?: number; withWordmark?: boolean;
   minSize?: number; maxSize?: number; style?: CSSProperties;
+  blend?: "auto" | "light" | "dark" | "none";
+  halo?: boolean;
 }) {
   const src = variant === "dark" ? logoDark : logoLight;
   // Native aspect ratios of the trimmed source files.
@@ -101,7 +112,18 @@ function TukuLogo({
   // Fluid scaling between min and max, baseline ~12vw of viewport so it grows with width.
   const widthCss = min === max ? `${max}px` : `clamp(${min}px, ${Math.round((max / 1280) * 100)}vw, ${max}px)`;
 
-  return (
+  // Tone resolution: auto follows variant (dark logo → "dark" filter on light bg, etc.)
+  const tone: "light" | "dark" | "none" = blend === "auto" ? variant : blend;
+  const internalFilter = LOGO_BLEND[tone];
+  const callerFilter = (style?.filter as string | undefined) ?? "";
+  const mergedFilter = [internalFilter, callerFilter].filter(Boolean).join(" ").trim() || undefined;
+
+  // Strip filter from passthrough style — we re-apply the merged value.
+  const { filter: _omit, ...restStyle } = style ?? {};
+
+  const showHalo = halo && tone !== "none" && max >= 40;
+
+  const img = (
     <img
       src={src}
       alt="TUKU"
@@ -114,9 +136,41 @@ function TukuLogo({
         objectPosition: withWordmark ? "center" : "center top",
         display: "block", userSelect: "none", pointerEvents: "none",
         flexShrink: 0,
-        ...style,
+        position: "relative",
+        zIndex: 1,
+        filter: mergedFilter,
+        ...restStyle,
       }}
     />
+  );
+
+  if (!showHalo) return img;
+
+  const haloBg = tone === "light"
+    ? "radial-gradient(closest-side, rgba(242,217,168,0.22), transparent 70%)"
+    : "radial-gradient(closest-side, rgba(0,0,0,0.16), transparent 70%)";
+  const haloBlend = tone === "light" ? "screen" : "multiply";
+  const haloBlur = tone === "light" ? 14 : 10;
+  const haloScale = tone === "light" ? 1.2 : 1.15;
+
+  return (
+    <span style={{ position: "relative", display: "inline-block", lineHeight: 0, flexShrink: 0 }}>
+      <span
+        aria-hidden
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: haloBg,
+          filter: `blur(${haloBlur}px)`,
+          transform: `scale(${haloScale})`,
+          transformOrigin: "center",
+          mixBlendMode: haloBlend,
+          pointerEvents: "none",
+          zIndex: 0,
+        }}
+      />
+      {img}
+    </span>
   );
 }
 
