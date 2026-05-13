@@ -84,12 +84,12 @@ const STORES_VISITED = [
   { city: "Surabaya", stores: ["Darmo"], flag: "🇮🇩" },
   { city: "Amsterdam", stores: ["Centrum"], flag: "🇳🇱" },
 ];
-type MenuItem = { id: number; name: string; price: number; cat: string; desc: string; pop?: boolean; batchStep?: number; batchLabel?: string };
+type MenuItem = { id: number; name: string; price: number; cat: string; desc: string; pop?: boolean; batchStep?: number; batchLabel?: string; origin?: string; harvest?: string };
 const MENU: MenuItem[] = [
-  { id: 1, name: "Es Kopi Susu Tetangga", price: 22000, cat: "coffee", desc: "Signature. Espresso + susu + gula aren", pop: true, batchStep: 4, batchLabel: "Es Kopi Susu Tetangga · Gayo" },
-  { id: 2, name: "Kopi Hitam Tetangga", price: 18000, cat: "coffee", desc: "Iced black. Robusta murni.", batchStep: 3, batchLabel: "Robusta Lampung · House blend" },
-  { id: 3, name: "Cappuccino", price: 28000, cat: "coffee", desc: "Classic, creamy, warm", batchStep: 3, batchLabel: "Arabika Gayo · Medium roast" },
-  { id: 4, name: "Cold Drip Santai", price: 32000, cat: "coffee", desc: "12-hour slow drip", batchStep: 2, batchLabel: "Flores Ende · Cold drip batch baru" },
+  { id: 1, name: "Es Kopi Susu Tetangga", price: 22000, cat: "coffee", desc: "Signature. Espresso + susu + gula aren", pop: true, batchStep: 4, batchLabel: "Es Kopi Susu Tetangga · Gayo", origin: "Takengon, Aceh", harvest: "Januari 2026" },
+  { id: 2, name: "Kopi Hitam Tetangga", price: 18000, cat: "coffee", desc: "Iced black. Robusta murni.", batchStep: 3, batchLabel: "Robusta Lampung · House blend", origin: "Lampung Barat", harvest: "Desember 2025" },
+  { id: 3, name: "Cappuccino", price: 28000, cat: "coffee", desc: "Classic, creamy, warm", batchStep: 3, batchLabel: "Arabika Gayo · Medium roast", origin: "Takengon, Aceh", harvest: "Januari 2026" },
+  { id: 4, name: "Cold Drip Santai", price: 32000, cat: "coffee", desc: "12-hour slow drip", batchStep: 2, batchLabel: "Flores Ende · Cold drip batch baru", origin: "Ende, Flores", harvest: "November 2025" },
   { id: 5, name: "Es Teh Susu Tetangga", price: 18000, cat: "non", desc: "Teh tarik khas TUKU" },
   { id: 6, name: "Teh Asam Jawa", price: 16000, cat: "non", desc: "Segar, asam manis" },
   { id: 7, name: "Donat Kampung", price: 12000, cat: "food", desc: "Donat klasik, empuk" },
@@ -802,6 +802,8 @@ function AppCerita({ batchId }: { batchId: number | null }) {
   const item = batchId != null ? MENU.find(m => m.id === batchId) : undefined;
   const activeStep = item?.batchStep ?? 4;
   const headerSub = item?.batchLabel ?? "Es Kopi Susu Tetangga";
+  const origin = item?.origin ?? FARMER.region;
+  const harvest = item?.harvest ?? FARMER.harvest;
   const steps: [string, string, string][] = [
     ["🌱", "Ditanam", "Kebun Pak Ahmad, 1.400 mdpl"],
     ["🫘", "Dipanen", "Januari 2026"],
@@ -812,14 +814,54 @@ function AppCerita({ batchId }: { batchId: number | null }) {
   return (
     <div style={{ padding: 18 }}>
       <style>{`@keyframes batchPulse { 0%,100% { box-shadow: 0 0 0 4px ${C.aren}25 } 50% { box-shadow: 0 0 0 7px ${C.aren}10 } } @keyframes batchFade { from { opacity: 0; transform: translateY(4px) } to { opacity: 1; transform: none } }`}</style>
-      <div style={{ marginBottom: 18 }}>
+      <div style={{ marginBottom: 14 }}>
         <p style={{ fontFamily: F.u, fontSize: 11, color: C.aren, fontWeight: 600, letterSpacing: 1.5, textTransform: "uppercase", margin: 0 }}>Di balik gelasmu</p>
         <h2 style={{ fontFamily: F.d, fontSize: 26, color: C.coffee, margin: "4px 0 4px", fontWeight: 700 }}>Cerita Kopi</h2>
         <p style={{ fontFamily: F.b, fontSize: 13, color: C.warmGray, margin: 0 }}>Batch aktif · {headerSub}</p>
       </div>
 
+      {/* RINGKASAN BATCH */}
+      <div key={`sum-${batchId ?? "default"}`} style={{ background: C.warmWhite, border: `1px solid ${C.softBrown}25`, borderRadius: 14, padding: 14, marginBottom: 16, animation: "batchFade 0.4s ease" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+          <span style={{ fontFamily: F.u, fontSize: 10, fontWeight: 700, color: C.aren, letterSpacing: 1.5, textTransform: "uppercase" }}>Ringkasan Batch</span>
+          <span style={{ fontFamily: F.u, fontSize: 9, fontWeight: 700, color: C.white, background: C.leaf, padding: "2px 8px", borderRadius: 999, letterSpacing: 1, textTransform: "uppercase" }}>Aktif</span>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
+          <div style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
+            <span style={{ fontSize: 16, lineHeight: "18px" }}>📍</span>
+            <div style={{ minWidth: 0 }}>
+              <div style={{ fontFamily: F.u, fontSize: 9, fontWeight: 600, color: C.warmGray, letterSpacing: 1, textTransform: "uppercase" }}>Asal</div>
+              <div style={{ fontFamily: F.u, fontSize: 12.5, fontWeight: 700, color: C.coffee }}>{origin}</div>
+            </div>
+          </div>
+          <div style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
+            <span style={{ fontSize: 16, lineHeight: "18px" }}>📅</span>
+            <div style={{ minWidth: 0 }}>
+              <div style={{ fontFamily: F.u, fontSize: 9, fontWeight: 600, color: C.warmGray, letterSpacing: 1, textTransform: "uppercase" }}>Panen</div>
+              <div style={{ fontFamily: F.u, fontSize: 12.5, fontWeight: 700, color: C.coffee }}>{harvest}</div>
+            </div>
+          </div>
+        </div>
+        <div style={{ height: 1, background: `${C.softBrown}25`, margin: "4px 0 10px" }} />
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {[
+            { ic: "🌿", bg: `${C.leaf}20`, name: FARMER.name, role: "Petani Kopi" },
+            { ic: "🌴", bg: `${C.aren}25`, name: "Mang Ade", role: "Perajin Gula Aren · Cianjur" },
+          ].map((p, i) => (
+            <div key={i} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <div style={{ width: 28, height: 28, borderRadius: "50%", background: p.bg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15, flexShrink: 0 }}>{p.ic}</div>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontFamily: F.u, fontSize: 12.5, fontWeight: 700, color: C.coffee, lineHeight: 1.2 }}>{p.name}</div>
+                <div style={{ fontFamily: F.b, fontSize: 11, color: C.warmGray, lineHeight: 1.2 }}>{p.role}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+        <a href="#batch-petani" style={{ display: "inline-block", marginTop: 10, fontFamily: F.u, fontSize: 11, fontWeight: 600, color: C.aren, textDecoration: "none", borderBottom: `1px dashed ${C.aren}80` }}>Lihat detail ↓</a>
+      </div>
+
       {/* PETANI KOPI PROFILE */}
-      <div style={{ background: `linear-gradient(135deg, ${C.leaf} 0%, ${C.leafLight} 100%)`, borderRadius: 18, padding: 20, color: C.white, marginBottom: 14, position: "relative", overflow: "hidden" }}>
+      <div id="batch-petani" style={{ background: `linear-gradient(135deg, ${C.leaf} 0%, ${C.leafLight} 100%)`, borderRadius: 18, padding: 20, color: C.white, marginBottom: 14, position: "relative", overflow: "hidden" }}>
         <div style={{ position: "absolute", top: 12, right: 14, fontFamily: F.u, fontSize: 9, fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase", background: "#ffffff25", padding: "3px 8px", borderRadius: 999 }}>Petani Kopi</div>
         <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 14 }}>
           <div style={{ width: 56, height: 56, borderRadius: "50%", background: "#ffffff20", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, flexShrink: 0 }}>🌿</div>
