@@ -131,7 +131,7 @@ function Masthead() {
       transition: "background 0.3s ease, border-color 0.3s ease",
     }}>
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-        <TukuLogo variant="dark" size={34} />
+        <TukuLogo variant="dark" size={34} minSize={28} maxSize={34} />
         <div style={{ borderLeft: `1px solid ${C.softBrown}80`, paddingLeft: 12, display: "none" }} className="masthead-tag">
           <div style={{ fontFamily: F.u, fontSize: 9, fontWeight: 700, letterSpacing: 2, color: C.warmGray }}>EDISI 01</div>
           <div style={{ fontFamily: F.u, fontSize: 10, fontWeight: 700, letterSpacing: 1.4, color: C.coffee }}>RUKUN TETANGGA DIGITAL</div>
