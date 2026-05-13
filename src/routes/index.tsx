@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState, useEffect, useRef, useCallback, type ReactNode, type CSSProperties } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo, type ReactNode, type CSSProperties } from "react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -959,11 +959,32 @@ function AppCerita({ batchId }: { batchId: number | null }) {
   );
 }
 
-function ExpeditionMap({ cities }: { cities: City[] }) {
+function ExpeditionMap({ cities, query = "", onClear }: { cities: City[]; query?: string; onClear?: () => void }) {
   const [selected, setSelected] = useState<string | null>(null);
-  const home = cities.find(c => c.home) ?? cities[0];
+  const home = cities.find(c => c.home);
   const totalStores = cities.reduce((n, c) => n + c.stores.length, 0);
   const current = selected ? cities.find(c => c.city === selected) ?? null : null;
+  const q = query.trim().toLowerCase();
+  const isMatch = (name: string) => q !== "" && name.toLowerCase().includes(q);
+
+  // Reset city view jika kota terpilih hilang akibat filter
+  useEffect(() => {
+    if (selected && !cities.find(c => c.city === selected)) setSelected(null);
+  }, [cities, selected]);
+
+  // Empty state
+  if (cities.length === 0) {
+    return (
+      <div style={{ background: C.warmWhite, border: `1px solid ${C.softBrown}25`, borderRadius: 16, padding: 24, marginBottom: 18, textAlign: "center" }}>
+        <div style={{ fontSize: 36, marginBottom: 6 }}>🔎</div>
+        <p style={{ fontFamily: F.u, fontSize: 13, fontWeight: 700, color: C.coffee, margin: "0 0 4px" }}>Tidak ada toko cocok</p>
+        <p style={{ fontFamily: F.b, fontSize: 12, color: C.warmGray, margin: "0 0 12px" }}>Coba kata kunci lain atau ganti region.</p>
+        {onClear && (
+          <button onClick={onClear} style={{ all: "unset", cursor: "pointer", fontFamily: F.u, fontSize: 11, fontWeight: 700, color: C.white, background: C.aren, padding: "8px 14px", borderRadius: 999 }}>Bersihkan filter</button>
+        )}
+      </div>
+    );
+  }
 
   const styles = `
     @keyframes mapFade { from { opacity: 0; transform: scale(0.985) } to { opacity: 1; transform: none } }
@@ -1008,11 +1029,12 @@ function ExpeditionMap({ cities }: { cities: City[] }) {
             <path d="M295,170 Q315,168 325,180 Q322,192 305,190 Q290,188 295,170 Z" fill={`${C.softBrown}35`} />
 
             {/* Routes home -> visited */}
-            {cities.filter(c => !c.home).map((c, i) => {
-              const mx = (home.coord.x + c.coord.x) / 2;
-              const my = Math.min(home.coord.y, c.coord.y) - 30;
+            {home && cities.filter(c => !c.home).map((c, i) => {
+              const h = home;
+              const mx = (h.coord.x + c.coord.x) / 2;
+              const my = Math.min(h.coord.y, c.coord.y) - 30;
               return (
-                <path key={i} d={`M${home.coord.x},${home.coord.y} Q${mx},${my} ${c.coord.x},${c.coord.y}`} fill="none" stroke={C.aren} strokeWidth="1.3" className="em-route" opacity="0.75" />
+                <path key={i} d={`M${h.coord.x},${h.coord.y} Q${mx},${my} ${c.coord.x},${c.coord.y}`} fill="none" stroke={C.aren} strokeWidth="1.3" className="em-route" opacity="0.75" />
               );
             })}
 
@@ -1066,8 +1088,11 @@ function ExpeditionMap({ cities }: { cities: City[] }) {
             {/* Store pins */}
             {current.stores.map((s, i) => {
               const color = s.home ? C.leaf : C.aren;
+              const matched = isMatch(s.name) || isMatch(current.city);
+              const dim = q !== "" && !matched;
               return (
-                <g key={i}>
+                <g key={i} opacity={dim ? 0.4 : 1}>
+                  {matched && <circle cx={s.x} cy={s.y - 4} r="14" fill="none" stroke={C.aren} strokeWidth="1.5" strokeDasharray="3 3" />}
                   <circle cx={s.x} cy={s.y} r="8" fill={color} className="em-halo" opacity="0.35" />
                   <path d={`M${s.x},${s.y - 12} C${s.x - 7},${s.y - 12} ${s.x - 7},${s.y - 2} ${s.x},${s.y + 5} C${s.x + 7},${s.y - 2} ${s.x + 7},${s.y - 12} ${s.x},${s.y - 12} Z`} fill={color} stroke={C.white} strokeWidth="1.3" />
                   <circle cx={s.x} cy={s.y - 7} r="2.5" fill={C.white} />
@@ -1091,6 +1116,29 @@ function ExpeditionMap({ cities }: { cities: City[] }) {
 
 function AppPaspor() {
   const [sub, setSub] = useState("p");
+  const [region, setRegion] = useState<"all" | "nusantara" | "global">("all");
+  const [query, setQuery] = useState("");
+  const filteredCities = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return STORES_VISITED
+      .filter(c => region === "all" || (region === "nusantara" ? c.flag === "🇮🇩" : c.flag !== "🇮🇩"))
+      .map(c => {
+        if (!q) return c;
+        const cityHit = c.city.toLowerCase().includes(q);
+        const stores = cityHit ? c.stores : c.stores.filter(s => s.name.toLowerCase().includes(q));
+        return { ...c, stores };
+      })
+      .filter(c => c.stores.length > 0);
+  }, [region, query]);
+  const totalFilteredStores = filteredCities.reduce((n: number, c: City) => n + c.stores.length, 0);
+  const clearFilter = () => { setRegion("all"); setQuery(""); };
+  const highlight = (text: string) => {
+    const q = query.trim();
+    if (!q) return text;
+    const idx = text.toLowerCase().indexOf(q.toLowerCase());
+    if (idx < 0) return text;
+    return (<>{text.slice(0, idx)}<mark style={{ background: `${C.aren}30`, color: C.coffee, padding: "0 2px", borderRadius: 3 }}>{text.slice(idx, idx + q.length)}</mark>{text.slice(idx + q.length)}</>);
+  };
   return (
     <div style={{ padding: 18 }}>
       <div style={{ background: `linear-gradient(135deg, ${C.coffee} 0%, ${C.coffeeMid} 100%)`, borderRadius: 18, padding: 22, color: C.cream, textAlign: "center", marginBottom: 18 }}>
@@ -1139,22 +1187,52 @@ function AppPaspor() {
             })}
           </div>
 
+          {/* FILTER & PENCARIAN */}
+          <div style={{ background: C.warmWhite, border: `1px solid ${C.softBrown}25`, borderRadius: 14, padding: 12, marginBottom: 14 }}>
+            <div style={{ position: "relative", marginBottom: 10 }}>
+              <span style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", fontSize: 13, opacity: 0.6 }}>🔎</span>
+              <input
+                aria-label="Cari toko atau kota"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Cari toko atau kota…"
+                style={{ width: "100%", boxSizing: "border-box", background: C.parchment, border: "none", outline: "none", borderRadius: 10, padding: "10px 34px 10px 32px", fontFamily: F.b, fontSize: 13, color: C.coffee }}
+              />
+              {query && (
+                <button onClick={() => setQuery("")} aria-label="Bersihkan pencarian" style={{ all: "unset", cursor: "pointer", position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", width: 22, height: 22, borderRadius: "50%", background: C.softBrown + "40", color: C.coffee, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700 }}>✕</button>
+              )}
+            </div>
+            <div style={{ display: "flex", gap: 6 }}>
+              {([["all", "Semua"], ["nusantara", "🇮🇩 Nusantara"], ["global", "🌍 Global"]] as const).map(([k, l]) => (
+                <button key={k} onClick={() => setRegion(k)} aria-pressed={region === k} style={{ all: "unset", cursor: "pointer", flex: 1, textAlign: "center", padding: "8px 0", borderRadius: 999, fontFamily: F.u, fontSize: 11, fontWeight: 700, background: region === k ? C.coffee : C.parchment, color: region === k ? C.cream : C.coffeeMid, transition: "all 0.2s" }}>{l}</button>
+              ))}
+            </div>
+            <p style={{ fontFamily: F.u, fontSize: 10, color: C.warmGray, fontWeight: 600, letterSpacing: 0.8, textTransform: "uppercase", margin: "10px 2px 0" }}>
+              {filteredCities.length} kota · {totalFilteredStores} toko ditemukan
+            </p>
+          </div>
+
           {/* PETA EKSPEDISI */}
-          <ExpeditionMap cities={STORES_VISITED} />
+          <ExpeditionMap cities={filteredCities} query={query} onClear={clearFilter} />
 
           {/* JEJAK KOTA & TOKO */}
           <h3 style={{ fontFamily: F.d, fontSize: 18, color: C.coffee, margin: "0 0 12px", fontWeight: 700 }}>Jejak Tetangga Berkunjung</h3>
           <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 22 }}>
-            {STORES_VISITED.map((c, i) => (
+            {filteredCities.length === 0 ? (
+              <div style={{ background: C.warmWhite, borderRadius: 13, padding: 18, border: `1px dashed ${C.softBrown}40`, textAlign: "center" }}>
+                <p style={{ fontFamily: F.b, fontSize: 13, color: C.warmGray, margin: "0 0 10px" }}>Tidak ada hasil. Coba kata kunci lain atau ganti region.</p>
+                <button onClick={clearFilter} style={{ all: "unset", cursor: "pointer", fontFamily: F.u, fontSize: 11, fontWeight: 700, color: C.aren }}>Bersihkan filter</button>
+              </div>
+            ) : filteredCities.map((c, i) => (
               <div key={i} style={{ background: C.warmWhite, borderRadius: 13, padding: 14, border: `1px solid ${C.softBrown}20` }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                  <span style={{ fontFamily: F.d, fontSize: 17, fontWeight: 700, color: C.coffee }}>{c.flag} {c.city}</span>
+                  <span style={{ fontFamily: F.d, fontSize: 17, fontWeight: 700, color: C.coffee }}>{c.flag} {highlight(c.city)}</span>
                   <Badge>{c.stores.length} toko</Badge>
                 </div>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                   {c.stores.map((s, j) => (
                     <span key={j} style={{ fontFamily: F.u, fontSize: 11, color: s.home ? C.aren : C.coffeeMid, background: C.parchment, padding: "4px 10px", borderRadius: 999, fontWeight: 600 }}>
-                      {s.home ? "🏠 " : ""}TUKU {s.name}
+                      {s.home ? "🏠 " : ""}TUKU {highlight(s.name)}
                     </span>
                   ))}
                 </div>
