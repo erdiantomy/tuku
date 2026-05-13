@@ -2269,7 +2269,7 @@ function TukuRukunTetangga() {
           @keyframes staggerIn { from { opacity: 0; transform: translateY(8px) } to { opacity: 1; transform: none } }
         `}</style>
         <FrameOverlay tone="dark" intensity="feature" watermark="none" />
-        <TukuLogo variant="light" size={140} minSize={88} maxSize={140} style={{ animation: `staggerIn ${M.med}ms ${M.out} both, pulseGlow 1.6s ${M.inOut} ${M.base}ms infinite`, filter: `drop-shadow(0 8px 30px ${C.aren}50)` }} />
+        <TukuLogo variant="light" size={140} minSize={88} maxSize={140} style={{ animation: `staggerIn ${M.med}ms ${M.out} both, pulseGlow 1.6s ${M.inOut} ${M.base}ms infinite`, willChange: "filter, transform, opacity" }} />
         <p style={{ fontFamily: F.d, fontStyle: "italic", fontSize: 24, color: C.arenGlow, marginTop: 22, letterSpacing: 0.5, animation: `staggerIn ${M.med}ms ${M.out} 80ms both` }}>Membuka pintu tetangga…</p>
         <div style={{ width: 180, height: 1, background: `${C.cream}20`, marginTop: 28, overflow: "hidden", position: "relative", animation: `staggerIn ${M.med}ms ${M.out} 160ms both` }}>
           <div style={{ position: "absolute", inset: 0, background: `linear-gradient(90deg, transparent, ${C.arenGlow}, transparent)`, animation: `loaderSlide 1.6s ${M.inOut} infinite` }} />
