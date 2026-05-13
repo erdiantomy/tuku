@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect, useRef, useCallback, useMemo, type ReactNode, type CSSProperties } from "react";
+import tukuLogoCupUrl from "@/assets/tuku-logo-cup-transparent.png";
+import tukuLogoFullUrl from "@/assets/tuku-logo-full-transparent.png";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -95,8 +97,8 @@ const LOGO_BLEND: Record<"light" | "dark" | "none", string> = {
 const TUKU_VIEWBOX = "0 0 369.842496 390.782264";
 // Tight crop around the cup glyph in the same coordinate space.
 const TUKU_CUP_VIEWBOX = "92 0 178 178";
-const TUKU_FULL_RATIO = 369.842496 / 390.782264; // ≈ 0.946
-const TUKU_CUP_RATIO = 1;
+const TUKU_FULL_RATIO = 1190 / 1715;
+const TUKU_CUP_RATIO = 885 / 1033;
 const TUKU_PATHS = (
   <g
     transform="translate(-527.157504,569.875666) scale(0.100000,-0.100000)"
@@ -121,7 +123,8 @@ function TukuLogo({
   halo?: boolean;
 }) {
   const ratio = withWordmark ? TUKU_FULL_RATIO : TUKU_CUP_RATIO;
-  const viewBox = withWordmark ? TUKU_VIEWBOX : TUKU_CUP_VIEWBOX;
+  const asset = withWordmark ? tukuLogoFullUrl : tukuLogoCupUrl;
+  const maskImage = `url(${asset})`;
 
   const max = maxSize ?? size;
   const min = minSize ?? size;
@@ -170,12 +173,10 @@ function TukuLogo({
     verticalAlign: "middle",
   };
 
-  const svg = (
-    <svg
+  const logo = (
+    <span
       role="img"
       aria-label="TUKU"
-      viewBox={viewBox}
-      preserveAspectRatio="xMidYMid meet"
       style={{
         width: "100%",
         height: "100%",
@@ -184,18 +185,24 @@ function TukuLogo({
         pointerEvents: "none",
         position: "relative",
         zIndex: 1,
-        color: ink,
-        overflow: "visible",
+        background: ink,
+        WebkitMaskImage: maskImage,
+        maskImage,
+        WebkitMaskRepeat: "no-repeat",
+        maskRepeat: "no-repeat",
+        WebkitMaskPosition: "center",
+        maskPosition: "center",
+        WebkitMaskSize: "contain",
+        maskSize: "contain",
+        overflow: "hidden",
         filter: mergedFilter,
         ...visualStyle,
       }}
-    >
-      {TUKU_PATHS}
-    </svg>
+    />
   );
 
   if (!showHalo) {
-    return <span style={frameStyle}>{svg}</span>;
+    return <span style={frameStyle}>{logo}</span>;
   }
 
   const haloBg = tone === "light"
@@ -221,7 +228,7 @@ function TukuLogo({
           zIndex: 0,
         }}
       />
-      {svg}
+      {logo}
     </span>
   );
 }
