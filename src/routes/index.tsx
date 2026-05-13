@@ -1252,9 +1252,9 @@ function TukuRukunTetangga() {
   if (mode === "app") {
     const screens = [
       <AppHome key="h" goTo={setTab} />,
-      <AppOrder key="o" goTo={setTab} />,
+      <AppOrder key="o" goTo={setTab} openBatch={openBatch} />,
       <AppTraktir key="t" />,
-      <AppCerita key="c" />,
+      <AppCerita key="c" batchId={selectedBatchId} />,
       <AppPaspor key="p" />,
       <AppObrolan key="m" goTo={setTab} />,
     ];
