@@ -2274,8 +2274,9 @@ function TukuRukunTetangga() {
       <NarrativeGlobal />
       <NarrativeCTA onOpen={openApp} />
 
-      <section style={{ padding: "100px 24px", background: C.warmWhite }}>
-        <div style={{ maxWidth: 720, margin: "0 auto" }}>
+      <section style={{ position: "relative", overflow: "hidden", padding: "100px 24px", background: C.warmWhite }}>
+        <FrameOverlay tone="light" intensity="subtle" watermark="cup" watermarkPos="br" />
+        <div style={{ position: "relative", zIndex: 1, maxWidth: 720, margin: "0 auto" }}>
           <Fade><Label>Kenapa Sekarang</Label></Fade>
           <Fade delay={150}>
             <p style={{ fontFamily: F.b, fontSize: 19, color: C.coffeeMid, lineHeight: 1.8 }}>
@@ -2285,16 +2286,20 @@ function TukuRukunTetangga() {
         </div>
       </section>
 
-      <section style={{ padding: "60px 24px", background: C.cream, textAlign: "center" }}>
+      <section style={{ position: "relative", overflow: "hidden", padding: "60px 24px", background: C.cream, textAlign: "center" }}>
+        <FrameOverlay tone="light" intensity="subtle" watermark="none" />
         <Fade>
-          <p style={{ fontFamily: F.h, fontSize: 26, color: C.coffee, margin: "0 0 6px" }}>Ini bukan pitch dari konsultan ke klien.</p>
-          <p style={{ fontFamily: F.h, fontSize: 30, color: C.aren, fontWeight: 600 }}>Ini undangan dari tetangga ke tetangga.</p>
+          <div style={{ position: "relative", zIndex: 1 }}>
+            <p style={{ fontFamily: F.h, fontSize: 26, color: C.coffee, margin: "0 0 6px" }}>Ini bukan pitch dari konsultan ke klien.</p>
+            <p style={{ fontFamily: F.h, fontSize: 30, color: C.aren, fontWeight: 600 }}>Ini undangan dari tetangga ke tetangga.</p>
+          </div>
         </Fade>
       </section>
 
-      <section style={{ padding: "40px 24px 80px", background: C.cream }}>
+      <section style={{ position: "relative", overflow: "hidden", padding: "40px 24px 80px", background: C.cream }}>
+        <FrameOverlay tone="light" intensity="subtle" watermark="cup" watermarkPos="bl" />
         <Fade>
-          <p style={{ fontFamily: F.b, fontSize: 17, color: C.coffeeMid, lineHeight: 1.7, maxWidth: 620, margin: "0 auto", textAlign: "center", fontStyle: "italic" }}>
+          <p style={{ position: "relative", zIndex: 1, fontFamily: F.b, fontSize: 17, color: C.coffeeMid, lineHeight: 1.7, maxWidth: 620, margin: "0 auto", textAlign: "center", fontStyle: "italic" }}>
             Sesuatu yang belum pernah dilakukan brand kopi manapun — harus dimulai dari percakapan yang jujur, di atas secangkir Kopi Susu Tetangga.
           </p>
         </Fade>
@@ -2302,7 +2307,7 @@ function TukuRukunTetangga() {
 
       <Colophon />
       <footer style={{ position: "relative", padding: "80px 24px", background: `radial-gradient(ellipse at center, ${C.coffeeMid} 0%, ${C.coffee} 60%, #15090480 100%)`, color: C.cream, textAlign: "center", overflow: "hidden" }}>
-        <GrainOverlay opacity={0.08} />
+        <FrameOverlay tone="dark" intensity="soft" watermark="none" />
         <TukuLogo variant="light" size={64} minSize={48} maxSize={64} style={{ marginBottom: 18, opacity: 0.95 }} />
         <p style={{ fontFamily: F.d, fontStyle: "italic", fontSize: 26, color: C.arenGlow, margin: "0 0 14px" }}>Mari bertetangga baik.</p>
         <div style={{ width: 40, height: 1, background: `${C.arenGlow}60`, margin: "0 auto 18px" }} />
