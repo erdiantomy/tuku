@@ -758,7 +758,7 @@ function NarrativeHero() {
       <FrameOverlay tone="light" intensity="subtle" watermark="none" />
       <div aria-hidden style={{ position: "absolute", top: "8%", left: "50%", transform: "translateX(-50%)", fontFamily: F.d, fontStyle: "italic", fontSize: "clamp(180px, 28vw, 380px)", color: `${C.aren}10`, lineHeight: 0.8, letterSpacing: -8, fontWeight: 700, userSelect: "none", pointerEvents: "none" }}>tetangga</div>
       <Fade>
-        <TukuLogo variant="dark" size={120} minSize={72} maxSize={120} style={{ margin: "0 auto 18px" }} />
+        <TukuLogo variant="dark" size={72} minSize={48} maxSize={72} halo={false} style={{ margin: "0 auto 18px", opacity: 0.55 }} />
       </Fade>
       <Fade delay={120}>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
