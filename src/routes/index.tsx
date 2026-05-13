@@ -538,64 +538,184 @@ function AppOrder({ goTo }: { goTo: (n: number) => void }) {
   );
 }
 
+const NEIGHBORS = [
+  { id: "any", name: "Tetangga siapa saja", sub: "Barista pilihkan", icon: "🎲" },
+  { id: "ojek", name: "Tukang Ojek di depan", sub: "Bang Roni & rekan", icon: "🛵" },
+  { id: "mhs", name: "Mahasiswa nugas", sub: "Yang lagi cari WiFi", icon: "🎓" },
+  { id: "satpam", name: "Satpam komplek", sub: "Pak Yono shift pagi", icon: "🛡️" },
+  { id: "guru", name: "Guru SD seberang", sub: "Bu Sari & rekan", icon: "📚" },
+];
+
+const TRAKTIR_MENU = MENU.filter(m => m.cat === "coffee");
+
 function AppTraktir() {
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState<0 | 1 | 2>(0); // 0=pilih, 1=konfirmasi, 2=sukses
+  const [menuId, setMenuId] = useState(1);
   const [qty, setQty] = useState(1);
+  const [recipient, setRecipient] = useState("any");
   const [note, setNote] = useState("");
 
-  if (step === 1) return (
-    <div style={{ padding: "60px 24px", textAlign: "center" }}>
-      <div style={{ fontSize: 64, marginBottom: 18 }}>🤝</div>
-      <h2 style={{ fontFamily: F.d, fontSize: 26, color: C.coffee, margin: "0 0 8px", fontWeight: 700 }}>Terima kasih, Tetangga Baik!</h2>
-      <p style={{ fontFamily: F.h, fontSize: 22, color: C.aren, marginBottom: 22 }}>{qty} gelas menunggu tetangga berikutnya</p>
-      <p style={{ fontFamily: F.b, fontSize: 14, color: C.coffeeMid, lineHeight: 1.6, maxWidth: 280, margin: "0 auto" }}>
-        Kopimu diberikan ke siapapun yang membutuhkan di TUKU Cipete.
+  const item = TRAKTIR_MENU.find(m => m.id === menuId)!;
+  const recip = NEIGHBORS.find(n => n.id === recipient)!;
+  const total = item.price * qty;
+
+  const reset = () => { setStep(0); setMenuId(1); setQty(1); setRecipient("any"); setNote(""); };
+
+  // ── SUKSES ──
+  if (step === 2) return (
+    <div style={{ padding: "50px 24px", textAlign: "center" }}>
+      <div style={{ fontSize: 64, marginBottom: 14 }}>🤝</div>
+      <h2 style={{ fontFamily: F.d, fontSize: 26, color: C.coffee, margin: "0 0 6px", fontWeight: 700 }}>Terima kasih, Tetangga Baik!</h2>
+      <p style={{ fontFamily: F.h, fontSize: 22, color: C.aren, marginBottom: 22 }}>{qty} {item.name} menunggu</p>
+
+      <div style={{ background: C.warmWhite, border: `1px solid ${C.softBrown}25`, borderRadius: 14, padding: 16, textAlign: "left", maxWidth: 320, margin: "0 auto 18px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+          <span style={{ fontFamily: F.u, fontSize: 11, color: C.warmGray, fontWeight: 600, letterSpacing: 1, textTransform: "uppercase" }}>Untuk</span>
+          <span style={{ fontFamily: F.b, fontSize: 13, color: C.coffee, fontWeight: 700 }}>{recip.icon} {recip.name}</span>
+        </div>
+        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+          <span style={{ fontFamily: F.u, fontSize: 11, color: C.warmGray, fontWeight: 600, letterSpacing: 1, textTransform: "uppercase" }}>Toko</span>
+          <span style={{ fontFamily: F.b, fontSize: 13, color: C.coffee, fontWeight: 700 }}>{USER.rumah}</span>
+        </div>
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <span style={{ fontFamily: F.u, fontSize: 11, color: C.warmGray, fontWeight: 600, letterSpacing: 1, textTransform: "uppercase" }}>Total</span>
+          <span style={{ fontFamily: F.b, fontSize: 13, color: C.aren, fontWeight: 700 }}>{fmt(total)}</span>
+        </div>
+        {note && (
+          <div style={{ marginTop: 12, paddingTop: 12, borderTop: `1px dashed ${C.softBrown}40` }}>
+            <p style={{ fontFamily: F.h, fontSize: 17, color: C.coffeeMid, margin: 0, fontStyle: "italic", textAlign: "center" }}>"{note}"</p>
+          </div>
+        )}
+      </div>
+
+      <p style={{ fontFamily: F.b, fontSize: 13, color: C.coffeeMid, lineHeight: 1.6, maxWidth: 300, margin: "0 auto" }}>
+        Barista akan bilang: <em style={{ color: C.aren }}>"Ada kopi dari tetangga baik."</em>
       </p>
-      {note && <p style={{ fontFamily: F.h, fontSize: 18, color: C.coffeeMid, marginTop: 18, fontStyle: "italic" }}>"{note}"</p>}
-      <br />
-      <button onClick={() => { setStep(0); setQty(1); setNote(""); }} style={{ all: "unset", cursor: "pointer", marginTop: 20, fontFamily: F.u, fontSize: 13, color: C.aren, fontWeight: 600 }}>← Kembali</button>
+      <button onClick={reset} style={{ all: "unset", cursor: "pointer", marginTop: 22, fontFamily: F.u, fontSize: 13, color: C.aren, fontWeight: 600 }}>← Traktir lagi</button>
     </div>
   );
 
+  // ── KONFIRMASI ──
+  if (step === 1) return (
+    <div style={{ padding: 18 }}>
+      <button onClick={() => setStep(0)} style={{ all: "unset", cursor: "pointer", fontFamily: F.u, fontSize: 12, color: C.warmGray, fontWeight: 600, marginBottom: 12 }}>← Ubah</button>
+      <h2 style={{ fontFamily: F.d, fontSize: 24, color: C.coffee, margin: "0 0 4px", fontWeight: 700 }}>Konfirmasi Traktiran</h2>
+      <p style={{ fontFamily: F.b, fontSize: 13, color: C.warmGray, margin: "0 0 18px" }}>Tinjau sebelum kamu kirim kebaikan ini.</p>
+
+      <div style={{ background: C.warmWhite, borderRadius: 16, border: `1px solid ${C.softBrown}25`, padding: 18, marginBottom: 14 }}>
+        {[
+          ["Kopi", `${item.name} × ${qty}`],
+          ["Harga", `${fmt(item.price)} / gelas`],
+          ["Untuk", `${recip.icon} ${recip.name}`],
+          ["Detail", recip.sub],
+          ["Toko", `🏠 ${USER.rumah}`],
+        ].map(([l, v], i) => (
+          <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "9px 0", borderBottom: i < 4 ? `1px dashed ${C.softBrown}30` : "none", gap: 12 }}>
+            <span style={{ fontFamily: F.u, fontSize: 11, color: C.warmGray, fontWeight: 600, letterSpacing: 1, textTransform: "uppercase" }}>{l}</span>
+            <span style={{ fontFamily: F.b, fontSize: 13, color: C.coffee, fontWeight: 600, textAlign: "right" }}>{v}</span>
+          </div>
+        ))}
+      </div>
+
+      {note && (
+        <div style={{ background: C.arenSoft, borderLeft: `3px solid ${C.aren}`, padding: "10px 14px", borderRadius: 8, marginBottom: 14 }}>
+          <p style={{ fontFamily: F.h, fontSize: 17, color: C.coffeeMid, margin: 0, fontStyle: "italic" }}>"{note}"</p>
+        </div>
+      )}
+
+      <div style={{ background: C.coffee, borderRadius: 14, padding: 16, display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+        <div>
+          <div style={{ fontFamily: F.u, fontSize: 10, color: C.cream, opacity: 0.7, letterSpacing: 1, textTransform: "uppercase" }}>Total bayar</div>
+          <div style={{ fontFamily: F.d, fontSize: 24, color: C.arenGlow, fontWeight: 700 }}>{fmt(total)}</div>
+        </div>
+        <button onClick={() => setStep(2)} style={{ all: "unset", cursor: "pointer", background: C.aren, borderRadius: 11, padding: "13px 22px", fontFamily: F.u, fontSize: 14, fontWeight: 700, color: C.white }}>Kirim Traktiran 🤝</button>
+      </div>
+      <p style={{ fontFamily: F.b, fontSize: 11.5, color: C.warmGray, textAlign: "center", margin: 0 }}>Pembayaran via TUKU Wallet · saldo cukup</p>
+    </div>
+  );
+
+  // ── PILIH ──
   return (
     <div style={{ padding: 18 }}>
-      <div style={{ marginBottom: 18 }}>
+      <div style={{ marginBottom: 16 }}>
         <p style={{ fontFamily: F.u, fontSize: 11, color: C.aren, fontWeight: 600, letterSpacing: 1.5, textTransform: "uppercase", margin: 0 }}>Kebaikan dalam satu tap</p>
         <h2 style={{ fontFamily: F.d, fontSize: 26, color: C.coffee, margin: "4px 0 6px", fontWeight: 700 }}>Traktir Tetangga</h2>
         <p style={{ fontFamily: F.b, fontSize: 13, color: C.coffeeMid, margin: 0, lineHeight: 1.5 }}>
-          Belikan kopi untuk seseorang yang tidak kamu kenal. Barista bilang: "Ada kopi dari tetangga baik."
+          Pilih kopi, tentukan untuk siapa, lalu kirim.
         </p>
       </div>
 
-      <div style={{ background: `linear-gradient(135deg, ${C.aren} 0%, ${C.arenLight} 100%)`, borderRadius: 16, padding: 20, color: C.white, textAlign: "center", marginBottom: 20 }}>
-        <div style={{ fontSize: 38, marginBottom: 4 }}>☕</div>
-        <div style={{ fontFamily: F.d, fontSize: 36, fontWeight: 700 }}>3</div>
-        <p style={{ fontFamily: F.h, fontSize: 17, margin: 0, opacity: 0.95 }}>kopi dari tetangga baik hari ini</p>
+      <div style={{ background: `linear-gradient(135deg, ${C.aren} 0%, ${C.arenLight} 100%)`, borderRadius: 14, padding: "14px 18px", color: C.white, display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18 }}>
+        <div>
+          <div style={{ fontFamily: F.d, fontSize: 28, fontWeight: 700, lineHeight: 1 }}>3</div>
+          <p style={{ fontFamily: F.h, fontSize: 14, margin: 0, opacity: 0.95 }}>kopi tersedia hari ini</p>
+        </div>
+        <div style={{ fontSize: 32 }}>☕</div>
       </div>
 
-      <div style={{ background: C.warmWhite, borderRadius: 16, padding: 18, border: `1px solid ${C.softBrown}20` }}>
-        <h3 style={{ fontFamily: F.d, fontSize: 17, color: C.coffee, margin: "0 0 14px", fontWeight: 700 }}>Traktir Es Kopi Susu Tetangga</h3>
-
-        <p style={{ fontFamily: F.u, fontSize: 11, fontWeight: 600, color: C.coffeeMid, margin: "0 0 8px", letterSpacing: 1, textTransform: "uppercase" }}>Jumlah</p>
-        <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
-          {[1, 3, 5].map(n => (
-            <button key={n} onClick={() => setQty(n)} style={{ all: "unset", cursor: "pointer", width: 44, height: 44, borderRadius: 11, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: F.u, fontSize: 17, fontWeight: 700, background: qty === n ? C.coffee : C.parchment, color: qty === n ? C.cream : C.coffeeMid, transition: "all 0.2s" }}>{n}</button>
-          ))}
-        </div>
-
-        <p style={{ fontFamily: F.u, fontSize: 11, fontWeight: 600, color: C.coffeeMid, margin: "0 0 8px", letterSpacing: 1, textTransform: "uppercase" }}>Pesan (opsional)</p>
-        <input value={note} onChange={e => setNote(e.target.value)} placeholder="Semangat, tetangga!" style={{ width: "100%", padding: "11px 14px", borderRadius: 11, border: `1px solid ${C.softBrown}35`, background: C.cream, fontFamily: F.h, fontSize: 15, color: C.coffee, outline: "none", boxSizing: "border-box" }} />
-
-        <div style={{ marginTop: 18, paddingTop: 16, borderTop: `1px solid ${C.softBrown}25`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <div>
-            <div style={{ fontFamily: F.u, fontSize: 11, color: C.warmGray }}>Total</div>
-            <div style={{ fontFamily: F.d, fontSize: 22, color: C.coffee, fontWeight: 700 }}>{fmt(22000 * qty)}</div>
-          </div>
-          <button onClick={() => setStep(1)} style={{ all: "unset", cursor: "pointer", background: C.aren, borderRadius: 11, padding: "12px 24px", fontFamily: F.u, fontSize: 14, fontWeight: 700, color: C.white }}>Traktir 🤝</button>
-        </div>
+      {/* STEP 1: Pilih kopi */}
+      <p style={{ fontFamily: F.u, fontSize: 11, fontWeight: 700, color: C.aren, margin: "0 0 8px", letterSpacing: 1.2, textTransform: "uppercase" }}>1 · Pilih kopi</p>
+      <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 18 }}>
+        {TRAKTIR_MENU.map(m => (
+          <button key={m.id} onClick={() => setMenuId(m.id)} style={{
+            all: "unset", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center",
+            padding: "12px 14px", borderRadius: 12,
+            background: menuId === m.id ? C.coffee : C.warmWhite,
+            border: `1.5px solid ${menuId === m.id ? C.coffee : C.softBrown + "25"}`,
+            transition: "all 0.2s",
+          }}>
+            <div>
+              <div style={{ fontFamily: F.u, fontSize: 13, fontWeight: 700, color: menuId === m.id ? C.cream : C.coffee }}>{m.name}{m.pop && " ★"}</div>
+              <div style={{ fontFamily: F.b, fontSize: 11, color: menuId === m.id ? C.arenGlow : C.warmGray, marginTop: 2 }}>{m.desc}</div>
+            </div>
+            <div style={{ fontFamily: F.u, fontSize: 13, fontWeight: 700, color: menuId === m.id ? C.arenGlow : C.aren }}>{fmt(m.price)}</div>
+          </button>
+        ))}
       </div>
 
-      <p style={{ fontFamily: F.b, fontSize: 13, color: C.warmGray, marginTop: 18, textAlign: "center", lineHeight: 1.5 }}>
+      {/* STEP 2: Jumlah */}
+      <p style={{ fontFamily: F.u, fontSize: 11, fontWeight: 700, color: C.aren, margin: "0 0 8px", letterSpacing: 1.2, textTransform: "uppercase" }}>2 · Jumlah gelas</p>
+      <div style={{ display: "flex", gap: 8, marginBottom: 18 }}>
+        {[1, 3, 5, 10].map(n => (
+          <button key={n} onClick={() => setQty(n)} style={{ all: "unset", cursor: "pointer", flex: 1, height: 44, borderRadius: 11, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: F.u, fontSize: 16, fontWeight: 700, background: qty === n ? C.coffee : C.parchment, color: qty === n ? C.cream : C.coffeeMid, transition: "all 0.2s" }}>{n}</button>
+        ))}
+      </div>
+
+      {/* STEP 3: Untuk siapa */}
+      <p style={{ fontFamily: F.u, fontSize: 11, fontWeight: 700, color: C.aren, margin: "0 0 8px", letterSpacing: 1.2, textTransform: "uppercase" }}>3 · Untuk siapa</p>
+      <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 18 }}>
+        {NEIGHBORS.map(n => (
+          <button key={n.id} onClick={() => setRecipient(n.id)} style={{
+            all: "unset", cursor: "pointer", display: "flex", alignItems: "center", gap: 12,
+            padding: "10px 14px", borderRadius: 12,
+            background: recipient === n.id ? C.leafSoft : C.warmWhite,
+            border: `1.5px solid ${recipient === n.id ? C.leaf : C.softBrown + "25"}`,
+            transition: "all 0.2s",
+          }}>
+            <div style={{ fontSize: 22 }}>{n.icon}</div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontFamily: F.u, fontSize: 13, fontWeight: 700, color: C.coffee }}>{n.name}</div>
+              <div style={{ fontFamily: F.b, fontSize: 11, color: C.warmGray, marginTop: 1 }}>{n.sub}</div>
+            </div>
+            {recipient === n.id && <div style={{ fontFamily: F.u, fontSize: 16, color: C.leaf, fontWeight: 700 }}>✓</div>}
+          </button>
+        ))}
+      </div>
+
+      {/* STEP 4: Pesan */}
+      <p style={{ fontFamily: F.u, fontSize: 11, fontWeight: 700, color: C.aren, margin: "0 0 8px", letterSpacing: 1.2, textTransform: "uppercase" }}>4 · Pesan (opsional)</p>
+      <input value={note} onChange={e => setNote(e.target.value)} placeholder="Semangat, tetangga!" maxLength={60} style={{ width: "100%", padding: "11px 14px", borderRadius: 11, border: `1px solid ${C.softBrown}35`, background: C.warmWhite, fontFamily: F.h, fontSize: 16, color: C.coffee, outline: "none", boxSizing: "border-box", marginBottom: 22 }} />
+
+      {/* SUMMARY + CTA */}
+      <div style={{ background: C.coffee, borderRadius: 14, padding: 16, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div>
+          <div style={{ fontFamily: F.u, fontSize: 10, color: C.cream, opacity: 0.7, letterSpacing: 1, textTransform: "uppercase" }}>{qty} gelas · untuk {recip.name.toLowerCase()}</div>
+          <div style={{ fontFamily: F.d, fontSize: 22, color: C.arenGlow, fontWeight: 700 }}>{fmt(total)}</div>
+        </div>
+        <button onClick={() => setStep(1)} style={{ all: "unset", cursor: "pointer", background: C.aren, borderRadius: 11, padding: "12px 22px", fontFamily: F.u, fontSize: 14, fontWeight: 700, color: C.white }}>Lanjut →</button>
+      </div>
+
+      <p style={{ fontFamily: F.b, fontSize: 12.5, color: C.warmGray, marginTop: 16, textAlign: "center", lineHeight: 1.5 }}>
         Kamu sudah mentraktir <strong style={{ color: C.aren }}>{USER.traktirGiven} gelas</strong> sejak bergabung. 🙏
       </p>
     </div>
