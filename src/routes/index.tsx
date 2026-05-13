@@ -808,15 +808,43 @@ function AppTraktir() {
 function AppCerita({ batchId }: { batchId: number | null }) {
   const item = batchId != null ? MENU.find(m => m.id === batchId) : undefined;
   const activeStep = item?.batchStep ?? 4;
+  const [openStep, setOpenStep] = useState<number | null>(null);
+  useEffect(() => { setOpenStep(null); }, [batchId]);
   const headerSub = item?.batchLabel ?? "Es Kopi Susu Tetangga";
   const origin = item?.origin ?? FARMER.region;
   const harvest = item?.harvest ?? FARMER.harvest;
-  const steps: [string, string, string][] = [
-    ["🌱", "Ditanam", "Kebun Pak Ahmad, 1.400 mdpl"],
-    ["🫘", "Dipanen", "Januari 2026"],
-    ["🏭", "Diproses", "Full washed"],
-    ["🔥", "Di-roast", "Medium, Adena Coffee"],
-    ["☕", "Diseduh", "Barista Rizky, hari ini"],
+  type Step = { ic: string; l: string; d: string; title: string; desc: string; info: [string, string][] };
+  const steps: Step[] = [
+    {
+      ic: "🌱", l: "Ditanam", d: "Kebun Pak Ahmad, 1.400 mdpl",
+      title: "Ditanam di lereng tinggi",
+      desc: "Pohon arabika tumbuh pelan di tanah vulkanik dengan naungan pohon lamtoro. Suhu dingin malam hari memekatkan rasa di dalam ceri kopi.",
+      info: [["Petani", FARMER.name], ["Kebun", `${origin}, 1.400 mdpl`], ["Varietas", "Sigararutang & Ateng"], ["Naungan", "Lamtoro & dadap"]],
+    },
+    {
+      ic: "🫘", l: "Dipanen", d: harvest,
+      title: "Dipetik selektif (red cherry only)",
+      desc: "Hanya ceri yang sudah merah penuh yang dipetik tangan — kunci rasa manis alami dan menghindari rasa hijau atau astringen.",
+      info: [["Metode", "Hand-picked, selektif"], ["Periode", harvest], ["Hasil", "± 1,8 ton ceri"], ["Sortir", "Floating tank di kebun"]],
+    },
+    {
+      ic: "🏭", l: "Diproses", d: "Full washed",
+      title: "Full washed di rumah proses desa",
+      desc: "Ceri dikupas, biji difermentasi 24–36 jam, lalu dicuci bersih dan dijemur di para-para. Menghasilkan profil rasa bersih dengan keasaman cerah.",
+      info: [["Metode", "Full washed"], ["Fermentasi", "24–36 jam"], ["Pengeringan", "12–14 hari di para-para"], ["Kadar air", "10,5–11%"]],
+    },
+    {
+      ic: "🔥", l: "Di-roast", d: "Medium, Adena Coffee",
+      title: "Di-roast medium di Jakarta",
+      desc: "Roaster Adena Coffee memanggang biji hijau ini dengan profil medium — cukup untuk membuka manis karamel tanpa menutup karakter asli kebunnya.",
+      info: [["Roaster", "Adena Coffee, Jakarta"], ["Profil", "Medium (Agtron 58)"], ["Drum", "Probat 12 kg"], ["Rest time", "5–7 hari sebelum disajikan"]],
+    },
+    {
+      ic: "☕", l: "Diseduh", d: "Barista Rizky, hari ini",
+      title: "Diseduh segar oleh barista rumahmu",
+      desc: "Espresso double shot, ditemani gula aren cair Mang Ade dan susu segar. Disajikan dingin di gelas yang sudah kamu kenal di TUKU rumahmu.",
+      info: [["Barista", "Rizky · TUKU Cipete"], ["Resep", "Double shot 18→36 g"], ["Pasangan", "Gula aren Mang Ade · susu segar"], ["Waktu", "Hari ini"]],
+    },
   ];
   return (
     <div style={{ padding: 18 }}>
@@ -918,7 +946,8 @@ function AppCerita({ batchId }: { batchId: number | null }) {
         <span style={{ fontFamily: F.u, fontSize: 10, fontWeight: 700, color: C.aren, letterSpacing: 1, textTransform: "uppercase" }}>Langkah {activeStep + 1}/{steps.length}</span>
       </div>
       <div key={batchId ?? "default"} style={{ display: "flex", flexDirection: "column", gap: 0, animation: "batchFade 0.4s ease" }}>
-        {steps.map(([ic, l, d], i) => {
+        {steps.map((s, i) => {
+          const { ic, l, d } = s;
           const status: "done" | "active" | "next" = i < activeStep ? "done" : i === activeStep ? "active" : "next";
           const ringSize = status === "active" ? 44 : 36;
           const ringBg = status === "done" ? C.leaf : status === "active" ? C.aren : C.warmWhite;
@@ -928,28 +957,56 @@ function AppCerita({ batchId }: { batchId: number | null }) {
           const lineStyle = i < activeStep ? "solid" : "dashed";
           const labelColor = status === "active" ? C.aren : status === "done" ? C.coffee : C.warmGray;
           const subColor = status === "next" ? C.warmGray : C.coffeeMid;
+          const isOpen = openStep === i;
           return (
             <div key={i} style={{ display: "flex", gap: 12, alignItems: "flex-start", opacity: status === "next" ? 0.55 : 1 }}>
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", width: 44 }}>
-                <div style={{
-                  width: ringSize, height: ringSize, borderRadius: "50%",
-                  background: status === "next" ? C.warmWhite : ringBg,
-                  border: ringBorder, color: ringColor,
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  fontSize: status === "active" ? 20 : 17,
-                  boxShadow: status === "active" ? `0 0 0 4px ${C.aren}25` : "none",
-                  animation: status === "active" ? "batchPulse 2.2s ease-in-out infinite" : "none",
-                  transition: "all 0.3s ease",
-                }}>{status === "done" ? "✓" : ic}</div>
+                <button
+                  onClick={() => setOpenStep(isOpen ? null : i)}
+                  aria-label={`Detail langkah ${l}`}
+                  aria-expanded={isOpen}
+                  style={{
+                    all: "unset", cursor: "pointer",
+                    width: ringSize, height: ringSize, borderRadius: "50%",
+                    background: status === "next" ? C.warmWhite : ringBg,
+                    border: ringBorder, color: ringColor,
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    fontSize: status === "active" ? 20 : 17,
+                    boxShadow: isOpen ? `0 0 0 5px ${C.aren}35` : status === "active" ? `0 0 0 4px ${C.aren}25` : "none",
+                    animation: status === "active" && !isOpen ? "batchPulse 2.2s ease-in-out infinite" : "none",
+                    transition: "all 0.25s ease",
+                  }}
+                >{status === "done" ? "✓" : ic}</button>
                 {i < steps.length - 1 && <div style={{ width: 0, flex: 1, minHeight: status === "active" ? 22 : 18, borderLeft: `1.5px ${lineStyle} ${lineColor}`, opacity: i < activeStep ? 0.7 : 0.4 }} />}
               </div>
               <div style={{ paddingTop: status === "active" ? 10 : 6, paddingBottom: i < steps.length - 1 ? 14 : 0, flex: 1 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <span style={{ fontFamily: F.u, fontSize: status === "active" ? 14 : 13, fontWeight: 700, color: labelColor }}>{l}</span>
-                  {status === "active" && <span style={{ fontFamily: F.u, fontSize: 9, fontWeight: 700, color: C.white, background: C.aren, padding: "2px 7px", borderRadius: 999, letterSpacing: 1, textTransform: "uppercase" }}>Sekarang</span>}
-                  {status === "done" && <span style={{ fontFamily: F.u, fontSize: 9, fontWeight: 700, color: C.leaf, letterSpacing: 1, textTransform: "uppercase" }}>Selesai</span>}
-                </div>
-                <div style={{ fontFamily: F.b, fontSize: 12.5, color: subColor }}>{d}</div>
+                <button
+                  onClick={() => setOpenStep(isOpen ? null : i)}
+                  aria-expanded={isOpen}
+                  style={{ all: "unset", cursor: "pointer", display: "block", width: "100%" }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <span style={{ fontFamily: F.u, fontSize: status === "active" ? 14 : 13, fontWeight: 700, color: labelColor }}>{l}</span>
+                    {status === "active" && <span style={{ fontFamily: F.u, fontSize: 9, fontWeight: 700, color: C.white, background: C.aren, padding: "2px 7px", borderRadius: 999, letterSpacing: 1, textTransform: "uppercase" }}>Sekarang</span>}
+                    {status === "done" && <span style={{ fontFamily: F.u, fontSize: 9, fontWeight: 700, color: C.leaf, letterSpacing: 1, textTransform: "uppercase" }}>Selesai</span>}
+                    <span style={{ marginLeft: "auto", fontFamily: F.u, fontSize: 11, color: C.aren, fontWeight: 700, transition: "transform 0.25s ease", transform: isOpen ? "rotate(180deg)" : "none" }}>⌄</span>
+                  </div>
+                  <div style={{ fontFamily: F.b, fontSize: 12.5, color: subColor }}>{d}</div>
+                </button>
+                {isOpen && (
+                  <div style={{ marginTop: 10, padding: 12, background: C.warmWhite, border: `1px solid ${C.aren}30`, borderRadius: 12, animation: "batchFade 0.25s ease" }}>
+                    <div style={{ fontFamily: F.d, fontSize: 14, fontWeight: 700, color: C.coffee, marginBottom: 6 }}>{s.title}</div>
+                    <p style={{ fontFamily: F.b, fontSize: 12.5, color: C.coffeeMid, lineHeight: 1.55, margin: "0 0 10px" }}>{s.desc}</p>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                      {s.info.map(([k, v], j) => (
+                        <div key={j} style={{ background: C.parchment, borderRadius: 8, padding: "6px 9px" }}>
+                          <div style={{ fontFamily: F.u, fontSize: 9, fontWeight: 700, color: C.warmGray, letterSpacing: 1, textTransform: "uppercase" }}>{k}</div>
+                          <div style={{ fontFamily: F.u, fontSize: 11.5, fontWeight: 700, color: C.coffee, lineHeight: 1.3 }}>{v}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           );
