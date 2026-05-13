@@ -1187,22 +1187,52 @@ function AppPaspor() {
             })}
           </div>
 
+          {/* FILTER & PENCARIAN */}
+          <div style={{ background: C.warmWhite, border: `1px solid ${C.softBrown}25`, borderRadius: 14, padding: 12, marginBottom: 14 }}>
+            <div style={{ position: "relative", marginBottom: 10 }}>
+              <span style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", fontSize: 13, opacity: 0.6 }}>🔎</span>
+              <input
+                aria-label="Cari toko atau kota"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Cari toko atau kota…"
+                style={{ width: "100%", boxSizing: "border-box", background: C.parchment, border: "none", outline: "none", borderRadius: 10, padding: "10px 34px 10px 32px", fontFamily: F.b, fontSize: 13, color: C.coffee }}
+              />
+              {query && (
+                <button onClick={() => setQuery("")} aria-label="Bersihkan pencarian" style={{ all: "unset", cursor: "pointer", position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", width: 22, height: 22, borderRadius: "50%", background: C.softBrown + "40", color: C.coffee, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700 }}>✕</button>
+              )}
+            </div>
+            <div style={{ display: "flex", gap: 6 }}>
+              {([["all", "Semua"], ["nusantara", "🇮🇩 Nusantara"], ["global", "🌍 Global"]] as const).map(([k, l]) => (
+                <button key={k} onClick={() => setRegion(k)} aria-pressed={region === k} style={{ all: "unset", cursor: "pointer", flex: 1, textAlign: "center", padding: "8px 0", borderRadius: 999, fontFamily: F.u, fontSize: 11, fontWeight: 700, background: region === k ? C.coffee : C.parchment, color: region === k ? C.cream : C.coffeeMid, transition: "all 0.2s" }}>{l}</button>
+              ))}
+            </div>
+            <p style={{ fontFamily: F.u, fontSize: 10, color: C.warmGray, fontWeight: 600, letterSpacing: 0.8, textTransform: "uppercase", margin: "10px 2px 0" }}>
+              {filteredCities.length} kota · {totalFilteredStores} toko ditemukan
+            </p>
+          </div>
+
           {/* PETA EKSPEDISI */}
-          <ExpeditionMap cities={STORES_VISITED} />
+          <ExpeditionMap cities={filteredCities} query={query} onClear={clearFilter} />
 
           {/* JEJAK KOTA & TOKO */}
           <h3 style={{ fontFamily: F.d, fontSize: 18, color: C.coffee, margin: "0 0 12px", fontWeight: 700 }}>Jejak Tetangga Berkunjung</h3>
           <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 22 }}>
-            {STORES_VISITED.map((c, i) => (
+            {filteredCities.length === 0 ? (
+              <div style={{ background: C.warmWhite, borderRadius: 13, padding: 18, border: `1px dashed ${C.softBrown}40`, textAlign: "center" }}>
+                <p style={{ fontFamily: F.b, fontSize: 13, color: C.warmGray, margin: "0 0 10px" }}>Tidak ada hasil. Coba kata kunci lain atau ganti region.</p>
+                <button onClick={clearFilter} style={{ all: "unset", cursor: "pointer", fontFamily: F.u, fontSize: 11, fontWeight: 700, color: C.aren }}>Bersihkan filter</button>
+              </div>
+            ) : filteredCities.map((c, i) => (
               <div key={i} style={{ background: C.warmWhite, borderRadius: 13, padding: 14, border: `1px solid ${C.softBrown}20` }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                  <span style={{ fontFamily: F.d, fontSize: 17, fontWeight: 700, color: C.coffee }}>{c.flag} {c.city}</span>
+                  <span style={{ fontFamily: F.d, fontSize: 17, fontWeight: 700, color: C.coffee }}>{c.flag} {highlight(c.city)}</span>
                   <Badge>{c.stores.length} toko</Badge>
                 </div>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                   {c.stores.map((s, j) => (
                     <span key={j} style={{ fontFamily: F.u, fontSize: 11, color: s.home ? C.aren : C.coffeeMid, background: C.parchment, padding: "4px 10px", borderRadius: 999, fontWeight: 600 }}>
-                      {s.home ? "🏠 " : ""}TUKU {s.name}
+                      {s.home ? "🏠 " : ""}TUKU {highlight(s.name)}
                     </span>
                   ))}
                 </div>
