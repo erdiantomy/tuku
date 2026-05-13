@@ -858,15 +858,15 @@ function TabIcon({ icon, label, active, onClick, center }: { icon: string; label
   return (
     <button onClick={onClick} style={{ all: "unset", cursor: "pointer", flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4, padding: "8px 0" }}>
       {center ? (
-        <div style={{ width: 48, height: 48, borderRadius: "50%", background: active ? C.aren : C.coffee, display: "flex", alignItems: "center", justifyContent: "center", marginTop: -16, boxShadow: `0 6px 18px ${C.coffee}40`, transition: "background 0.2s" }}>
+        <div style={{ width: 48, height: 48, borderRadius: "50%", background: active ? C.aren : C.coffee, display: "flex", alignItems: "center", justifyContent: "center", marginTop: -16, boxShadow: `0 6px 18px ${C.coffee}40`, transition: `background ${M.base}ms ${M.out}, transform ${M.base}ms ${M.out}` }}>
           <span style={{ fontSize: 22 }}>{icon}</span>
         </div>
       ) : (
-        <div style={{ fontSize: 22, opacity: active ? 1 : 0.4, transition: "opacity 0.2s" }}>
+        <div style={{ fontSize: 22, opacity: active ? 1 : 0.4, transform: active ? "translateY(-1px)" : "none", transition: `opacity ${M.base}ms ${M.out}, transform ${M.base}ms ${M.out}` }}>
           {icon}
         </div>
       )}
-      <span style={{ fontFamily: F.u, fontSize: 10, fontWeight: 600, color: active ? C.coffee : C.warmGray }}>{label}</span>
+      <span style={{ fontFamily: F.u, fontSize: 10, fontWeight: 600, color: active ? C.coffee : C.warmGray, transition: `color ${M.base}ms ${M.out}` }}>{label}</span>
     </button>
   );
 }
