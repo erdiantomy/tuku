@@ -394,27 +394,78 @@ function TabIcon({ icon, label, active, onClick, center }: { icon: string; label
 }
 
 function AppHome({ goTo }: { goTo: (n: number) => void }) {
+  const gotongPct = 87;
+  const gotongTotal = 100;
   return (
     <div style={{ padding: "20px 18px 28px" }}>
-      <div style={{ marginBottom: 20 }}>
+      <div style={{ marginBottom: 18 }}>
         <p style={{ fontFamily: F.u, fontSize: 12, color: C.warmGray, margin: 0 }}>Selamat siang,</p>
         <h2 style={{ fontFamily: F.d, fontSize: 28, color: C.coffee, margin: "2px 0 0", fontWeight: 700 }}>Halo, {USER.name} 👋</h2>
       </div>
 
-      <div style={{ background: `linear-gradient(135deg, ${C.coffee} 0%, ${C.coffeeMid} 100%)`, borderRadius: 18, padding: 20, color: C.cream, marginBottom: 20 }}>
-        <p style={{ fontFamily: F.u, fontSize: 10, opacity: 0.7, margin: 0, letterSpacing: 1.5, textTransform: "uppercase" }}>Rumah saya</p>
-        <h3 style={{ fontFamily: F.d, fontSize: 22, margin: "4px 0 6px", fontWeight: 700 }}>🏠 {USER.rumah}</h3>
-        <p style={{ fontFamily: F.h, fontSize: 16, color: C.arenGlow, margin: 0 }}>Barista: Rizky & Amel</p>
-        <div style={{ marginTop: 14, paddingTop: 14, borderTop: `1px solid ${C.cream}20`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      {/* ── KARTU TOKOKU (membership card) ── */}
+      <div style={{
+        background: `linear-gradient(135deg, ${C.coffee} 0%, ${C.coffeeMid} 60%, ${C.aren} 140%)`,
+        borderRadius: 20, padding: 20, color: C.cream, marginBottom: 18, position: "relative", overflow: "hidden",
+        boxShadow: `0 8px 24px ${C.coffee}30`,
+      }}>
+        <div style={{ position: "absolute", top: -30, right: -30, width: 140, height: 140, borderRadius: "50%", background: `${C.aren}25` }} />
+        <div style={{ position: "absolute", bottom: -40, left: -20, width: 100, height: 100, borderRadius: "50%", background: `${C.arenGlow}10` }} />
+
+        <div style={{ position: "relative", display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
           <div>
-            <div style={{ fontFamily: F.d, fontSize: 24, fontWeight: 700, color: C.arenGlow }}>{USER.visits}</div>
-            <div style={{ fontFamily: F.u, fontSize: 10, opacity: 0.7 }}>kunjungan</div>
+            <p style={{ fontFamily: F.u, fontSize: 9.5, opacity: 0.7, margin: 0, letterSpacing: 2, textTransform: "uppercase", fontWeight: 600 }}>Kartu Tokoku</p>
+            <h3 style={{ fontFamily: F.d, fontSize: 24, margin: "4px 0 4px", fontWeight: 700 }}>🏠 {USER.rumah}</h3>
+            <p style={{ fontFamily: F.h, fontSize: 16, color: C.arenGlow, margin: 0 }}>Barista hari ini: Rizky &amp; Amel</p>
           </div>
+          <div style={{ background: C.arenGlow, color: C.coffee, fontFamily: F.u, fontSize: 9, fontWeight: 800, letterSpacing: 1.5, padding: "5px 9px", borderRadius: 999, whiteSpace: "nowrap" }}>
+            ★ WARGA TETAP
+          </div>
+        </div>
+
+        <div style={{ position: "relative", display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: 14, borderTop: `1px solid ${C.cream}20` }}>
+          {[
+            [USER.visits, "Kunjungan"],
+            ["12", "Bulan ini"],
+            ["7d", "Streak"],
+            ["☕", "Es Kopi Susu"],
+          ].map(([v, l], i) => (
+            <div key={i} style={{ textAlign: "center", flex: 1 }}>
+              <div style={{ fontFamily: F.d, fontSize: 18, fontWeight: 700, color: C.arenGlow }}>{v}</div>
+              <div style={{ fontFamily: F.u, fontSize: 9, opacity: 0.75, marginTop: 2, letterSpacing: 0.5 }}>{l}</div>
+            </div>
+          ))}
+        </div>
+
+        <div style={{ position: "relative", marginTop: 12, padding: "8px 12px", background: `${C.cream}15`, borderRadius: 10, fontFamily: F.b, fontSize: 12, color: C.cream, opacity: 0.95 }}>
+          🎁 Kunjungan ke-150 → Tumbler TUKU edisi Cipete
         </div>
       </div>
 
+      {/* ── RINGKASAN KUNJUNGAN ── */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8, marginBottom: 20 }}>
+        {[
+          { v: "12", l: "Bulan ini", sub: "+3 vs bulan lalu", color: C.aren },
+          { v: USER.traktirGiven, l: "Traktiran", sub: "diberi", color: C.leaf },
+          { v: USER.citiesVisited, l: "Kota", sub: "dijelajahi", color: C.coffeeMid },
+        ].map((s, i) => (
+          <div key={i} style={{ background: C.warmWhite, borderRadius: 13, padding: 12, border: `1px solid ${C.softBrown}20`, textAlign: "center" }}>
+            <div style={{ fontFamily: F.d, fontSize: 22, fontWeight: 700, color: s.color }}>{s.v}</div>
+            <div style={{ fontFamily: F.u, fontSize: 10.5, color: C.coffee, fontWeight: 700, marginTop: 2 }}>{s.l}</div>
+            <div style={{ fontFamily: F.b, fontSize: 10, color: C.warmGray, marginTop: 1 }}>{s.sub}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* ── QUICK ACTIONS ── */}
       <div style={{ display: "flex", gap: 10, overflowX: "auto", marginBottom: 22, paddingBottom: 4 }}>
-        {[{ icon: "☕", label: "Pesan", t: 1 }, { icon: "🤝", label: "Traktir", t: 2 }, { icon: "🌱", label: "Cerita", t: 3 }, { icon: "🛍️", label: "Toserbaku", t: 4 }].map((a) => (
+        {[
+          { icon: "☕", label: "Pesan", t: 1 },
+          { icon: "🤝", label: "Traktir", t: 2 },
+          { icon: "💬", label: "Obrolan", t: 5 },
+          { icon: "🌱", label: "Cerita", t: 3 },
+          { icon: "🛍️", label: "Toserbaku", t: 4 },
+        ].map((a) => (
           <button key={a.label} onClick={() => goTo(a.t)} style={{
             all: "unset", cursor: "pointer", flex: "0 0 auto", background: C.warmWhite,
             border: `1px solid ${C.softBrown}25`, borderRadius: 13, padding: "12px 18px",
@@ -426,19 +477,43 @@ function AppHome({ goTo }: { goTo: (n: number) => void }) {
         ))}
       </div>
 
+      {/* ── REWARD GOTONG ROYONG ── */}
       <div style={{ background: C.leafSoft, borderRadius: 16, padding: 18, marginBottom: 22, border: `1px solid ${C.leaf}25` }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-          <span style={{ fontFamily: F.u, fontSize: 12, fontWeight: 700, color: C.leaf }}>🤝 Gotong Royong Cipete</span>
-          <span style={{ fontFamily: F.u, fontSize: 11, color: C.leaf, fontWeight: 600 }}>87 / 100</span>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+          <span style={{ fontFamily: F.u, fontSize: 12, fontWeight: 700, color: C.leaf, letterSpacing: 0.5 }}>🤝 GOTONG ROYONG CIPETE</span>
+          <span style={{ fontFamily: F.d, fontSize: 14, color: C.leaf, fontWeight: 700 }}>{gotongPct} / {gotongTotal}</span>
         </div>
-        <div style={{ height: 8, background: C.white, borderRadius: 999, overflow: "hidden", marginBottom: 10 }}>
-          <div style={{ height: "100%", width: "87%", background: C.leaf, borderRadius: 999 }} />
-        </div>
-        <p style={{ fontFamily: F.b, fontSize: 13, color: C.coffeeMid, margin: 0, lineHeight: 1.5 }}>
-          13 kunjungan lagi → Barista Workshop gratis untuk warga Cipete!
+        <p style={{ fontFamily: F.b, fontSize: 12, color: C.coffeeMid, margin: "0 0 10px" }}>
+          Kunjungan kolektif warga TUKU Cipete bulan ini
         </p>
+        <div style={{ height: 8, background: C.white, borderRadius: 999, overflow: "hidden", marginBottom: 14, position: "relative" }}>
+          <div style={{ height: "100%", width: `${gotongPct}%`, background: `linear-gradient(90deg, ${C.leaf}, ${C.leafLight})`, borderRadius: 999, transition: "width 0.6s ease" }} />
+        </div>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          {[
+            { at: 50, icon: "✅", t: "Es Kopi Susu Tetangga gratis", unlocked: true },
+            { at: 75, icon: "✅", t: "Tasting biji Flores baru", unlocked: true },
+            { at: 100, icon: "🎯", t: "Barista Workshop gratis · 13 lagi!", unlocked: false },
+            { at: 150, icon: "🔒", t: "Tumbler edisi Cipete", unlocked: false },
+          ].map((r, i) => (
+            <div key={i} style={{
+              display: "flex", justifyContent: "space-between", alignItems: "center",
+              padding: "7px 10px", borderRadius: 8,
+              background: r.at === 100 ? `${C.aren}25` : "transparent",
+              opacity: r.unlocked ? 1 : 0.85,
+            }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
+                <span style={{ fontSize: 13 }}>{r.icon}</span>
+                <span style={{ fontFamily: F.b, fontSize: 12, color: r.unlocked ? C.coffeeMid : C.coffee, fontWeight: r.at === 100 ? 700 : 500, textDecoration: r.unlocked ? "line-through" : "none" }}>{r.t}</span>
+              </div>
+              <span style={{ fontFamily: F.u, fontSize: 10, color: C.leaf, fontWeight: 700, flexShrink: 0 }}>{r.at}</span>
+            </div>
+          ))}
+        </div>
       </div>
 
+      {/* ── KABAR TETANGGA ── */}
       <h3 style={{ fontFamily: F.d, fontSize: 20, color: C.coffee, margin: "0 0 12px", fontWeight: 700 }}>Kabar Tetangga</h3>
       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
         {KABAR.map((k, i) => (
