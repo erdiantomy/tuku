@@ -532,7 +532,7 @@ function NarrativeHero() {
       <GrainOverlay opacity={0.05} />
       <div aria-hidden style={{ position: "absolute", top: "8%", left: "50%", transform: "translateX(-50%)", fontFamily: F.d, fontStyle: "italic", fontSize: "clamp(180px, 28vw, 380px)", color: `${C.aren}10`, lineHeight: 0.8, letterSpacing: -8, fontWeight: 700, userSelect: "none", pointerEvents: "none" }}>tetangga</div>
       <Fade>
-        <TukuLogo variant="dark" size={120} style={{ marginBottom: 18, filter: `drop-shadow(0 6px 20px ${C.coffee}25)` }} />
+        <TukuLogo variant="dark" size={120} minSize={72} maxSize={120} style={{ marginBottom: 18, filter: `drop-shadow(0 6px 20px ${C.coffee}25)` }} />
       </Fade>
       <Fade delay={120}>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
