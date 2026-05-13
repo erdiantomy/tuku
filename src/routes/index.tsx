@@ -1480,7 +1480,8 @@ function ChatList({ onOpen }: { onOpen: (id: string) => void }) {
   );
 }
 
-function ChatDetail({ chatId, onBack, onTraktir }: { chatId: string; onBack: () => void; onTraktir: () => void }) {
+function ChatDetail({ chatId, onBack, onTraktir, onOpenBatch }: { chatId: string; onBack: () => void; onTraktir: () => void; onOpenBatch: (id: number) => void }) {
+  const activeBatch = MENU.find(m => m.id === 1)!;
   const chat = CHATS.find(c => c.id === chatId)!;
   const [draft, setDraft] = useState("");
   const [msgs, setMsgs] = useState<ChatMsg[]>(chat.messages);
