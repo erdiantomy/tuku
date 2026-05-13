@@ -607,33 +607,57 @@ function AppCerita() {
     <div style={{ padding: 18 }}>
       <div style={{ marginBottom: 18 }}>
         <p style={{ fontFamily: F.u, fontSize: 11, color: C.aren, fontWeight: 600, letterSpacing: 1.5, textTransform: "uppercase", margin: 0 }}>Di balik gelasmu</p>
-        <h2 style={{ fontFamily: F.d, fontSize: 26, color: C.coffee, margin: "4px 0 0", fontWeight: 700 }}>Cerita Kopi</h2>
+        <h2 style={{ fontFamily: F.d, fontSize: 26, color: C.coffee, margin: "4px 0 4px", fontWeight: 700 }}>Cerita Kopi</h2>
+        <p style={{ fontFamily: F.b, fontSize: 13, color: C.warmGray, margin: 0 }}>Batch aktif · Es Kopi Susu Tetangga</p>
       </div>
 
-      <div style={{ background: `linear-gradient(135deg, ${C.leaf} 0%, ${C.leafLight} 100%)`, borderRadius: 18, padding: 22, color: C.white, marginBottom: 20 }}>
-        <div style={{ fontSize: 40, marginBottom: 8 }}>🌿</div>
-        <h3 style={{ fontFamily: F.d, fontSize: 22, margin: "0 0 4px", fontWeight: 700 }}>{FARMER.name}</h3>
-        <p style={{ fontFamily: F.h, fontSize: 18, margin: 0, opacity: 0.95 }}>{FARMER.region}</p>
-      </div>
-
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 18 }}>
-        {[["Ketinggian", FARMER.alt], ["Panen", FARMER.harvest], ["Varietas", FARMER.var], ["Proses", FARMER.proc]].map(([l, v], i) => (
-          <div key={i} style={{ background: C.warmWhite, borderRadius: 11, padding: 12, border: `1px solid ${C.softBrown}20` }}>
-            <div style={{ fontFamily: F.u, fontSize: 10, color: C.warmGray, fontWeight: 600, letterSpacing: 1, textTransform: "uppercase", marginBottom: 3 }}>{l}</div>
-            <div style={{ fontFamily: F.b, fontSize: 13, color: C.coffee, fontWeight: 600 }}>{v}</div>
+      {/* PETANI KOPI PROFILE */}
+      <div style={{ background: `linear-gradient(135deg, ${C.leaf} 0%, ${C.leafLight} 100%)`, borderRadius: 18, padding: 20, color: C.white, marginBottom: 14, position: "relative", overflow: "hidden" }}>
+        <div style={{ position: "absolute", top: 12, right: 14, fontFamily: F.u, fontSize: 9, fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase", background: "#ffffff25", padding: "3px 8px", borderRadius: 999 }}>Petani Kopi</div>
+        <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 14 }}>
+          <div style={{ width: 56, height: 56, borderRadius: "50%", background: "#ffffff20", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, flexShrink: 0 }}>🌿</div>
+          <div>
+            <h3 style={{ fontFamily: F.d, fontSize: 22, margin: "0 0 2px", fontWeight: 700 }}>{FARMER.name}</h3>
+            <p style={{ fontFamily: F.h, fontSize: 17, margin: 0, opacity: 0.95 }}>{FARMER.region}</p>
           </div>
-        ))}
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
+          {[["Ketinggian", FARMER.alt], ["Panen", FARMER.harvest], ["Varietas", FARMER.var], ["Proses", FARMER.proc]].map(([l, v], i) => (
+            <div key={i} style={{ background: "#ffffff15", borderRadius: 9, padding: "8px 10px" }}>
+              <div style={{ fontFamily: F.u, fontSize: 9, opacity: 0.75, fontWeight: 600, letterSpacing: 1, textTransform: "uppercase", marginBottom: 2 }}>{l}</div>
+              <div style={{ fontFamily: F.b, fontSize: 12, fontWeight: 600 }}>{v}</div>
+            </div>
+          ))}
+        </div>
       </div>
 
-      <p style={{ fontFamily: F.b, fontSize: 14.5, color: C.coffeeMid, lineHeight: 1.7, marginBottom: 20 }}>{FARMER.story}</p>
+      <p style={{ fontFamily: F.b, fontSize: 14.5, color: C.coffeeMid, lineHeight: 1.7, marginBottom: 22 }}>{FARMER.story}</p>
 
-      <div style={{ background: C.arenSoft, borderRadius: 13, padding: 14, marginBottom: 22, border: `1px solid ${C.aren}30` }}>
-        <p style={{ fontFamily: F.u, fontSize: 11, color: C.aren, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", margin: "0 0 4px" }}>Gula Aren dari</p>
-        <p style={{ fontFamily: F.d, fontSize: 17, color: C.coffee, margin: "0 0 4px", fontWeight: 700 }}>🌴 {FARMER.sugar}</p>
-        <p style={{ fontFamily: F.b, fontSize: 12.5, color: C.coffeeMid, margin: 0, lineHeight: 1.5 }}>Gula aren cair — karakter karamel alami Kopi Susu Tetangga.</p>
+      {/* PERAJIN GULA AREN PROFILE */}
+      <div style={{ background: `linear-gradient(135deg, ${C.aren} 0%, ${C.arenLight} 100%)`, borderRadius: 18, padding: 20, color: C.white, marginBottom: 14, position: "relative", overflow: "hidden" }}>
+        <div style={{ position: "absolute", top: 12, right: 14, fontFamily: F.u, fontSize: 9, fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase", background: "#ffffff30", padding: "3px 8px", borderRadius: 999 }}>Perajin Gula Aren</div>
+        <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 14 }}>
+          <div style={{ width: 56, height: 56, borderRadius: "50%", background: "#ffffff25", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, flexShrink: 0 }}>🌴</div>
+          <div>
+            <h3 style={{ fontFamily: F.d, fontSize: 22, margin: "0 0 2px", fontWeight: 700 }}>Mang Ade</h3>
+            <p style={{ fontFamily: F.h, fontSize: 17, margin: 0, opacity: 0.95 }}>Cianjur, Jawa Barat</p>
+          </div>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
+          {[["Pohon", "Aren tua, 25 thn"], ["Metode", "Sadap pagi · masak kayu"], ["Bentuk", "Cair, tanpa pengawet"], ["Sejak", "Generasi ke-3"]].map(([l, v], i) => (
+            <div key={i} style={{ background: "#ffffff20", borderRadius: 9, padding: "8px 10px" }}>
+              <div style={{ fontFamily: F.u, fontSize: 9, opacity: 0.85, fontWeight: 600, letterSpacing: 1, textTransform: "uppercase", marginBottom: 2 }}>{l}</div>
+              <div style={{ fontFamily: F.b, fontSize: 12, fontWeight: 600 }}>{v}</div>
+            </div>
+          ))}
+        </div>
       </div>
 
-      <h3 style={{ fontFamily: F.d, fontSize: 18, color: C.coffee, margin: "0 0 12px", fontWeight: 700 }}>Perjalanan kopimu</h3>
+      <p style={{ fontFamily: F.b, fontSize: 14.5, color: C.coffeeMid, lineHeight: 1.7, marginBottom: 26 }}>
+        Mang Ade menyadap nira aren setiap subuh, lalu memasaknya pelan di tungku kayu sampai jadi gula aren cair — karakter karamel alami yang bikin Es Kopi Susu Tetangga punya rasa yang tidak bisa ditiru.
+      </p>
+
+      <h3 style={{ fontFamily: F.d, fontSize: 18, color: C.coffee, margin: "0 0 14px", fontWeight: 700 }}>Perjalanan kopimu</h3>
       <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
         {[["🌱", "Ditanam", "Kebun Pak Ahmad, 1.400 mdpl"], ["🫘", "Dipanen", "Januari 2026"], ["🏭", "Diproses", "Full washed"], ["🔥", "Di-roast", "Medium, Adena Coffee"], ["☕", "Diseduh", "Barista Rizky, hari ini"]].map(([ic, l, d], i, arr) => (
           <div key={i} style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
