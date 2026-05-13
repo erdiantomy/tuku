@@ -436,7 +436,7 @@ function Watermark({
   tone, pos = "br", opacity, kind = "cup", size = 360,
 }: { tone: FrameTone; pos?: WatermarkPos; opacity: number; kind?: "cup" | "wordmark"; size?: number }) {
   const variant = tone === "light" ? "dark" : "light";
-  const offset = "-6vw";
+  const offset = "-8vw";
   const corner: CSSProperties =
     pos === "br" ? { right: offset, bottom: offset } :
     pos === "bl" ? { left: offset, bottom: offset } :
@@ -445,13 +445,13 @@ function Watermark({
   return (
     <TukuLogo
       variant={variant}
-      withWordmark={kind === "wordmark"}
+      withWordmark
       size={size}
       minSize={Math.round(size * 0.45)}
       maxSize={size}
       blend="none"
       halo={false}
-      style={{ position: "absolute", opacity, transform: "rotate(-6deg)", pointerEvents: "none", ...corner }}
+      style={{ position: "absolute", opacity: kind === "wordmark" ? opacity * 1.15 : opacity, transform: "rotate(-6deg)", pointerEvents: "none", mixBlendMode: tone === "light" ? "multiply" : "screen", ...corner }}
     />
   );
 }
@@ -477,7 +477,7 @@ function FrameOverlay({
         <div key={i} aria-hidden style={{ position: "absolute", width: 18, height: 18, borderStyle: "solid", borderColor: tickColor, borderWidth: 0, pointerEvents: "none", zIndex: 0, ...p }} />
       ))}
       {watermark !== "none" && (
-        <Watermark tone={tone} pos={watermarkPos} opacity={v.mark} kind={watermark} size={watermark === "wordmark" ? 480 : 360} />
+        <Watermark tone={tone} pos={watermarkPos} opacity={v.mark} kind={watermark} size={watermark === "wordmark" ? 500 : 420} />
       )}
     </>
   );
