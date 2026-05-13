@@ -581,7 +581,7 @@ function AppOrder({ goTo, openBatch }: { goTo: (n: number) => void; openBatch: (
                 <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
                   <p style={{ fontFamily: F.u, fontSize: 13, color: C.aren, fontWeight: 700, margin: 0 }}>{fmt(item.price)}</p>
                   {item.cat === "coffee" && (
-                    <button onClick={() => goTo(3)} style={{ all: "unset", cursor: "pointer", fontFamily: F.u, fontSize: 11, fontWeight: 600, color: C.leaf, borderBottom: `1px dashed ${C.leaf}80` }}>
+                    <button onClick={() => openBatch(item.id)} style={{ all: "unset", cursor: "pointer", fontFamily: F.u, fontSize: 11, fontWeight: 600, color: C.leaf, borderBottom: `1px dashed ${C.leaf}80` }}>
                       🌱 lihat batch ini →
                     </button>
                   )}
