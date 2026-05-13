@@ -142,6 +142,34 @@ function TukuLogo({
 
   const showHalo = halo && tone !== "none" && max >= 40;
 
+  // Separate layout-affecting style props from visual ones.
+  // The frame owns sizing/positioning so the SVG can never overflow its parent
+  // or push surrounding text. Visual props (filter, opacity, transform) stay on the SVG.
+  const {
+    position, top, right, bottom, left, inset,
+    margin, marginInline, marginBlock, marginTop, marginRight, marginBottom, marginLeft,
+    zIndex: styleZ,
+    ...visualStyle
+  } = restStyle as CSSProperties & Record<string, unknown>;
+
+  const frameStyle: CSSProperties = {
+    // Fixed, intrinsic box: width is fluid but capped; height reserved via aspect-ratio.
+    width: widthCss,
+    maxWidth: "100%",
+    aspectRatio: String(ratio),
+    display: "inline-block",
+    position: (position as CSSProperties["position"]) ?? "relative",
+    top, right, bottom, left, inset,
+    margin, marginInline, marginBlock, marginTop, marginRight, marginBottom, marginLeft,
+    zIndex: styleZ as CSSProperties["zIndex"],
+    lineHeight: 0,
+    flexShrink: 0,
+    // Reserve layout independently of contents so a heavy filter/halo cannot reflow siblings.
+    contain: "layout paint",
+    overflow: "visible",
+    verticalAlign: "middle",
+  };
+
   const svg = (
     <svg
       role="img"
@@ -149,26 +177,26 @@ function TukuLogo({
       viewBox={viewBox}
       preserveAspectRatio="xMidYMid meet"
       style={{
-        width: widthCss,
-        height: "auto",
-        aspectRatio: String(ratio),
+        width: "100%",
+        height: "100%",
         display: "block",
         userSelect: "none",
         pointerEvents: "none",
-        flexShrink: 0,
         position: "relative",
         zIndex: 1,
         color: ink,
         overflow: "visible",
         filter: mergedFilter,
-        ...restStyle,
+        ...visualStyle,
       }}
     >
       {TUKU_PATHS}
     </svg>
   );
 
-  if (!showHalo) return svg;
+  if (!showHalo) {
+    return <span style={frameStyle}>{svg}</span>;
+  }
 
   const haloBg = tone === "light"
     ? "radial-gradient(closest-side, rgba(242,217,168,0.22), transparent 70%)"
@@ -178,7 +206,7 @@ function TukuLogo({
   const haloScale = tone === "light" ? 1.2 : 1.15;
 
   return (
-    <span style={{ position: "relative", display: "inline-block", lineHeight: 0, flexShrink: 0 }}>
+    <span style={frameStyle}>
       <span
         aria-hidden
         style={{
