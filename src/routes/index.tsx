@@ -1717,8 +1717,9 @@ function ExpeditionMap({ cities, query = "", onClear }: { cities: City[]; query?
     @keyframes mapFade { from { opacity: 0; transform: scale(0.985) } to { opacity: 1; transform: none } }
     @keyframes haloPulse { 0% { opacity: 0.55; r: 7 } 100% { opacity: 0; r: 18 } }
     @keyframes dashFlow { to { stroke-dashoffset: -14 } }
-    .em-pin { cursor: pointer; transition: transform 0.2s ease; transform-origin: center; transform-box: fill-box; }
-    .em-pin:hover { transform: scale(1.18); }
+    .em-pin { cursor: pointer; transition: transform 0.2s ease; transform-origin: center; transform-box: fill-box; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+    @media (hover: hover) and (pointer: fine) { .em-pin:hover { transform: scale(1.18); } }
+    .em-pin:active { transform: scale(1.12); }
     .em-route { stroke-dasharray: 3 4; animation: dashFlow 1.4s linear infinite; }
     .em-halo { animation: haloPulse 2s ease-out infinite; transform-origin: center; transform-box: fill-box; }
     .em-canvas { animation: mapFade 0.4s ease; }
