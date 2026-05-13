@@ -1,7 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect, useRef, useCallback, useMemo, type ReactNode, type CSSProperties } from "react";
-import logoDark from "@/assets/tuku-logo-dark.png";
-import logoLight from "@/assets/tuku-logo-light.png";
 
 export const Route = createFileRoute("/")({
   head: () => ({
