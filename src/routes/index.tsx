@@ -961,9 +961,30 @@ function AppCerita({ batchId }: { batchId: number | null }) {
 
 function ExpeditionMap({ cities, query = "", onClear }: { cities: City[]; query?: string; onClear?: () => void }) {
   const [selected, setSelected] = useState<string | null>(null);
-  const home = cities.find(c => c.home) ?? cities[0];
+  const home = cities.find(c => c.home);
   const totalStores = cities.reduce((n, c) => n + c.stores.length, 0);
   const current = selected ? cities.find(c => c.city === selected) ?? null : null;
+  const q = query.trim().toLowerCase();
+  const isMatch = (name: string) => q !== "" && name.toLowerCase().includes(q);
+
+  // Reset city view jika kota terpilih hilang akibat filter
+  useEffect(() => {
+    if (selected && !cities.find(c => c.city === selected)) setSelected(null);
+  }, [cities, selected]);
+
+  // Empty state
+  if (cities.length === 0) {
+    return (
+      <div style={{ background: C.warmWhite, border: `1px solid ${C.softBrown}25`, borderRadius: 16, padding: 24, marginBottom: 18, textAlign: "center" }}>
+        <div style={{ fontSize: 36, marginBottom: 6 }}>🔎</div>
+        <p style={{ fontFamily: F.u, fontSize: 13, fontWeight: 700, color: C.coffee, margin: "0 0 4px" }}>Tidak ada toko cocok</p>
+        <p style={{ fontFamily: F.b, fontSize: 12, color: C.warmGray, margin: "0 0 12px" }}>Coba kata kunci lain atau ganti region.</p>
+        {onClear && (
+          <button onClick={onClear} style={{ all: "unset", cursor: "pointer", fontFamily: F.u, fontSize: 11, fontWeight: 700, color: C.white, background: C.aren, padding: "8px 14px", borderRadius: 999 }}>Bersihkan filter</button>
+        )}
+      </div>
+    );
+  }
 
   const styles = `
     @keyframes mapFade { from { opacity: 0; transform: scale(0.985) } to { opacity: 1; transform: none } }
