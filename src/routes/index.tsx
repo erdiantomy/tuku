@@ -918,6 +918,177 @@ function AppPaspor() {
 }
 
 // ═══════════════════════════════════════════════════════
+// OBROLAN (CHAT)
+// ═══════════════════════════════════════════════════════
+
+type ChatMsg = { from: "me" | "them"; text: string; time: string };
+type Chat = {
+  id: string; name: string; sub: string; avatar: string; rumah: string;
+  online?: boolean; unread?: number; lastTime: string; pinned?: boolean;
+  messages: ChatMsg[];
+};
+
+const CHATS: Chat[] = [
+  {
+    id: "rizky", name: "Barista Rizky", sub: "TUKU Cipete · Barista", avatar: "👨‍🍳", rumah: "Cipete",
+    online: true, unread: 2, lastTime: "baru saja", pinned: true,
+    messages: [
+      { from: "them", text: "Halo Andi! Hari ini ada batch Flores baru, mau coba?", time: "10:12" },
+      { from: "them", text: "Notes-nya: dark chocolate, sedikit rempah 🌶️", time: "10:12" },
+    ],
+  },
+  {
+    id: "amel", name: "Amel", sub: "Tetangga Cipete · sejak 2022", avatar: "👩", rumah: "Cipete",
+    unread: 1, lastTime: "5 menit",
+    messages: [
+      { from: "me", text: "Sore Mel, jadi nugas di TUKU?", time: "15:01" },
+      { from: "them", text: "Jadi! Tapi belom sempet mampir 😅", time: "15:08" },
+    ],
+  },
+  {
+    id: "warga", name: "💬 Warga TUKU Cipete", sub: "47 tetangga · grup rumah", avatar: "🏠", rumah: "Cipete",
+    unread: 5, lastTime: "1 jam",
+    messages: [
+      { from: "them", text: "Pak Yono: 'Coffee tasting Sabtu, jangan lupa daftar yaa'", time: "14:02" },
+      { from: "them", text: "Bu Sari: 'Aku bawa bolu pisang nih' 🍰", time: "14:18" },
+    ],
+  },
+  {
+    id: "anna", name: "Anna", sub: "TUKU Amsterdam · Barista", avatar: "👩‍🍳", rumah: "Amsterdam",
+    lastTime: "kemarin",
+    messages: [
+      { from: "them", text: "Welcome, neighbor! Kalau mampir lagi, ada Gayo batch baru ☕", time: "kemarin" },
+    ],
+  },
+  {
+    id: "ahmad", name: "Pak Ahmad Saleh", sub: "Petani · Takengon, Aceh", avatar: "🌿", rumah: "—",
+    lastTime: "2 hari",
+    messages: [
+      { from: "them", text: "Terima kasih sudah minum kopi dari kebun kami 🙏", time: "Sen" },
+    ],
+  },
+];
+
+function ChatList({ onOpen }: { onOpen: (id: string) => void }) {
+  const sorted = [...CHATS].sort((a, b) => Number(!!b.pinned) - Number(!!a.pinned));
+  return (
+    <div style={{ padding: 18 }}>
+      <div style={{ marginBottom: 16 }}>
+        <p style={{ fontFamily: F.u, fontSize: 11, color: C.aren, fontWeight: 600, letterSpacing: 1.5, textTransform: "uppercase", margin: 0 }}>Obrolan tetangga</p>
+        <h2 style={{ fontFamily: F.d, fontSize: 26, color: C.coffee, margin: "4px 0 4px", fontWeight: 700 }}>Pesan</h2>
+        <p style={{ fontFamily: F.b, fontSize: 13, color: C.warmGray, margin: 0 }}>Sapa barista, tetangga, atau warga rumahmu.</p>
+      </div>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        {sorted.map(c => (
+          <button key={c.id} onClick={() => onOpen(c.id)} style={{
+            all: "unset", cursor: "pointer", display: "flex", gap: 12, alignItems: "center",
+            background: c.unread ? C.warmWhite : C.snow,
+            border: `1px solid ${c.unread ? C.aren + "30" : C.softBrown + "20"}`,
+            borderRadius: 13, padding: 12,
+          }}>
+            <div style={{ position: "relative", flexShrink: 0 }}>
+              <div style={{ width: 44, height: 44, borderRadius: "50%", background: C.parchment, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22 }}>{c.avatar}</div>
+              {c.online && <div style={{ position: "absolute", bottom: 0, right: 0, width: 11, height: 11, borderRadius: "50%", background: C.leaf, border: `2px solid ${C.snow}` }} />}
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 8 }}>
+                <span style={{ fontFamily: F.u, fontSize: 13, fontWeight: 700, color: C.coffee, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                  {c.pinned && "📌 "}{c.name}
+                </span>
+                <span style={{ fontFamily: F.u, fontSize: 10, color: C.warmGray, flexShrink: 0 }}>{c.lastTime}</span>
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, marginTop: 2 }}>
+                <span style={{ fontFamily: F.b, fontSize: 12, color: C.coffeeMid, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", flex: 1 }}>
+                  {c.messages[c.messages.length - 1].text}
+                </span>
+                {!!c.unread && (
+                  <span style={{ background: C.aren, color: C.white, fontFamily: F.u, fontSize: 10, fontWeight: 700, padding: "2px 7px", borderRadius: 999, flexShrink: 0 }}>{c.unread}</span>
+                )}
+              </div>
+            </div>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ChatDetail({ chatId, onBack, onTraktir }: { chatId: string; onBack: () => void; onTraktir: () => void }) {
+  const chat = CHATS.find(c => c.id === chatId)!;
+  const [draft, setDraft] = useState("");
+  const [msgs, setMsgs] = useState<ChatMsg[]>(chat.messages);
+
+  const send = () => {
+    if (!draft.trim()) return;
+    setMsgs(m => [...m, { from: "me", text: draft.trim(), time: "now" }]);
+    setDraft("");
+  };
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", minHeight: "calc(100vh - 70px)" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 16px", borderBottom: `1px solid ${C.softBrown}25`, background: C.warmWhite, position: "sticky", top: 0, zIndex: 5 }}>
+        <button onClick={onBack} style={{ all: "unset", cursor: "pointer", fontFamily: F.u, fontSize: 18, color: C.coffeeMid, padding: "0 4px" }}>←</button>
+        <div style={{ width: 38, height: 38, borderRadius: "50%", background: C.parchment, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 19 }}>{chat.avatar}</div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontFamily: F.u, fontSize: 13, fontWeight: 700, color: C.coffee }}>{chat.name}</div>
+          <div style={{ fontFamily: F.b, fontSize: 11, color: chat.online ? C.leaf : C.warmGray }}>
+            {chat.online ? "● online" : chat.sub}
+          </div>
+        </div>
+      </div>
+
+      <div style={{ padding: "12px 16px", background: C.arenSoft, borderBottom: `1px solid ${C.aren}25`, display: "flex", alignItems: "center", gap: 12 }}>
+        <div style={{ fontSize: 22 }}>🤝</div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontFamily: F.u, fontSize: 12, fontWeight: 700, color: C.coffee }}>Traktir {chat.name.split(" ")[0]} hari ini</div>
+          <div style={{ fontFamily: F.b, fontSize: 11, color: C.coffeeMid }}>Kirim Es Kopi Susu Tetangga ke {chat.rumah !== "—" ? `TUKU ${chat.rumah}` : "tokonya"}</div>
+        </div>
+        <button onClick={onTraktir} style={{ all: "unset", cursor: "pointer", background: C.aren, color: C.white, fontFamily: F.u, fontSize: 11, fontWeight: 700, padding: "8px 14px", borderRadius: 999, flexShrink: 0 }}>Traktir →</button>
+      </div>
+
+      <div style={{ flex: 1, padding: 16, display: "flex", flexDirection: "column", gap: 8, background: C.cream }}>
+        {msgs.map((m, i) => (
+          <div key={i} style={{ display: "flex", justifyContent: m.from === "me" ? "flex-end" : "flex-start" }}>
+            <div style={{
+              maxWidth: "78%",
+              background: m.from === "me" ? C.coffee : C.white,
+              color: m.from === "me" ? C.cream : C.coffee,
+              padding: "9px 13px",
+              borderRadius: 14,
+              borderTopRightRadius: m.from === "me" ? 4 : 14,
+              borderTopLeftRadius: m.from === "me" ? 14 : 4,
+              fontFamily: F.b, fontSize: 14, lineHeight: 1.4,
+              boxShadow: `0 1px 2px ${C.coffee}10`,
+            }}>
+              {m.text}
+              <div style={{ fontFamily: F.u, fontSize: 9, opacity: 0.5, marginTop: 3, textAlign: "right" }}>{m.time}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ display: "flex", gap: 8, padding: 12, borderTop: `1px solid ${C.softBrown}25`, background: C.warmWhite, position: "sticky", bottom: 0 }}>
+        <input
+          value={draft}
+          onChange={e => setDraft(e.target.value)}
+          onKeyDown={e => e.key === "Enter" && send()}
+          placeholder={`Sapa ${chat.name.split(" ")[0]}...`}
+          style={{ flex: 1, padding: "10px 14px", borderRadius: 999, border: `1px solid ${C.softBrown}35`, background: C.snow, fontFamily: F.b, fontSize: 14, color: C.coffee, outline: "none" }}
+        />
+        <button onClick={send} style={{ all: "unset", cursor: "pointer", width: 40, height: 40, borderRadius: "50%", background: C.aren, color: C.white, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>↑</button>
+      </div>
+    </div>
+  );
+}
+
+function AppObrolan({ goTo }: { goTo: (n: number) => void }) {
+  const [openId, setOpenId] = useState<string | null>(null);
+  if (openId) return <ChatDetail chatId={openId} onBack={() => setOpenId(null)} onTraktir={() => goTo(3)} />;
+  return <ChatList onOpen={setOpenId} />;
+}
+
+// ═══════════════════════════════════════════════════════
 // MAIN
 // ═══════════════════════════════════════════════════════
 
